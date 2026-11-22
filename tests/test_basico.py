@@ -165,7 +165,7 @@ class FormatTests(unittest.TestCase):
         self.assertEqual(get_lang(), "es")
         set_lang("en")
 
-    def test_metascore_without_data(self):
+    def test_metascore_no_data_note(self):
         value, text = mc_cell({"p": "PC"})
         self.assertIsNone(value)
         self.assertIn("sin dato", text)
