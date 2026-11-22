@@ -15,6 +15,8 @@ if RAIZ not in sys.path:
     sys.path.insert(0, RAIZ)
 
 from inventario import excel
+from inventario.cli import dentro_de_datos
+from inventario.config import DATOS
 from inventario.datos import (depurar_horas, escribir_atomico, es_hora_valida, leer_claves,
                               leer_json, purgar_horas)
 from inventario.formato import limpia_texto
@@ -183,6 +185,11 @@ class PruebasEscritura(unittest.TestCase):
                 self.assertEqual(quitadas, 0)
                 self.assertIn("juego", horas)
                 self.assertIn("juego", horas["_notas"])
+
+    def test_salida_dentro_de_datos(self):
+        self.assertTrue(dentro_de_datos(os.path.join(DATOS, "x.xlsx")))
+        self.assertTrue(dentro_de_datos(os.path.join(DATOS, "sub", "x.xlsx")))
+        self.assertFalse(dentro_de_datos(os.path.join(tempfile.gettempdir(), "x.xlsx")))
 
     def test_horas_absurdas_no_rompen(self):
         juego = {"nombre": "Enorme", "gb": 1.0, "dias": 1, "unidad": "C:",

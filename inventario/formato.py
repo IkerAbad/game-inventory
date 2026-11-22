@@ -26,14 +26,18 @@ def mc_celda(e, st=None):
     s: numero = Metascore; "s/n" = Metacritic no publica Metascore; null = sin dato.
     st: entrada de _steam ({id, name, n, pct, desc}); solo se usa si no hay Metascore numerico:
     la celda lleva el numero 92 (PctSteam) con formato 'S 92%' (porcentaje de resenas positivas en Steam, otra escala)."""
-    if (isinstance(st, dict) and isinstance(st.get("pct"), int)
+    pct = st.get("pct") if isinstance(st, dict) else None
+    if (isinstance(pct, int) and not isinstance(pct, bool) and 0 <= pct <= 100
             and not (isinstance(e, dict) and isinstance(e.get("s"), (int, float)))):
         nota_mc = str(e.get("nota") or "").strip() if isinstance(e, dict) else ""
+        n_st = st.get("n")
+        if isinstance(n_st, bool) or not isinstance(n_st, int):
+            n_st = 0
         txt = ("Sin Metascore en Metacritic%s.\nSteam: %d%% de resenas positivas (%s resenas, %s). Ficha: %s (app %s)."
-               % ((" (" + nota_mc + ")") if nota_mc else "", st["pct"],
-                  "{:,}".format(st.get("n") or 0).replace(",", "."), st.get("desc") or "?",
+               % ((" (" + nota_mc + ")") if nota_mc else "", pct,
+                  "{:,}".format(n_st).replace(",", "."), st.get("desc") or "?",
                   st.get("name") or "?", st.get("id")))
-        v_ = PctSteam(st["pct"])
+        v_ = PctSteam(pct)
         if st.get("pref"):
             v_.fmt = '"%s "0' % st["pref"] if st["pref"] != "S" else MC_FMT_STEAM
         if st.get("txt"):

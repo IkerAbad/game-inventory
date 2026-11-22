@@ -15,6 +15,16 @@ from .formato import dif_celdas
 from .red import autocompletar
 
 
+def dentro_de_datos(ruta):
+    """True si 'ruta' cae dentro de la carpeta de datos (no se debe sobrescribir un JSON)."""
+    try:
+        datos = os.path.normcase(os.path.abspath(DATOS))
+        destino = os.path.normcase(os.path.abspath(ruta))
+        return os.path.commonpath([destino, datos]) == datos
+    except ValueError:
+        return False
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(
         prog="generar_inventario",
@@ -32,6 +42,10 @@ def main(argv=None):
         pass
     if os.path.isdir(salida):
         print("ABORTADO: la ruta de salida es una carpeta, no un fichero.")
+        print("   " + salida)
+        return 1
+    if dentro_de_datos(salida):
+        print("ABORTADO: la salida no puede estar dentro de datos/.")
         print("   " + salida)
         return 1
     if bloqueado(salida):

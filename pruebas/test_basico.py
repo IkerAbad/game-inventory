@@ -116,6 +116,17 @@ class PruebasFormato(unittest.TestCase):
         self.assertIn("123", texto)
         self.assertIn("rara", texto)
 
+    def test_steam_con_resenas_raras(self):
+        valor, texto = mc_celda(3.14, {"pct": 92, "n": {"a": 1}, "desc": 3.14,
+                                       "name": 5, "id": 1})
+        self.assertEqual(int(valor), 92)
+        self.assertIn("92%", texto)
+        self.assertIn("0 resenas", texto)
+
+    def test_steam_pct_fuera_de_rango(self):
+        self.assertEqual(mc_celda(None, {"pct": 200}), (None, None))
+        self.assertEqual(mc_celda(None, {"pct": -1}), (None, None))
+
     def test_sin_dificultad(self):
         self.assertEqual(dif_celdas(None), (None, None, None, False))
 
