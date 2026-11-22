@@ -63,6 +63,7 @@ Todo lo personal vive en `datos/`, que no se versiona. El script crea la carpeta
 - Si el histórico no se puede leer o tiene filas rotas, el original se guarda como `historico.csv.corrupto`.
 - Los JSON, el histórico y el Excel se escriben en un temporal y se renombran: un fallo a mitad no deja ficheros corruptos.
 - Si el Excel está abierto, aborta antes de escanear.
+- Solo puede haber una ejecución a la vez: un bloqueo en `datos/` impide dos procesos simultáneos.
 - Acepta JSON con BOM y descarta filas corruptas del histórico con un aviso.
 
 ## Estructura

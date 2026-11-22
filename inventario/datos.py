@@ -162,6 +162,12 @@ def escribir_horas(horas):
                                        "," if i < len(its_d) - 1 else ""))
         L.append("  },")
         L.append("")
+    conocidos = {"_comentario", "_metacritic", "_steam", "_dificultad", "_notas"}
+    for k, v in horas.items():
+        if k.startswith("_") and k not in conocidos:
+            L.append("  %s: %s," % (json.dumps(k, ensure_ascii=False),
+                                    json.dumps(v, ensure_ascii=False)))
+            L.append("")
     L.append('  "_notas": {')
     items = list(notas.items())
     for i, (k, t) in enumerate(items):
