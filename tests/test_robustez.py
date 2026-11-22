@@ -21,7 +21,7 @@ from inventory.i18n import set_lang
 from inventory.data import (_save_json, _same, clean_hours, write_atomic, write_hours,
                               write_wishlist, is_valid_hours, read_keys, read_json,
                               clean_temp_files, purge_hours, acquire_lock)
-from inventory.scan import excel_locked, scan_games
+from inventory.scan import days_installed, excel_locked, scan_games
 from inventory.cell_format import clean_text
 from inventory.network import steam_search
 
@@ -471,7 +471,7 @@ class ScanTests(unittest.TestCase):
             self.assertEqual(games, [])
             self.assertEqual(failed, [d])
 
-    def test_scan_survives_size_and_stat_errors(self):
+    def test_scan_survives_size_errors(self):
         with tempfile.TemporaryDirectory() as d:
             game_dir = os.path.join(d, "Game")
             os.makedirs(game_dir)
@@ -479,12 +479,15 @@ class ScanTests(unittest.TestCase):
                 f.write(b"x")
             with mock.patch("inventory.scan.LIBRARIES", [d]), \
                  mock.patch("inventory.scan.LOOSE_PATHS", []), \
-                 mock.patch("inventory.scan.os.path.getsize", side_effect=OSError("x")), \
-                 mock.patch("inventory.scan.os.stat", side_effect=OSError("x")):
+                 mock.patch("inventory.scan.os.path.getsize", side_effect=OSError("x")):
                 games, failed = scan_games()
             self.assertEqual(failed, [])
             self.assertEqual(games[0]["gb"], 0.0)
-            self.assertEqual(games[0]["days"], "")
+
+    def test_days_installed_survives_stat_error(self):
+        with tempfile.TemporaryDirectory() as d:
+            with mock.patch("inventory.scan.os.stat", side_effect=OSError("x")):
+                self.assertEqual(days_installed(d), "")
 
     def test_excel_locked(self):
         with tempfile.TemporaryDirectory() as d:
