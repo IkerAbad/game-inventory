@@ -40,3 +40,11 @@ El CI falla por debajo del 97% de cobertura.
 ## Pull requests
 
 Ejecuta las comprobaciones y mantén el cambio acotado. Indica en el changelog los cambios de comportamiento, las opciones nuevas y los cambios de formato de datos.
+
+## Publicación
+
+1. Fija la versión nueva en `inventory/__init__.py` y mueve las entradas del changelog de `Sin publicar` a esa versión, en los dos idiomas.
+2. Haz commit, crea la etiqueta y súbela: `git tag v1.0.1` y `git push --tags`.
+3. El flujo de Release comprueba que la etiqueta coincide con la versión, construye el wheel y el sdist, los revisa y abre una release de GitHub con las notas.
+
+CodeQL se ejecuta en cada push, en cada pull request y una vez a la semana.

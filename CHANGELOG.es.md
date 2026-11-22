@@ -11,6 +11,9 @@ Cambios destacados del proyecto. El formato sigue [Keep a Changelog](https://kee
 - Textos de ayuda traducidos, así que `--help` sigue a `--lang`.
 - `docs/DATA.es.md`, `docs/ARCHITECTURE.es.md` y `SECURITY.es.md`.
 - Plantillas de incidencia y de pull request, y EditorConfig.
+- Análisis CodeQL en cada push, en cada pull request y semanal.
+- Flujo de release: una etiqueta `v*` construye el wheel y el sdist, los revisa y publica una release de GitHub.
+- `tools/check_links.py`: falla si un enlace relativo de la documentación está roto.
 - Actualizaciones de Dependabot para pip y GitHub Actions.
 - Guía de contribución en inglés y español.
 - Palabras clave y clasificadores del paquete.

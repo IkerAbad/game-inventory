@@ -11,6 +11,9 @@ All notable changes to this project. The format follows [Keep a Changelog](https
 - Help texts translated, so `--help` follows `--lang`.
 - `docs/DATA.md` and `docs/ARCHITECTURE.md`, and `SECURITY.md`.
 - Issue forms, pull request template and EditorConfig.
+- CodeQL analysis on every push and pull request, and weekly.
+- Release workflow: a `v*` tag builds the wheel and sdist, checks them and publishes a GitHub release.
+- `tools/check_links.py`: fails when a relative documentation link is broken.
 - Dependabot updates for pip and GitHub Actions.
 - Contributing guide in English and Spanish.
 - Package keywords and classifiers.

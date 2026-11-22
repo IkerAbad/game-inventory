@@ -1,6 +1,7 @@
 # Game inventory
 
 [![CI](https://github.com/IkerAbad/game-inventory/actions/workflows/ci.yml/badge.svg)](https://github.com/IkerAbad/game-inventory/actions/workflows/ci.yml)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-blue.svg)](https://github.com/IkerAbad/game-inventory/blob/main/pyproject.toml)
 [![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 English | [Español](README.es.md)
@@ -99,6 +100,7 @@ docs/
   ARCHITECTURE.md          flow, modules and guarantees
 tools/
   check_dist.py            checks the wheel and sdist contents
+  check_links.py           checks relative links in the docs
 inventory/
   config.py                drives, paths and network settings
   data.py                  JSON: loading, formatting and safe writing
