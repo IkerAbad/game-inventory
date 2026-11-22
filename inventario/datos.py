@@ -63,6 +63,27 @@ def depurar_horas(horas):
     return limpias, avisos
 
 
+def tomar_bloqueo(carpeta):
+    """Bloqueo exclusivo no bloqueante para evitar dos ejecuciones a la vez.
+    Devuelve el fichero abierto (hay que mantenerlo vivo) o None si ya esta ocupado."""
+    f = open(os.path.join(carpeta, ".bloqueo"), "a+b")
+    try:
+        if os.name == "nt":
+            import msvcrt
+            if os.fstat(f.fileno()).st_size == 0:
+                f.write(b"x")
+                f.flush()
+            f.seek(0)
+            msvcrt.locking(f.fileno(), msvcrt.LK_NBLCK, 1)
+        else:
+            import fcntl
+            fcntl.flock(f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except OSError:
+        f.close()
+        return None
+    return f
+
+
 def escribir_atomico(ruta, texto):
     """Escribe en un temporal de la misma carpeta y lo renombra. Si falla a mitad,
     el fichero original queda intacto."""

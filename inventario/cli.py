@@ -8,7 +8,7 @@ import statistics
 import sys
 
 from .config import COMPLETADOS_JSON, DATOS, HORAS_JSON, JUGANDO_JSON, SALIDA, WISHLIST_JSON
-from .datos import depurar_horas, es_hora_valida, leer_claves, leer_json, normaliza, purgar_horas
+from .datos import depurar_horas, es_hora_valida, leer_claves, leer_json, normaliza, purgar_horas, tomar_bloqueo
 from .escaneo import bloqueado, escanear
 from .excel import construir
 from .formato import dif_celdas
@@ -57,6 +57,15 @@ def main(argv=None):
         os.makedirs(DATOS, exist_ok=True)
     except OSError as e:
         print("ABORTADO: no se puede crear la carpeta de datos (%s)." % e)
+        return 1
+    try:
+        bloqueo = tomar_bloqueo(DATOS)
+    except OSError as e:
+        print("ABORTADO: no se puede crear el bloqueo en datos/ (%s)." % e)
+        return 1
+    if bloqueo is None:
+        print("ABORTADO: ya hay otra ejecucion del inventario en marcha.")
+        print("   Espera a que termine y vuelve a intentarlo.")
         return 1
     if not os.path.exists(HORAS_JSON):
         print("Aviso: no hay horas.json en datos/. Todos los juegos saldran como SIN DATOS.")

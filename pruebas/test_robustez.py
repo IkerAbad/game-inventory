@@ -18,7 +18,7 @@ from inventario import excel
 from inventario.cli import dentro_de_datos
 from inventario.config import DATOS
 from inventario.datos import (depurar_horas, escribir_atomico, es_hora_valida, leer_claves,
-                              leer_json, purgar_horas)
+                              leer_json, purgar_horas, tomar_bloqueo)
 from inventario.escaneo import escanear
 from inventario.formato import limpia_texto
 from inventario.red import steam_buscar
@@ -192,6 +192,22 @@ class PruebasEscritura(unittest.TestCase):
         self.assertTrue(dentro_de_datos(os.path.join(DATOS, "x.xlsx")))
         self.assertTrue(dentro_de_datos(os.path.join(DATOS, "sub", "x.xlsx")))
         self.assertFalse(dentro_de_datos(os.path.join(tempfile.gettempdir(), "x.xlsx")))
+
+    def test_bloqueo_exclusivo_entre_procesos(self):
+        import subprocess
+        with tempfile.TemporaryDirectory() as d:
+            f = tomar_bloqueo(d)
+            self.assertIsNotNone(f)
+            codigo = ("import sys; sys.path.insert(0, %r); "
+                      "from inventario.datos import tomar_bloqueo; "
+                      "print(tomar_bloqueo(%r) is None)" % (RAIZ, d))
+            salida = subprocess.run([sys.executable, "-c", codigo],
+                                    capture_output=True, text=True)
+            self.assertEqual(salida.stdout.strip(), "True", salida.stderr)
+            f.close()
+            f2 = tomar_bloqueo(d)
+            self.assertIsNotNone(f2)
+            f2.close()
 
     def test_steam_buscar_respuestas_raras(self):
         with mock.patch("inventario.red._json_get", return_value=[]):
