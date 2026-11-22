@@ -30,7 +30,8 @@ COMPLETADOS_JSON = os.path.join(DATOS, "completados.json")
 JUGANDO_JSON = os.path.join(DATOS, "jugando.json")
 HISTORICO_CSV = os.path.join(DATOS, "historico.csv")
 WISHLIST_JSON = os.path.join(DATOS, "wishlist.json")
-SALIDA = r"C:\Users\ikerf\Desktop\Juegos\Inventario juegos GB por hora.xlsx"
+SALIDA = os.path.join(os.path.expanduser("~"), "Desktop", "Juegos",
+                      "Inventario juegos GB por hora.xlsx")
 
 # Autocompletado por red.
 UA_WEB = "InventarioJuegos/1.0 (uso personal; sin automatizacion masiva)"

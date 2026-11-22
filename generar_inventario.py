@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Generador de inventario de juegos.
 
-Uso:  py C:\\Dev\\inventario-juegos\\generar_inventario.py
+Uso:  py generar_inventario.py (desde la carpeta del proyecto)
 Opciones: --sin-red, --conservar, --salida RUTA.
 El codigo vive en el paquete inventario/.
 """

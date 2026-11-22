@@ -17,11 +17,12 @@ Escanea las carpetas donde tienes juegos instalados, cruza el tamaño en disco c
 ## Uso
 
 ```
+cd C:\Dev\inventario-juegos
 py -m pip install -r requirements.txt
-py "C:\Dev\inventario-juegos\generar_inventario.py"
+py generar_inventario.py
 ```
 
-También funciona como módulo:
+También funciona como módulo, desde la misma carpeta:
 
 ```
 py -m inventario
@@ -35,7 +36,7 @@ Opciones:
 | `--conservar` | No purga las claves de juegos desinstalados. |
 | `--salida RUTA` | Escribe el Excel en otra ruta. |
 
-El Excel sale por defecto a `C:\Users\ikerf\Desktop\Juegos\Inventario juegos GB por hora.xlsx` y deja una copia `.bak.xlsx` de la ejecución anterior. Ciérralo antes de ejecutar: si está abierto, el script aborta sin escanear nada.
+El Excel sale por defecto a `%USERPROFILE%\Desktop\Juegos\Inventario juegos GB por hora.xlsx` y deja una copia `.bak.xlsx` de la ejecución anterior. Ciérralo antes de ejecutar: si está abierto, el script aborta sin escanear nada.
 
 ## Datos
 

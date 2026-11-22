@@ -700,7 +700,7 @@ def hoja_wishlist(wb, juegos, wl, fuente, mc=None, notas=None, st=None, dif=None
     ws["A2"] = ("%d titulos de Backloggd. Horas de historia principal: %s. "
                 "Vacio = sin dato todavia. 'con horas (prensa)' = cubiq.ru, NO HowLongToBeat: certeza media o baja "
                 "(detalle en el comentario de la celda de horas). 'edicion duplicada' = misma campana que otra entrada: "
-                "se muestra pero NO suma en los totales; 'ya jugado' = ya completado por Iker, tampoco suma. 'estimacion' = sin duracion de campana publicada: mediana del tiempo jugado por los autores de resenas en Steam (o analogia con un juego similar si no esta lanzado), certeza muy baja, no entra en 'Horas con dato' y solo suma en la fila ESTIMADO. Metacritic: Metascore (PC si existe); "
+                "se muestra pero NO suma en los totales; 'ya jugado' = ya completado, tampoco suma. 'estimacion' = sin duracion de campana publicada: mediana del tiempo jugado por los autores de resenas en Steam (o analogia con un juego similar si no esta lanzado), certeza muy baja, no entra en 'Horas con dato' y solo suma en la fila ESTIMADO. Metacritic: Metascore (PC si existe); "
                 "vacio = sin Metascore ni ficha de Steam (el comentario lo explica); 'S 92%%' = sin Metascore: %% de resenas positivas en Steam, guardado como numero para ordenar junto a los Metascores y con los mismos colores (otra escala, comparacion aproximada); comentario si es de otra plataforma o dudosa. "
                 "Habilidad y Complejidad (0-10): informativas; cursiva naranja = inferencia mia sin fuente (certeza baja); el comentario da fuente y certeza." % (n, str(fuente).rstrip(".")))
     ws["A2"].font = Font(italic=True, size=9, color="6B7280")
@@ -844,7 +844,7 @@ def construir(juegos, q1, q2, q3, wl=None, fuente="origen no indicado",
                 f"Veredicto por cuartiles del GB/h de esta lista (hoy: Mal < {q1:.2f}, Medio < {q2:.2f}, Bueno < {q3:.2f}, JUGAR YA >= {q3:.2f}). "
                 "Metacritic: Metascore (PC si existe), informativo, no entra en el veredicto; vacio = sin Metascore ni ficha de Steam (el comentario lo explica); "
                 "'S 92%' = sin Metascore: % de resenas positivas en Steam, guardado como numero (92) para ordenar junto a los Metascores y con los mismos colores; otra escala, comparacion aproximada; la media de la fila TOTAL incluye ambos; 'R 80' = nota de una sola resena (0-100), solo si no hay Metascore ni Steam (ver comentario). "
-                "Regenerar con py C:\\Dev\\inventario-juegos\\generar_inventario.py")
+                "Regenerar con py generar_inventario.py desde la carpeta del proyecto")
     ws["A2"].value += (" Habilidad y Complejidad (0-10): informativas, no entran en el veredicto; "
                        "Habilidad = reflejos, castigo, exigencia de ejecucion; Complejidad = reglas, sistemas, curva de aprendizaje y razonamiento (puzles, deduccion); "
                        "cursiva naranja = inferencia mia sin fuente (certeza baja); el comentario de la celda da la fuente y la certeza.")
