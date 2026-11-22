@@ -43,7 +43,7 @@ El Excel sale por defecto a `%USERPROFILE%\Desktop\Juegos\Inventario juegos GB p
 
 ## Datos
 
-Todo lo personal vive en `datos/`, que no se versiona. El script lo lee de ahí.
+Todo lo personal vive en `datos/`, que no se versiona. El script crea la carpeta si no existe y lee de ahí.
 
 | Fichero | Contenido |
 |---|---|

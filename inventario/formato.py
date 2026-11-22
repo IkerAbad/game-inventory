@@ -56,7 +56,7 @@ def mc_celda(e, st=None):
 
 def mc_comentario(txt):
     from openpyxl.comments import Comment
-    c = Comment("Metacritic\n" + txt, "Claude")
+    c = Comment("Metacritic\n" + txt, "Inventario")
     c.width = 270
     c.height = 60 + 15 * (txt.count("\n") + len(txt) // 38)
     return c
@@ -64,7 +64,7 @@ def mc_comentario(txt):
 
 def nota_comentario(txt):
     from openpyxl.comments import Comment
-    c = Comment("Horas\n" + txt, "Claude")
+    c = Comment("Horas\n" + txt, "Inventario")
     c.width = 330
     c.height = 70 + 15 * (txt.count("\n") + len(txt) // 48)
     return c
@@ -115,7 +115,7 @@ def dif_celdas(e):
 
 def dif_comentario(txt):
     from openpyxl.comments import Comment
-    c = Comment("Dificultad\n" + txt, "Claude")
+    c = Comment("Dificultad\n" + txt, "Inventario")
     c.width = 330
     c.height = 70 + 15 * (txt.count("\n") + len(txt) // 48)
     return c

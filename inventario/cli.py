@@ -8,7 +8,7 @@ import shutil
 import statistics
 import sys
 
-from .config import COMPLETADOS_JSON, HORAS_JSON, JUGANDO_JSON, SALIDA, WISHLIST_JSON
+from .config import COMPLETADOS_JSON, DATOS, HORAS_JSON, JUGANDO_JSON, SALIDA, WISHLIST_JSON
 from .datos import normaliza, purgar_horas
 from .escaneo import bloqueado, escanear
 from .excel import construir
@@ -36,6 +36,7 @@ def main(argv=None):
         print("   " + salida)
         print("   Cierralo y vuelve a ejecutar. No se ha escaneado nada.")
         return
+    os.makedirs(DATOS, exist_ok=True)
     horas = json.load(open(HORAS_JSON, encoding="utf-8")) if os.path.exists(HORAS_JSON) else {}
     if os.path.exists(COMPLETADOS_JSON):
         completados = {normaliza(x) for x in json.load(open(COMPLETADOS_JSON, encoding="utf-8"))
