@@ -31,6 +31,8 @@ También funciona como módulo, desde la misma carpeta:
 py -m inventario
 ```
 
+O con doble clic en `iniciar.cmd`. Guarda la salida en `datos/ultima_ejecucion.log` y deja la ventana abierta si hay un error.
+
 Opciones:
 
 | Opción | Qué hace |
