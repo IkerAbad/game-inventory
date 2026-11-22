@@ -30,8 +30,16 @@ COMPLETADOS_JSON = os.path.join(DATOS, "completados.json")
 JUGANDO_JSON = os.path.join(DATOS, "jugando.json")
 HISTORICO_CSV = os.path.join(DATOS, "historico.csv")
 WISHLIST_JSON = os.path.join(DATOS, "wishlist.json")
-SALIDA = os.path.join(os.path.expanduser("~"), "Desktop", "Juegos",
-                      "Inventario juegos GB por hora.xlsx")
+def _escritorio():
+    """Escritorio del usuario, con el desvio de OneDrive si existe."""
+    casa = os.path.expanduser("~")
+    for d in (os.path.join(casa, "Desktop"), os.path.join(casa, "OneDrive", "Desktop")):
+        if os.path.isdir(d):
+            return d
+    return os.path.join(casa, "Desktop")
+
+
+SALIDA = os.path.join(_escritorio(), "Juegos", "Inventario juegos GB por hora.xlsx")
 
 # Autocompletado por red.
 UA_WEB = "InventarioJuegos/1.0 (uso personal; sin automatizacion masiva)"

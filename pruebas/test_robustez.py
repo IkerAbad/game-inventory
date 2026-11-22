@@ -124,6 +124,20 @@ class PruebasEscritura(unittest.TestCase):
             finally:
                 excel.HISTORICO_CSV = original
 
+    def test_celda_texto_no_es_formula(self):
+        import openpyxl
+        with tempfile.TemporaryDirectory() as d:
+            wb = openpyxl.Workbook()
+            c = excel.celda_texto(wb.active, 1, 1, "=1+1")
+            self.assertEqual(c.data_type, "s")
+            excel.celda_texto(wb.active, 1, 2, "juego normal")
+            ruta = os.path.join(d, "x.xlsx")
+            wb.save(ruta)
+            wb2 = openpyxl.load_workbook(ruta)
+            self.assertEqual(wb2.active.cell(1, 1).data_type, "s")
+            self.assertEqual(wb2.active.cell(1, 1).value, "=1+1")
+            self.assertEqual(wb2.active.cell(1, 2).value, "juego normal")
+
 
 if __name__ == "__main__":
     unittest.main()

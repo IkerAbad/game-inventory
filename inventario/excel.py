@@ -10,6 +10,16 @@ from .datos import escribir_atomico, es_hora_valida, normaliza
 from .formato import (PctSteam, dif_escribir, dif_formato, mc_celda, mc_comentario,
                       mc_formato, nota_comentario)
 
+
+def celda_texto(ws, fila, col, valor, formato=None):
+    """Escribe un texto y evita que Excel lo trate como formula si empieza por '='."""
+    cel = ws.cell(fila, col, valor)
+    if isinstance(valor, str) and valor.startswith("="):
+        cel.data_type = "s"
+    if formato:
+        cel.number_format = formato
+    return cel
+
 def historico(juegos, TH):
     """Registra una fila por dia en historico.csv y devuelve la serie completa.
     Las filas corruptas se avisan y se descartan. La escritura es atomica."""
@@ -538,7 +548,7 @@ def hojas_extra(wb, juegos):
     ws["I16"] = "Horas"
     top = sorted(fin, key=lambda x: -x["horas"])[:15]
     for i, j in enumerate(top, 17):
-        ws.cell(i, 8, j["nombre"][:32])
+        celda_texto(ws, i, 8, j["nombre"][:32])
         ws.cell(i, 9, j["horas"])
     ws.column_dimensions["H"].width = 34
 
@@ -603,7 +613,7 @@ def hojas_extra(wb, juegos):
         gb += j["gb"]
         r = i + 4
         wp.cell(r, 1, i)
-        wp.cell(r, 2, j["nombre"])
+        celda_texto(wp, r, 2, j["nombre"])
         wp.cell(r, 3, j["unidad"])
         wp.cell(r, 4, j["horas"])
         wp.cell(r, 5, round(ha, 1))
@@ -738,7 +748,7 @@ def hoja_wishlist(wb, juegos, wl, fuente, mc=None, notas=None, st=None, dif=None
     for c, t in enumerate(["Titulo", "Horas", "Estado", "Metacritic", "Habilidad", "Complejidad"], 1):
         ws.cell(4, c, t)
     for r, (t, h, est) in enumerate(filas, 5):
-        ws.cell(r, 1, t)
+        celda_texto(ws, r, 1, t)
         ws.cell(r, 2, h).number_format = "0.0"
         nt = nota_de(t)
         if nt and (nt.upper().startswith(("PRENSA", "ESTIMACION", "SIN DATO", "DECISION", "EDICION DUPLICADA", "YA JUGADO")) or "certeza" in nt.lower()):
@@ -888,7 +898,7 @@ def construir(juegos, q1, q2, q3, wl=None, fuente="origen no indicado",
         cel.alignment = Alignment(horizontal="center")
 
     for r, j in enumerate(juegos, 5):
-        ws.cell(r, 1, j["nombre"])
+        celda_texto(ws, r, 1, j["nombre"])
         ws.cell(r, 2, j["gb"])
         ws.cell(r, 3, "infinitas" if j["horas"] is None else j["horas"])
         if str(j.get("nota_h", "")).upper().startswith("ESTIMACION"):
@@ -905,7 +915,7 @@ def construir(juegos, q1, q2, q3, wl=None, fuente="origen no indicado",
         if t_mc:
             cmc.comment = mc_comentario(t_mc)
         dif_escribir(ws, r, 9, j.get("dif"))
-        ws.cell(r, 11, j["ruta"])
+        celda_texto(ws, r, 11, j["ruta"])
 
     for i, a in enumerate([44, 11, 11, 12, 12, 30, 17, 14, 11, 13, 58], 1):
         ws.column_dimensions[get_column_letter(i)].width = a

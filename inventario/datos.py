@@ -11,7 +11,7 @@ import tempfile
 from .config import BASES, HORAS_JSON, WISHLIST_JSON
 
 def normaliza(n):
-    n = re.sub(r"[^a-z0-9]+", " ", n.lower().strip())
+    n = re.sub(r"[^a-z0-9]+", " ", str(n).lower().strip())
     return re.sub(r"\s+", " ", n).strip()
 
 

@@ -20,6 +20,10 @@ class PruebasNormaliza(unittest.TestCase):
         self.assertEqual(normaliza("  BALL x PIT  "), "ball x pit")
         self.assertEqual(normaliza("Chicken Police - Paint it RED!"), "chicken police paint it red")
 
+    def test_acepta_no_texto(self):
+        self.assertEqual(normaliza(123), "123")
+        self.assertEqual(normaliza(None), "none")
+
 
 class PruebasTitulos(unittest.TestCase):
     def test_the_inicial(self):
