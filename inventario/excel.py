@@ -29,6 +29,7 @@ def historico(juegos, TH):
     hoy = datetime.date.today().isoformat()
     fila = [hoy, len(juegos), round(sum(j["gb"] for j in juegos), 2), round(TH, 1)]
     filas = []
+    respaldo = False
     if os.path.exists(HISTORICO_CSV):
         try:
             with open(HISTORICO_CSV, newline="", encoding="utf-8-sig") as f:
@@ -37,6 +38,7 @@ def historico(juegos, TH):
                         continue
                     if len(r) < 4:
                         print("Aviso: fila incompleta ignorada en historico.csv: %r" % (r,))
+                        respaldo = True
                         continue
                     try:
                         datetime.date.fromisoformat(r[0])
@@ -44,16 +46,24 @@ def historico(juegos, TH):
                         vals = [float(r[2]), float(r[3])]
                     except ValueError:
                         print("Aviso: fila invalida ignorada en historico.csv: %r" % (r,))
+                        respaldo = True
                         continue
                     if not all(math.isfinite(v) for v in vals):
                         print("Aviso: fila invalida ignorada en historico.csv: %r" % (r,))
+                        respaldo = True
                         continue
                     filas.append(r)
         except (OSError, UnicodeDecodeError) as e:
             print("Aviso: no se puede leer historico.csv (%s); se empieza de cero." % e)
+            respaldo = True
     filas = [r for r in filas if r[0] != hoy]
     filas.append([str(x) for x in fila])
     filas.sort(key=lambda r: r[0])
+    if respaldo and os.path.exists(HISTORICO_CSV):
+        try:
+            shutil.copy2(HISTORICO_CSV, HISTORICO_CSV + ".corrupto")
+        except OSError:
+            pass
     s = io.StringIO()
     w = csv.writer(s)
     w.writerow(["fecha", "juegos", "gb", "horas"])

@@ -123,6 +123,7 @@ def escribir_atomico(ruta, texto):
 def escribir_horas(horas):
     """Reescribe horas.json con el formato de siempre (_comentario, claves, _notas)."""
     notas = horas.get("_notas") if isinstance(horas.get("_notas"), dict) else {}
+    horas["_notas"] = notas      # el objeto debe coincidir con lo que se escribe (verificacion de _guardar_json)
     L = ["{"]
     if "_comentario" in horas:
         L.append('  "_comentario": %s,' % json.dumps(horas["_comentario"], ensure_ascii=False))
@@ -195,6 +196,10 @@ def purgar_horas(horas, claves_instaladas, bases_fallidas=()):
                 horas[bl].pop(k, None)
                 quitadas.add(k)
     if quitadas:
+        try:
+            shutil.copy2(HORAS_JSON, HORAS_JSON + ".bak")
+        except OSError:
+            pass
         try:
             _guardar_json(HORAS_JSON, escribir_horas, horas)
         except OSError as e:

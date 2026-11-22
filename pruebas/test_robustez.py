@@ -126,6 +126,9 @@ class PruebasEscritura(unittest.TestCase):
                 texto = f.read()
             self.assertNotIn("no-es-fecha", texto)
             self.assertNotIn("2026-01-02", texto)
+            self.assertTrue(os.path.exists(ruta + ".corrupto"))
+            with open(ruta + ".corrupto", encoding="utf-8") as f:
+                self.assertIn("no-es-fecha", f.read())
 
     def test_historico_no_utf8_se_regenera(self):
         with tempfile.TemporaryDirectory() as d:
@@ -141,6 +144,9 @@ class PruebasEscritura(unittest.TestCase):
                 excel.HISTORICO_CSV = original
             self.assertEqual(len(filas), 1)
             self.assertTrue(os.path.exists(ruta))
+            self.assertTrue(os.path.exists(ruta + ".corrupto"))
+            with open(ruta + ".corrupto", "rb") as f:
+                self.assertEqual(f.read(), b"\xff\xfe")
 
     def test_libro_vacio_sin_unidades(self):
         with tempfile.TemporaryDirectory() as d:
@@ -203,6 +209,21 @@ class PruebasEscritura(unittest.TestCase):
                 self.assertEqual(quitadas, 0)
                 self.assertIn("juego", horas)
                 self.assertIn("juego", horas["_notas"])
+
+    def test_purga_guarda_copia_previa(self):
+        with tempfile.TemporaryDirectory() as d:
+            ruta = os.path.join(d, "horas.json")
+            with open(ruta, "w", encoding="utf-8") as f:
+                json.dump({"juego": 10}, f)
+            with mock.patch("inventario.datos.BASES", [d]), \
+                 mock.patch("inventario.datos.HORAS_JSON", ruta):
+                with redirect_stdout(io.StringIO()):
+                    quitadas = purgar_horas({"juego": 10}, set())
+            self.assertEqual(quitadas, 1)
+            self.assertTrue(os.path.exists(ruta + ".bak"))
+            with open(ruta + ".bak", encoding="utf-8") as f:
+                self.assertEqual(json.load(f), {"juego": 10})
+            self.assertEqual(leer_json(ruta, None), {"_notas": {}})
 
     def test_salida_dentro_de_datos(self):
         self.assertTrue(dentro_de_datos(os.path.join(DATOS, "x.xlsx")))
