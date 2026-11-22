@@ -31,7 +31,7 @@ def dias_instalado(p):
 def escanear():
     out, vistos, fallos = [], set(), []
     for base in BASES:
-        if not os.path.isdir(base):
+        if not isinstance(base, str) or not base or not os.path.isdir(base):
             continue
         u = base[0]
         try:
@@ -50,7 +50,7 @@ def escanear():
             out.append({"nombre": n, "gb": round(tam_gb(p), 2), "dias": dias_instalado(p),
                         "unidad": u + ":", "ruta": p, "duplicado": dup})
     for p in SUELTOS:
-        if os.path.isdir(p):
+        if isinstance(p, str) and p and os.path.isdir(p):
             out.append({"nombre": os.path.basename(p), "gb": round(tam_gb(p), 2),
                         "dias": dias_instalado(p),
                         "unidad": p[0] + ":", "ruta": p, "duplicado": False})

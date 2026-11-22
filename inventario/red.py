@@ -66,7 +66,8 @@ def _json_get(url):
 
 def steam_manifiestos():
     """installdir normalizado -> (appid, nombre), leyendo appmanifest_*.acf de todas las bibliotecas de Steam."""
-    dirs = {os.path.dirname(b) for b in BASES if b.lower().endswith("steamapps\\common")}
+    dirs = {os.path.dirname(b) for b in BASES
+            if isinstance(b, str) and b.lower().endswith("steamapps\\common")}
     vdf = r"C:\Program Files (x86)\Steam\steamapps\libraryfolders.vdf"
     try:
         for p in re.findall(r'"path"\s+"([^"]+)"', open(vdf, encoding="utf-8", errors="replace").read()):
@@ -229,8 +230,12 @@ def steam_buscar(nombres):
         for term in dict.fromkeys([nom, normaliza(nom)]):
             d = _json_get("https://store.steampowered.com/api/storesearch/?term=%s&cc=es&l=en"
                           % urllib.parse.quote_plus(term))
-            its = [(i["id"], i["name"]) for i in (d or {}).get("items", [])
-                   if i.get("type") == "app" and i.get("id") is not None and i.get("name")]
+            items = d.get("items") if isinstance(d, dict) else None
+            if not isinstance(items, list):
+                items = []
+            its = [(i["id"], i["name"]) for i in items
+                   if isinstance(i, dict) and i.get("type") == "app"
+                   and i.get("id") is not None and i.get("name")]
             c = casar_titulo(nombres, its)
             if isinstance(c, tuple):
                 return c

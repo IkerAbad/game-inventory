@@ -141,7 +141,7 @@ def purgar_horas(horas, claves_instaladas, bases_fallidas=()):
     """Quita de horas.json las claves sin carpeta. Se niega si falta alguna ubicacion
     o si alguna no se pudo leer: con una unidad apagada se borrarian claves validas."""
     problemas = []
-    ausentes = [b for b in BASES if not os.path.isdir(b)]
+    ausentes = [b for b in BASES if isinstance(b, str) and b and not os.path.isdir(b)]
     if ausentes:
         problemas.append("no encuentro " + ", ".join(ausentes))
     if bases_fallidas:

@@ -19,7 +19,9 @@ from inventario.cli import dentro_de_datos
 from inventario.config import DATOS
 from inventario.datos import (depurar_horas, escribir_atomico, es_hora_valida, leer_claves,
                               leer_json, purgar_horas)
+from inventario.escaneo import escanear
 from inventario.formato import limpia_texto
+from inventario.red import steam_buscar
 
 
 class PruebasLeerJson(unittest.TestCase):
@@ -190,6 +192,29 @@ class PruebasEscritura(unittest.TestCase):
         self.assertTrue(dentro_de_datos(os.path.join(DATOS, "x.xlsx")))
         self.assertTrue(dentro_de_datos(os.path.join(DATOS, "sub", "x.xlsx")))
         self.assertFalse(dentro_de_datos(os.path.join(tempfile.gettempdir(), "x.xlsx")))
+
+    def test_steam_buscar_respuestas_raras(self):
+        with mock.patch("inventario.red._json_get", return_value=[]):
+            self.assertIsNone(steam_buscar(["Juego"]))
+        with mock.patch("inventario.red._json_get",
+                        return_value={"items": [None, 3, {"type": "app"}]}):
+            self.assertIsNone(steam_buscar(["Juego"]))
+        with mock.patch("inventario.red._json_get", return_value={"items": "x"}):
+            self.assertIsNone(steam_buscar(["Juego"]))
+
+    def test_escanear_ignora_bases_invalidas(self):
+        with tempfile.TemporaryDirectory() as d:
+            with mock.patch("inventario.escaneo.BASES", [None, 123, d]):
+                juegos, fallos = escanear()
+            self.assertIsInstance(juegos, list)
+            self.assertEqual(fallos, [])
+
+    def test_wishlist_bloques_no_dict(self):
+        import openpyxl
+        wb = openpyxl.Workbook()
+        wb.remove(wb.active)
+        excel.hoja_wishlist(wb, [], {"Juego": 10}, "origen", [], [], [], [])
+        self.assertEqual(wb.sheetnames, ["Wishlist"])
 
     def test_horas_absurdas_no_rompen(self):
         juego = {"nombre": "Enorme", "gb": 1.0, "dias": 1, "unidad": "C:",

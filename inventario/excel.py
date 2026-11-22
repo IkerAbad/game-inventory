@@ -691,13 +691,13 @@ def hoja_wishlist(wb, juegos, wl, fuente, mc=None, notas=None, st=None, dif=None
     from openpyxl.chart.label import DataLabelList
     from openpyxl.formatting.rule import DataBarRule, CellIsRule
 
-    mc = mc or {}
+    mc = mc if isinstance(mc, dict) else {}
     mcn = {normaliza(k): v for k, v in mc.items()}
-    st = st or {}
+    st = st if isinstance(st, dict) else {}
     stn = {normaliza(k): v for k, v in st.items()}
-    dif = dif or {}
+    dif = dif if isinstance(dif, dict) else {}
     difn = {normaliza(k): v for k, v in dif.items()}
-    notas = notas or {}
+    notas = notas if isinstance(notas, dict) else {}
     notan = {normaliza(k): v for k, v in notas.items()}
     nota_de = lambda t: str(notas.get(t) or notan.get(normaliza(t)) or "")
     es_prensa = lambda t: nota_de(t).upper().startswith("PRENSA")
