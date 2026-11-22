@@ -103,7 +103,9 @@ start.cmd                  Windows launcher
 ## Tests
 
 ```
+py -m pip install -r requirements-dev.txt
 py -m unittest discover -s tests -v
+py -m pyflakes inventory generate_inventory.py tests
 ```
 
 ## Documentation

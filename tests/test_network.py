@@ -8,9 +8,9 @@ import unittest
 from contextlib import redirect_stdout
 from unittest import mock
 
-RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if RAIZ not in sys.path:
-    sys.path.insert(0, RAIZ)
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
 
 from inventory.i18n import set_lang
 from inventory.network import (autocomplete, deku_item, deku_search, mc_search,

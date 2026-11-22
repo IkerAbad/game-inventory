@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Pruebas de robustez: JSON con BOM o corrupto, hours invalidas y escritura atomica."""
+"""Robustness tests: JSON with BOM or corrupt, invalid hours and atomic writes."""
 
 import io
 import json
@@ -10,9 +10,9 @@ import unittest
 from contextlib import redirect_stdout
 from unittest import mock
 
-RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if RAIZ not in sys.path:
-    sys.path.insert(0, RAIZ)
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
 
 from inventory import excel
 from inventory.cli import inside_data
@@ -124,7 +124,7 @@ class WriteTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             path = os.path.join(d, "hours.json")
             with mock.patch("inventory.data.HOURS_JSON", path):
-                write_hours({"juego": 10, "_raro": {"a": 1}})
+                write_hours({"game": 10, "_raro": {"a": 1}})
             self.assertEqual(read_json(path, {})["_raro"], {"a": 1})
 
     def test_history_ignores_broken_rows(self):
@@ -176,7 +176,7 @@ class WriteTests(unittest.TestCase):
             excel.HISTORY_CSV = os.path.join(d, "history.csv")
             try:
                 with mock.patch("inventory.excel.shutil.disk_usage",
-                                side_effect=OSError("sin unit")):
+                                side_effect=OSError("no drive")):
                     wb, TH, filas = excel.build_workbook([], 1.0, 2.0, 4.0)
                 self.assertEqual(TH, 0.0)
                 self.assertEqual(wb.sheetnames,
@@ -195,14 +195,14 @@ class WriteTests(unittest.TestCase):
             wb = openpyxl.Workbook()
             c = excel.text_cell(wb.active, 1, 1, "=1+1")
             self.assertEqual(c.data_type, "s")
-            excel.text_cell(wb.active, 1, 2, "juego normal")
+            excel.text_cell(wb.active, 1, 2, "normal game")
             excel.text_cell(wb.active, 1, 3, "\x01=2+2")
             path = os.path.join(d, "x.xlsx")
             wb.save(path)
             wb2 = openpyxl.load_workbook(path)
             self.assertEqual(wb2.active.cell(1, 1).data_type, "s")
             self.assertEqual(wb2.active.cell(1, 1).value, "=1+1")
-            self.assertEqual(wb2.active.cell(1, 2).value, "juego normal")
+            self.assertEqual(wb2.active.cell(1, 2).value, "normal game")
             self.assertEqual(wb2.active.cell(1, 3).value, "=2+2")
             self.assertEqual(wb2.active.cell(1, 3).data_type, "s")
 
@@ -213,56 +213,56 @@ class WriteTests(unittest.TestCase):
 
     def test_clean_temp_files(self):
         with tempfile.TemporaryDirectory() as d:
-            viejo = os.path.join(d, ".tmp_resto.tmp")
-            with open(viejo, "w", encoding="utf-8") as f:
+            old = os.path.join(d, ".tmp_resto.tmp")
+            with open(old, "w", encoding="utf-8") as f:
                 f.write("x")
             with open(os.path.join(d, "hours.json"), "w", encoding="utf-8") as f:
                 f.write("{}")
             clean_temp_files(d)
-            self.assertFalse(os.path.exists(viejo))
+            self.assertFalse(os.path.exists(old))
             self.assertTrue(os.path.exists(os.path.join(d, "hours.json")))
 
     def test_purge_refuses_on_failed_base(self):
         with tempfile.TemporaryDirectory() as d:
             with mock.patch("inventory.data.LIBRARIES", [d]):
-                hours = {"juego": 10, "_notas": {"juego": "x"}}
+                hours = {"game": 10, "_notas": {"game": "x"}}
                 with redirect_stdout(io.StringIO()):
                     quitadas = purge_hours(hours, set(), [d], force=True)
                 self.assertEqual(quitadas, 0)
-                self.assertIn("juego", hours)
-                self.assertIn("juego", hours["_notas"])
+                self.assertIn("game", hours)
+                self.assertIn("game", hours["_notas"])
 
     def test_purge_guarded_by_majority(self):
         with tempfile.TemporaryDirectory() as d:
             path = os.path.join(d, "hours.json")
-            hours = {"juego %d" % i: 10 for i in range(12)}
+            hours = {"game %d" % i: 10 for i in range(12)}
             with open(path, "w", encoding="utf-8") as f:
                 json.dump(hours, f)
-            instaladas = {"juego 0", "juego 1"}
+            installed = {"game 0", "game 1"}
             with mock.patch("inventory.data.LIBRARIES", [d]), \
                  mock.patch("inventory.data.HOURS_JSON", path):
                 with redirect_stdout(io.StringIO()):
-                    quitadas = purge_hours(dict(hours), instaladas)
+                    quitadas = purge_hours(dict(hours), installed)
                 self.assertEqual(quitadas, 0)
                 self.assertEqual(len(read_json(path, {})), 12)
                 with redirect_stdout(io.StringIO()):
-                    quitadas = purge_hours(dict(hours), instaladas, force=True)
+                    quitadas = purge_hours(dict(hours), installed, force=True)
             self.assertEqual(quitadas, 10)
-            self.assertEqual(len(read_json(path, {})), 3)  # 2 claves + _notas
+            self.assertEqual(len(read_json(path, {})), 3)  # 2 keys + _notas
 
     def test_purge_keeps_previous_copy(self):
         with tempfile.TemporaryDirectory() as d:
             path = os.path.join(d, "hours.json")
             with open(path, "w", encoding="utf-8") as f:
-                json.dump({"juego": 10}, f)
+                json.dump({"game": 10}, f)
             with mock.patch("inventory.data.LIBRARIES", [d]), \
                  mock.patch("inventory.data.HOURS_JSON", path):
                 with redirect_stdout(io.StringIO()):
-                    quitadas = purge_hours({"juego": 10}, set())
+                    quitadas = purge_hours({"game": 10}, set())
             self.assertEqual(quitadas, 1)
             self.assertTrue(os.path.exists(path + ".bak"))
             with open(path + ".bak", encoding="utf-8") as f:
-                self.assertEqual(json.load(f), {"juego": 10})
+                self.assertEqual(json.load(f), {"game": 10})
             self.assertEqual(read_json(path, None), {"_notas": {}})
 
     def test_output_inside_data(self):
@@ -277,7 +277,7 @@ class WriteTests(unittest.TestCase):
             self.assertIsNotNone(f)
             codigo = ("import sys; sys.path.insert(0, %r); "
                       "from inventory.data import acquire_lock; "
-                      "print(acquire_lock(%r) is None)" % (RAIZ, d))
+                      "print(acquire_lock(%r) is None)" % (ROOT, d))
             salida = subprocess.run([sys.executable, "-c", codigo],
                                     capture_output=True, text=True)
             self.assertEqual(salida.stdout.strip(), "True", salida.stderr)
@@ -320,7 +320,7 @@ class WriteTests(unittest.TestCase):
             excel.HISTORY_CSV = os.path.join(d, "history.csv")
             try:
                 with mock.patch("inventory.excel.shutil.disk_usage",
-                                side_effect=OSError("sin unit")):
+                                side_effect=OSError("no drive")):
                     wb, TH, filas = excel.build_workbook([juego], 1.0, 2.0, 4.0)
                 self.assertEqual(TH, 10000000.0)
                 path = os.path.join(d, "x.xlsx")
@@ -340,7 +340,7 @@ class WriteTests(unittest.TestCase):
             excel.HISTORY_CSV = os.path.join(d, "history.csv")
             try:
                 with mock.patch("inventory.excel.shutil.disk_usage",
-                                side_effect=OSError("sin unit")):
+                                side_effect=OSError("no drive")):
                     wb, TH, filas = excel.build_workbook([juego], 1.0, 2.0, 4.0)
                 self.assertEqual(TH, 10.0)
                 path = os.path.join(d, "x.xlsx")
@@ -348,6 +348,27 @@ class WriteTests(unittest.TestCase):
                 self.assertTrue(os.path.exists(path))
             finally:
                 excel.HISTORY_CSV = original
+
+
+class ScanTests(unittest.TestCase):
+    def setUp(self):
+        set_lang("en")
+
+    def test_scan_finds_a_game(self):
+        with tempfile.TemporaryDirectory() as d:
+            game_dir = os.path.join(d, "Fake Game")
+            os.makedirs(game_dir)
+            with open(os.path.join(game_dir, "file.bin"), "wb") as f:
+                f.write(b"x" * 1024)
+            with mock.patch("inventory.scan.LIBRARIES", [d]), \
+                 mock.patch("inventory.scan.LOOSE_PATHS", []):
+                games, failed = scan_games()
+            self.assertEqual(failed, [])
+            self.assertEqual(len(games), 1)
+            self.assertEqual(games[0]["name"], "Fake Game")
+            self.assertEqual(games[0]["unit"], d[0] + ":")
+            self.assertEqual(games[0]["path"], game_dir)
+            self.assertFalse(games[0]["duplicate"])
 
 
 if __name__ == "__main__":

@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
-"""Pruebas de las piezas sin red ni disco: normalizacion, titulos y formato."""
+"""Tests for the pieces that need no network or disk: normalization, titles and formatting."""
 
 import os
 import sys
 import unittest
 
-RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if RAIZ not in sys.path:
-    sys.path.insert(0, RAIZ)
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
 
 from inventory.data import normalize
 from inventory.cell_format import PctSteam, dif_cells, mc_cell
