@@ -77,5 +77,57 @@ class PruebasIntegracion(unittest.TestCase):
             self.assertIn("SIN FINAL", wb["Juegos"]["F6"].value)
 
 
+class PruebasAbortos(unittest.TestCase):
+    def test_aborta_si_la_salida_es_una_carpeta(self):
+        with tempfile.TemporaryDirectory() as d:
+            datos = os.path.join(d, "datos")
+            with mock.patch("inventario.cli.DATOS", datos):
+                with redirect_stdout(io.StringIO()):
+                    rc = main(["--sin-red", "--salida", d])
+            self.assertEqual(rc, 1)
+
+    def test_aborta_si_la_salida_esta_en_datos(self):
+        with tempfile.TemporaryDirectory() as d:
+            datos = os.path.join(d, "datos")
+            os.makedirs(datos)
+            with mock.patch("inventario.cli.DATOS", datos):
+                with redirect_stdout(io.StringIO()):
+                    rc = main(["--sin-red", "--salida",
+                               os.path.join(datos, "x.xlsx")])
+            self.assertEqual(rc, 1)
+
+    def test_aborta_si_hay_otra_ejecucion(self):
+        with tempfile.TemporaryDirectory() as d:
+            datos = os.path.join(d, "datos")
+            os.makedirs(datos)
+            with mock.patch("inventario.cli.DATOS", datos), \
+                 mock.patch("inventario.cli.tomar_bloqueo", return_value=None):
+                with redirect_stdout(io.StringIO()):
+                    rc = main(["--sin-red", "--salida",
+                               os.path.join(d, "x.xlsx")])
+            self.assertEqual(rc, 1)
+
+    def test_aborta_con_json_corrupto(self):
+        with tempfile.TemporaryDirectory() as d:
+            datos = os.path.join(d, "datos")
+            os.makedirs(datos)
+            rutas = {
+                "HORAS_JSON": os.path.join(datos, "horas.json"),
+                "WISHLIST_JSON": os.path.join(datos, "wishlist.json"),
+                "COMPLETADOS_JSON": os.path.join(datos, "completados.json"),
+                "JUGANDO_JSON": os.path.join(datos, "jugando.json"),
+            }
+            with open(rutas["HORAS_JSON"], "w", encoding="utf-8") as f:
+                f.write("{ mal")
+            salida = os.path.join(d, "x.xlsx")
+            with mock.patch.multiple("inventario.cli", DATOS=datos, **rutas), \
+                 mock.patch("inventario.cli.tomar_bloqueo",
+                            return_value=mock.MagicMock()):
+                with redirect_stdout(io.StringIO()):
+                    rc = main(["--sin-red", "--salida", salida])
+            self.assertEqual(rc, 1)
+            self.assertFalse(os.path.exists(salida))
+
+
 if __name__ == "__main__":
     unittest.main()
