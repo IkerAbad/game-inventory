@@ -16,9 +16,10 @@ if ROOT not in sys.path:
 
 from inventory.i18n import set_lang
 from inventory.network import (autocomplete, deku_item, deku_search, mc_search,
-                               resolve_hours, steam_estimate, steam_manifests,
-                               steam_reviews, steam_search, steam_store_name,
-                               tag_hours, _should_retry)
+                               match_title, resolve_hours, steam_estimate,
+                               steam_manifests, steam_reviews, steam_search,
+                               steam_store_name, tag_hours, _prefix_ok, _should_retry,
+                               _slugs)
 
 
 class NetworkTests(unittest.TestCase):
@@ -183,6 +184,117 @@ class NetworkTests(unittest.TestCase):
             result = resolve_hours(["Hades"], lambda: (1, "Hades"), "22/11/2026", False)
         self.assertIsNone(result["value"])
         self.assertIsNone(result["source"])
+
+    def test_prefix_and_slugs(self):
+        self.assertFalse(_prefix_ok([], ["a"]))
+        self.assertFalse(_prefix_ok(["a"], ["a"]))
+        self.assertTrue(_prefix_ok(["hades"], ["hades", "ultrawide"]))
+        self.assertEqual(match_title(["Hades"], [("a", "Hades Ultrawide")]),
+                         ("a", "Hades Ultrawide"))
+        self.assertIn("alan-wake-ii", _slugs("Alan Wake 2"))
+
+    def test_tag_hours_missing_parts(self):
+        with mock.patch("inventory.network.http_get", return_value=(200, "<html></html>")):
+            self.assertIsNone(tag_hours(["Hades"]))
+        no_title = ('<meta name="description" content="Hades. '
+                    'About 10 hours to beat the main story.">')
+        with mock.patch("inventory.network.http_get", return_value=(200, no_title)):
+            self.assertIsNone(tag_hours(["Hades"]))
+        no_hours = '<meta name="description" content="Hades (2020). Nothing.">'
+        with mock.patch("inventory.network.http_get", return_value=(200, no_hours)):
+            self.assertIsNone(tag_hours(["Hades"]))
+
+    def test_steam_reviews_invalid_payload(self):
+        with mock.patch("inventory.network._json_get", return_value={}):
+            self.assertIsNone(steam_reviews(1))
+
+    def test_steam_estimate_few_reviews(self):
+        html = "10 hrs on record 11 hrs on record"
+        with mock.patch("inventory.network.http_get", return_value=(200, html)):
+            self.assertIsNone(steam_estimate(1))
+        with mock.patch("inventory.network.http_get", return_value=(404, "")):
+            self.assertIsNone(steam_estimate(1))
+
+    def test_mc_search_without_page(self):
+        with mock.patch("inventory.network.http_get", return_value=(404, "")):
+            self.assertIsNone(mc_search(["Hades"]))
+
+    def test_mc_search_without_platform_data(self):
+        html = "<title>Hades Reviews - Metacritic</title>"
+        with mock.patch("inventory.network.http_get", return_value=(200, html)):
+            entry = mc_search(["Hades"])
+        self.assertEqual(entry["s"], "s/n")
+        self.assertEqual(entry["p"], "?")
+
+    def test_mc_search_without_metascore_anywhere(self):
+        base = '<title>Hades Reviews - Metacritic</title>"gamePlatform":["PC","PS5"]'
+
+        def fake_get(url, **kwargs):
+            if "platform=pc" in url:
+                return 200, "Showing 3 Critic Review"
+            if "platform=ps5" in url:
+                return 200, "Showing 2 Critic Review"
+            return 200, base
+
+        with mock.patch("inventory.network.http_get", side_effect=fake_get):
+            entry = mc_search(["Hades"])
+        self.assertEqual(entry["s"], "s/n")
+        self.assertEqual(entry["p"], "PC")
+        self.assertEqual(entry["n"], 3)
+
+    def test_resolve_hours_ambiguous_tie(self):
+        candidates = [("a", "Hades Deluxe"), ("b", "Hades Ultimate")]
+        with mock.patch("inventory.network.deku_search", return_value=candidates), \
+             mock.patch("inventory.network.steam_store_name",
+                        return_value="Hades Deluxe"), \
+             mock.patch("inventory.network.deku_item", return_value=10.0):
+            result = resolve_hours(["Hades"], lambda: (1, "Hades"), "22/11/2026", False)
+        self.assertEqual(result["value"], 10.0)
+
+    def test_resolve_hours_press_source(self):
+        with mock.patch("inventory.network.deku_search", return_value=[]), \
+             mock.patch("inventory.network.tag_hours",
+                        return_value=(5.0, "Hades", "2020")):
+            result = resolve_hours(["Hades"], lambda: None, "22/11/2026", False)
+        self.assertEqual(result["value"], 5.0)
+        self.assertIn("twoaveragegamers", result["source"])
+
+    def test_should_retry_bad_date(self):
+        self.assertFalse(_should_retry({"s": "s/n", "f": "bad"},
+                                       datetime.date(2026, 11, 22)))
+
+    def test_autocomplete_nothing(self):
+        with redirect_stdout(io.StringIO()) as output:
+            autocomplete([], {}, {})
+        self.assertIn("nothing to fill", output.getvalue())
+
+    def test_autocomplete_no_source_and_camel_case(self):
+        game = {"name": "CatherineClassic", "duplicate": False}
+        hours = {}
+        resolved = {"value": None, "nota": None, "source": None,
+                    "ambiguous": ["A", "B"]}
+        with mock.patch("inventory.network.steam_manifests", return_value={}), \
+             mock.patch("inventory.network.steam_search",
+                        return_value=(1, "Catherine Classic")), \
+             mock.patch("inventory.network.resolve_hours", return_value=resolved), \
+             mock.patch("inventory.network.mc_search", return_value=None), \
+             mock.patch("inventory.network.steam_reviews", return_value=None), \
+             mock.patch("inventory.network._save_json"):
+            with redirect_stdout(io.StringIO()) as output:
+                autocomplete([game], hours, {})
+        self.assertIn("NO USABLE SOURCE", output.getvalue())
+
+    def test_steam_manifests_broken_inputs(self):
+        with mock.patch("inventory.network.LIBRARIES", [None, "bad"]), \
+             mock.patch("inventory.network.glob.glob", return_value=[]), \
+             mock.patch("builtins.open", side_effect=OSError("no")):
+            self.assertEqual(steam_manifests(), {})
+        with mock.patch("inventory.network.LIBRARIES",
+                        ["C:\\x\\steamapps\\common"]), \
+             mock.patch("inventory.network.glob.glob",
+                        return_value=["missing.acf"]), \
+             mock.patch("builtins.open", side_effect=OSError("no")):
+            self.assertEqual(steam_manifests(), {})
 
 
 if __name__ == "__main__":
