@@ -285,7 +285,8 @@ class BranchTests(unittest.TestCase):
         if history is not None:
             with open(os.path.join(data_dir, "history.csv"), "w",
                       encoding="utf-8") as f:
-                f.write("date,games,gb,hours\n2026-11-01,1,1.0,10.0\n")
+                f.write(history if isinstance(history, str)
+                        else "date,games,gb,hours\n2026-11-01,1,1.0,10.0\n")
         if args is None:
             args = ["--offline", "--keep", "--output", out]
         with ExitStack() as stack:
@@ -365,6 +366,26 @@ class BranchTests(unittest.TestCase):
         self.assertEqual(rc, 0)
         self.assertIn("DATA CHECK", console)
         self.assertIn("Wishlist", console)
+        self.assertIn("Metadata keys without a game", console)
+        self.assertIn("no rows yet", console)
+
+    def test_check_data_reports_metadata_duplicates_and_history(self):
+        with tempfile.TemporaryDirectory() as d:
+            rc, console, _, _ = self._run(
+                d,
+                hours={"game": 10.0,
+                       "_notas": {"game": "source", "gone": "old"},
+                       "_steam": {"game": {"pct": 90}}},
+                completed=[], playing=[],
+                wishlist={"juegos": {"Game": 10.0, "game": "?", "Other": 5.0},
+                          "_notas": {"Gone": "old"}},
+                history="date,games,gb,hours\n2026-11-01,2,10.0,5.0\n"
+                        "2026-11-02,3,11.0,6.0\nbad\n",
+                args=["--check-data"])
+        self.assertEqual(rc, 0)
+        self.assertIn("hours 1 | wishlist 1", console)
+        self.assertIn("repeated after normalization: 1", console)
+        self.assertIn("2 days, last 2026-11-02 (1 bad rows)", console)
 
     def test_check_data_corrupt(self):
         with tempfile.TemporaryDirectory() as d:

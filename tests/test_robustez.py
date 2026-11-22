@@ -15,7 +15,7 @@ if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
 from inventory import excel
-from inventory.cli import inside_data
+from inventory.cli import _stale_keys, inside_data
 from inventory.config import DATA_DIR, _data_root
 from inventory.i18n import set_lang
 from inventory.data import (_save_json, _same, clean_hours, write_atomic, write_hours,
@@ -328,6 +328,36 @@ class WriteTests(unittest.TestCase):
             with open(path + ".corrupto", "rb") as f:
                 self.assertEqual(f.read(), b"\xff\xfe")
 
+    def test_read_history_missing_file(self):
+        with tempfile.TemporaryDirectory() as d:
+            rows, problems = excel.read_history(os.path.join(d, "none.csv"))
+        self.assertEqual(rows, [])
+        self.assertEqual(problems, [])
+
+    def test_read_history_reports_each_bad_row(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "history.csv")
+            with open(path, "w", encoding="utf-8") as f:
+                f.write("date,games,gb,hours\n")
+                f.write("2026-01-01,10,100.0,50.0\n")
+                f.write("2026-01-02,10,inf,50.0\n")
+                f.write("2026-01-03,10,100.0\n")
+                f.write("bad,10,100.0,50.0\n")
+            rows, problems = excel.read_history(path)
+        self.assertEqual([r[0] for r in rows], ["2026-01-01"])
+        self.assertEqual([kind for kind, _ in problems],
+                         ["invalid", "incomplete", "invalid"])
+
+    def test_read_history_unreadable_file(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "history.csv")
+            with open(path, "w", encoding="utf-8") as f:
+                f.write("date,games,gb,hours\n")
+            with mock.patch("builtins.open", side_effect=OSError("locked")):
+                rows, problems = excel.read_history(path)
+        self.assertEqual(rows, [])
+        self.assertEqual(problems, [("read", "locked")])
+
     def test_empty_workbook_without_drives(self):
         with tempfile.TemporaryDirectory() as d:
             original = excel.HISTORY_CSV
@@ -440,6 +470,11 @@ class WriteTests(unittest.TestCase):
         self.assertFalse(inside_data(os.path.join(tempfile.gettempdir(), "x.xlsx")))
         with mock.patch("inventory.cli.os.path.commonpath", side_effect=ValueError):
             self.assertFalse(inside_data("x"))
+
+    def test_stale_keys_with_wrong_types(self):
+        self.assertEqual(_stale_keys(None, {}), 0)
+        self.assertEqual(_stale_keys({}, []), 0)
+        self.assertEqual(_stale_keys({"_notas": {"gone": "x"}}, {"kept": 1.0}), 1)
 
     def test_exclusive_lock_between_processes(self):
         import subprocess

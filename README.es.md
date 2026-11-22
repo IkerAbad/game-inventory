@@ -53,7 +53,7 @@ Opciones:
 | `--keep`, `--conservar` | No purga las claves de juegos desinstalados. |
 | `--force-purge`, `--forzar-purga` | Permite purgar más de la mitad de las claves de una vez. |
 | `--dry-run`, `--simular` | Escanea y muestra el resumen sin escribir nada. |
-| `--check-data`, `--validar` | Valida los ficheros JSON y sale. |
+| `--check-data`, `--validar` | Valida los ficheros JSON, las claves de metadatos huérfanas, los títulos repetidos de la wishlist y el histórico, y sale. |
 | `--output RUTA`, `--salida RUTA` | Escribe el Excel en otra ruta. |
 | `--version` | Muestra la versión instalada. |
 

@@ -53,7 +53,7 @@ Options:
 | `--keep`, `--conservar` | Do not purge uninstalled game keys. |
 | `--force-purge`, `--forzar-purga` | Allow purging more than half of the keys at once. |
 | `--dry-run`, `--simular` | Scan and show the summary without writing anything. |
-| `--check-data`, `--validar` | Validate the JSON data files and exit. |
+| `--check-data`, `--validar` | Validate the JSON data files, stale metadata keys, repeated wishlist titles and the history, then exit. |
 | `--output PATH`, `--salida PATH` | Write the Excel workbook to another path. |
 | `--version` | Show the installed version. |
 

@@ -12,7 +12,7 @@ from .config import COMPLETED_JSON, DATA_DIR, HOURS_JSON, OUTPUT, PLAYING_JSON, 
 from . import __version__
 from .data import (acquire_lock, clean_hours, clean_temp_files, is_valid_hours,
                    normalize, purge_hours, read_json, read_keys)
-from .excel import build_workbook
+from .excel import build_workbook, read_history
 from .i18n import set_lang, t
 from .network import autocomplete
 from .scan import excel_locked, scan_games
@@ -63,10 +63,37 @@ def check_data():
         bad = sum(1 for value in wishlist.values()
                   if not (value is None or value == "?" or is_valid_hours(value)))
         print(t("check.wishlist", n=len(wishlist), warnings=bad))
+        print(t("check.stale", hours=_stale_keys(hours, hours),
+                wishlist=_stale_keys(meta, wishlist)))
+        groups = {}
+        for title in wishlist:
+            groups.setdefault(normalize(title), []).append(title)
+        repeated = sum(len(titles) - 1 for titles in groups.values()
+                       if len(titles) > 1)
+        print(t("check.duplicates", n=repeated))
+        rows, problems = read_history()
+        if rows:
+            print(t("check.history", n=len(rows), last=max(r[0] for r in rows),
+                    warnings=len(problems)))
+        else:
+            print(t("check.history_empty", warnings=len(problems)))
         return 0
     except ValueError as e:
         print(t("cli.abort", error=e))
         return 1
+
+
+def _stale_keys(container, games):
+    """Metadata keys that do not match any game key in the same file."""
+    if not isinstance(container, dict) or not isinstance(games, dict):
+        return 0
+    known = {key for key in games if not str(key).startswith("_")}
+    total = 0
+    for block in ("_metacritic", "_steam", "_dificultad", "_notas"):
+        value = container.get(block)
+        if isinstance(value, dict):
+            total += sum(1 for key in value if key not in known)
+    return total
 
 
 def main(argv=None):

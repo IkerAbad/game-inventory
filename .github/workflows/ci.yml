@@ -43,6 +43,9 @@ jobs:
       - name: Console script
         run: game-inventory --version
 
+      - name: Data check
+        run: game-inventory --check-data
+
       - name: Installed command with empty data
         run: game-inventory --offline --keep --output consola_prueba.xlsx
 

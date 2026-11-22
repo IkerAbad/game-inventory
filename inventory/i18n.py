@@ -207,6 +207,10 @@ TEXT = {
         "check.hours": "Hours: {n} games ({warnings} warnings)",
         "check.keys": "Completed: {completed} | Playing: {playing}",
         "check.wishlist": "Wishlist: {n} titles ({warnings} warnings)",
+        "check.stale": "Metadata keys without a game: hours {hours} | wishlist {wishlist}",
+        "check.duplicates": "Wishlist titles repeated after normalization: {n}",
+        "check.history": "History: {n} days, last {last} ({warnings} bad rows)",
+        "check.history_empty": "History: no rows yet ({warnings} bad rows)",
 
         "scan.read_error": "Warning: cannot read {path} ({error}); skipped.",
 
@@ -465,6 +469,10 @@ TEXT = {
         "check.hours": "Horas: {n} juegos ({warnings} avisos)",
         "check.keys": "Completados: {completed} | Jugando: {playing}",
         "check.wishlist": "Wishlist: {n} titulos ({warnings} avisos)",
+        "check.stale": "Claves de metadatos sin juego: horas {hours} | wishlist {wishlist}",
+        "check.duplicates": "Titulos de wishlist repetidos tras normalizar: {n}",
+        "check.history": "Historico: {n} dias, ultimo {last} ({warnings} filas malas)",
+        "check.history_empty": "Historico: sin filas todavia ({warnings} filas malas)",
 
         "scan.read_error": "Aviso: no se puede leer {path} ({error}); se omite.",
 

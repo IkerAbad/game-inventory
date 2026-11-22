@@ -7,7 +7,7 @@ All notable changes to this project. The format follows [Keep a Changelog](https
 ### Added
 
 - `--dry-run` / `--simular`: scan and print the summary without writing the workbook, history, JSON or purging.
-- `--check-data` / `--validar`: validate the JSON data files and exit without scanning or writing.
+- `--check-data` / `--validar`: validate the JSON data files, stale metadata keys, repeated wishlist titles and the history, then exit without scanning or writing.
 - Help texts translated, so `--help` follows `--lang`.
 - `docs/DATA.md` and `docs/ARCHITECTURE.md`, and `SECURITY.md`.
 - Issue forms, pull request template and EditorConfig.

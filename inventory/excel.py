@@ -29,44 +29,57 @@ def text_cell(ws, row, col, value, fmt=None):
     return cell
 
 
+def read_history(path=None):
+    """Read history.csv. Return (rows, problems): problems hold (kind, payload) where kind
+    is 'incomplete', 'invalid' or 'read'. Missing file: no rows, no problems."""
+    import csv
+    import datetime
+    import math
+
+    path = HISTORY_CSV if path is None else path
+    rows, problems = [], []
+    if not os.path.exists(path):
+        return rows, problems
+    try:
+        with open(path, newline="", encoding="utf-8-sig") as f:
+            for r in csv.reader(f):
+                if not r or r[0] in ("fecha", "date"):
+                    continue
+                if len(r) < 4:
+                    problems.append(("incomplete", r))
+                    continue
+                try:
+                    datetime.date.fromisoformat(r[0])
+                    int(r[1])
+                    values = [float(r[2]), float(r[3])]
+                except ValueError:
+                    problems.append(("invalid", r))
+                    continue
+                if not all(math.isfinite(v) for v in values):
+                    problems.append(("invalid", r))
+                    continue
+                rows.append(r)
+    except (OSError, UnicodeDecodeError) as e:
+        problems.append(("read", str(e)))
+    return rows, problems
+
+
 def append_history(games, total_hours):
     """Add one row per day to history.csv and return the whole series.
     Bad rows are reported and skipped. The write is atomic."""
     import csv
     import datetime
     import io
-    import math
 
     today = datetime.date.today().isoformat()
     row = [today, len(games), round(sum(j["gb"] for j in games), 2), round(total_hours, 1)]
-    rows = []
-    backup_needed = False
-    if os.path.exists(HISTORY_CSV):
-        try:
-            with open(HISTORY_CSV, newline="", encoding="utf-8-sig") as f:
-                for r in csv.reader(f):
-                    if not r or r[0] in ("fecha", "date"):
-                        continue
-                    if len(r) < 4:
-                        print(t("data.history_incomplete", row=r))
-                        backup_needed = True
-                        continue
-                    try:
-                        datetime.date.fromisoformat(r[0])
-                        int(r[1])
-                        values = [float(r[2]), float(r[3])]
-                    except ValueError:
-                        print(t("data.history_invalid", row=r))
-                        backup_needed = True
-                        continue
-                    if not all(math.isfinite(v) for v in values):
-                        print(t("data.history_invalid", row=r))
-                        backup_needed = True
-                        continue
-                    rows.append(r)
-        except (OSError, UnicodeDecodeError) as e:
-            print(t("data.history_read", error=e))
-            backup_needed = True
+    rows, problems = read_history()
+    backup_needed = bool(problems)
+    for kind, payload in problems:
+        if kind == "read":
+            print(t("data.history_read", error=payload))
+        else:
+            print(t("data.history_%s" % kind, row=payload))
     rows = [r for r in rows if r[0] != today]
     rows.append([str(x) for x in row])
     rows.sort(key=lambda r: r[0])
