@@ -110,3 +110,13 @@ jobs:
           cd empty
           game-inventory --version
           game-inventory --check-data
+
+      - name: Install the sdist
+        run: python -m pip install --force-reinstall dist/*.tar.gz
+
+      - name: Run the installed sdist
+        run: |
+          mkdir empty-sdist
+          cd empty-sdist
+          game-inventory --version
+          game-inventory --check-data

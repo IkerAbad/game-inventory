@@ -14,6 +14,7 @@ All notable changes to this project. The format follows [Keep a Changelog](https
 - CodeQL analysis on every push and pull request, and weekly.
 - Release workflow: a `v*` tag builds the wheel and sdist, checks them and publishes a GitHub release.
 - `tools/check_links.py`: fails when a relative documentation link is broken.
+- pipx install instructions.
 - Dependabot updates for pip and GitHub Actions.
 - Contributing guide in English and Spanish.
 - Package keywords and classifiers.
@@ -22,6 +23,7 @@ All notable changes to this project. The format follows [Keep a Changelog](https
 
 - CI caches pip downloads, cancels superseded runs, uses read-only permissions and a 15-minute timeout.
 - CI builds the wheel and sdist, checks that `data/` is not inside, installs the wheel and runs it.
+- CI also installs the sdist and runs the installed command.
 - The installed `game-inventory` command reads `data/` from the source checkout or the current folder. `GAME_INVENTORY_DATA` overrides it.
 
 ## [1.0.0] - 2026-11-22

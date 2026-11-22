@@ -29,6 +29,13 @@ game-inventory --lang es
 
 Los comandos directos de abajo también funcionan sin instalar. Instalado, `data/` se lee de la carpeta actual salvo que `GAME_INVENTORY_DATA` apunte a otra.
 
+O como comando aislado con [pipx](https://pipx.pypa.io):
+
+```
+pipx install .
+game-inventory --version
+```
+
 ## Uso
 
 ```

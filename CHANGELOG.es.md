@@ -14,6 +14,7 @@ Cambios destacados del proyecto. El formato sigue [Keep a Changelog](https://kee
 - Análisis CodeQL en cada push, en cada pull request y semanal.
 - Flujo de release: una etiqueta `v*` construye el wheel y el sdist, los revisa y publica una release de GitHub.
 - `tools/check_links.py`: falla si un enlace relativo de la documentación está roto.
+- Instrucciones de instalación con pipx.
 - Actualizaciones de Dependabot para pip y GitHub Actions.
 - Guía de contribución en inglés y español.
 - Palabras clave y clasificadores del paquete.
@@ -22,6 +23,7 @@ Cambios destacados del proyecto. El formato sigue [Keep a Changelog](https://kee
 
 - El CI cachea las descargas de pip, cancela ejecuciones sustituidas, usa permisos de solo lectura y un límite de 15 minutos.
 - El CI construye el wheel y el sdist, comprueba que no llevan `data/`, instala el wheel y lo ejecuta.
+- El CI también instala el sdist y ejecuta el comando instalado.
 - El comando instalado `game-inventory` lee `data/` del checkout o de la carpeta actual. `GAME_INVENTORY_DATA` lo cambia.
 
 ## [1.0.0] - 2026-11-22
