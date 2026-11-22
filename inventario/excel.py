@@ -132,6 +132,7 @@ def embellecer(wb, juegos):
     ws["A2"].font = Font(italic=True, size=9, color="6B7280")
     cabecera(ws, 4, 1, 11)
     n = len(juegos)
+    nf = max(n + 4, 5)      # rango valido aunque no haya juegos
     for i, j in enumerate(juegos):
         r = i + 5
         banda = PatternFill("solid", fgColor=BANDA) if i % 2 else None
@@ -151,22 +152,22 @@ def embellecer(wb, juegos):
         v.font = Font(bold=True, size=9, color=fg)
         v.alignment = Alignment(horizontal="center")
     ws.conditional_formatting.add(
-        "B5:B%d" % (n + 4),
+        "B5:B%d" % nf,
         DataBarRule(start_type="num", start_value=0, end_type="max", color="5B8FF9"))
     ws.conditional_formatting.add(
-        "D5:D%d" % (n + 4),
+        "D5:D%d" % nf,
         ColorScaleRule(start_type="num", start_value=0, start_color="FFFFFF",
                        mid_type="num", mid_value=2, mid_color="A5D6A7",
                        end_type="max", end_color="1B5E20"))
     ws.conditional_formatting.add(
-        "G5:G%d" % (n + 4),
+        "G5:G%d" % nf,
         CellIsRule(operator="greaterThan", formula=["180"],
                    fill=PatternFill("solid", fgColor="FFE0B2"),
                    font=Font(bold=True, color="7A4F01")))
 
     # ------------------------------------------------------------ ESPACIO
-    mc_formato(wb["Juegos"], "H5:H%d" % (n + 4), "H5")
-    dif_formato(wb["Juegos"], "I5:J%d" % (n + 4))
+    mc_formato(wb["Juegos"], "H5:H%d" % nf, "H5")
+    dif_formato(wb["Juegos"], "I5:J%d" % nf)
 
     ws = wb["Espacio"]
     ws.sheet_properties.tabColor = "0D47A1"
@@ -266,6 +267,7 @@ def embellecer(wb, juegos):
     ws["A2"].font = Font(italic=True, size=9, color="6B7280")
     cabecera(ws, 4, 1, 12)
     ult = ws.max_row
+    ult_cf = max(ult, 5)    # rango valido aunque no haya pendientes
     for r in range(5, ult + 1):
         for c in range(1, 13):
             cel = ws.cell(r, c)
@@ -277,16 +279,16 @@ def embellecer(wb, juegos):
         ws.cell(r, 6).number_format = "0.00"
         ws.cell(r, 7).number_format = "#,##0.00"
     ws.conditional_formatting.add(
-        "H5:H%d" % ult,
+        "H5:H%d" % ult_cf,
         DataBarRule(start_type="num", start_value=0, end_type="num", end_value=1,
                     color="7E57C2"))
     ws.conditional_formatting.add(
-        "F5:F%d" % ult,
+        "F5:F%d" % ult_cf,
         DataBarRule(start_type="num", start_value=0, end_type="max", color="5B8FF9"))
 
     # ------------------------------------------------------------ GRAFICOS
-    mc_formato(wb["Plan"], "J5:J%d" % ult, "J5")
-    dif_formato(wb["Plan"], "K5:L%d" % ult)
+    mc_formato(wb["Plan"], "J5:J%d" % ult_cf, "J5")
+    dif_formato(wb["Plan"], "K5:L%d" % ult_cf)
 
     COLORES = ["2E7D32", "1565C0", "EF6C00", "6A1B9A", "C62828", "00838F"]
     for hoja in wb.worksheets:
@@ -547,14 +549,15 @@ def hojas_extra(wb, juegos):
     g3.height, g3.width = 9, 13
     ws.add_chart(g3, "A47")
 
-    g4 = BarChart()
-    g4.type = "bar"
-    g4.title = "Los 15 juegos que mas horas te quedan"
-    g4.x_axis.title = "Horas"
-    g4.add_data(Reference(ws, min_col=9, min_row=16, max_row=16 + len(top)), titles_from_data=True)
-    g4.set_categories(Reference(ws, min_col=8, min_row=17, max_row=16 + len(top)))
-    g4.height, g4.width, g4.legend = 12, 16, None
-    ws.add_chart(g4, "L47")
+    if top:
+        g4 = BarChart()
+        g4.type = "bar"
+        g4.title = "Los 15 juegos que mas horas te quedan"
+        g4.x_axis.title = "Horas"
+        g4.add_data(Reference(ws, min_col=9, min_row=16, max_row=16 + len(top)), titles_from_data=True)
+        g4.set_categories(Reference(ws, min_col=8, min_row=17, max_row=16 + len(top)))
+        g4.height, g4.width, g4.legend = 12, 16, None
+        ws.add_chart(g4, "L47")
 
     # ------------------------------------------------------------------- PLAN
     wp = wb.create_sheet("Plan")
@@ -592,14 +595,15 @@ def hojas_extra(wb, juegos):
         dif_escribir(wp, r, 11, j.get("dif"))
     wp.freeze_panes = "A5"
 
-    g5 = LineChart()
-    g5.title = "GB liberados acumulados frente a horas invertidas"
-    g5.y_axis.title = "GB acumulados"
-    g5.x_axis.title = "Horas acumuladas"
-    g5.add_data(Reference(wp, min_col=7, min_row=4, max_row=4 + len(fin)), titles_from_data=True)
-    g5.set_categories(Reference(wp, min_col=5, min_row=5, max_row=4 + len(fin)))
-    g5.height, g5.width, g5.legend = 10, 24, None
-    wp.add_chart(g5, "N5")
+    if fin:
+        g5 = LineChart()
+        g5.title = "GB liberados acumulados frente a horas invertidas"
+        g5.y_axis.title = "GB acumulados"
+        g5.x_axis.title = "Horas acumuladas"
+        g5.add_data(Reference(wp, min_col=7, min_row=4, max_row=4 + len(fin)), titles_from_data=True)
+        g5.set_categories(Reference(wp, min_col=5, min_row=5, max_row=4 + len(fin)))
+        g5.height, g5.width, g5.legend = 10, 24, None
+        wp.add_chart(g5, "N5")
 
     # --- escenarios de fin de backlog: 2, 4 y 6 h/dia sobre el calendario ---
     RITMOS = [2, 4, 6]
