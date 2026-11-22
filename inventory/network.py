@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Autocompletado por red: hours, Metacritic y Steam."""
+"""Network autocomplete: hours, Metacritic and Steam."""
 
 import datetime
 import glob
@@ -20,15 +20,15 @@ from .data import (_dict_block, _save_json, write_hours, write_wishlist,
                     is_valid_hours, normalize)
 from .i18n import t
 
-_NET = {"ult": {}, "failures": {}, "streak": 0, "n": 0, "down": False}
+_NET = {"last": {}, "failures": {}, "streak": 0, "n": 0, "down": False}
 
 
 def http_get(url, cookie=None, timeout=25):
-    """(status, texto) o None si la red no responde o se agoto el presupuesto. 1 peticion/s por servidor."""
+    """(status, text) or None when the network fails or the budget is exhausted. One request per second per host."""
     host = urllib.parse.urlparse(url).netloc
     if _NET["down"] or _NET["n"] >= MAX_REQUESTS or _NET["failures"].get(host, 0) >= 4:
         return None
-    espera = 1.0 - (time.time() - _NET["ult"].get(host, 0))
+    espera = 1.0 - (time.time() - _NET["last"].get(host, 0))
     if espera > 0:
         time.sleep(espera)
     cab = {"User-Agent": USER_AGENT, "Accept-Language": "en"}
@@ -53,7 +53,7 @@ def http_get(url, cookie=None, timeout=25):
             _NET["down"] = True
         return None
     finally:
-        _NET["ult"][host] = time.time()
+        _NET["last"][host] = time.time()
 
 
 def _json_get(url):
@@ -67,7 +67,7 @@ def _json_get(url):
 
 
 def steam_manifests():
-    """installdir normalizado -> (appid, name), leyendo appmanifest_*.acf de todas las bibliotecas de Steam."""
+    """Normalized installdir -> (appid, name), reading appmanifest_*.acf from every Steam library."""
     dirs = {os.path.dirname(b) for b in LIBRARIES
             if isinstance(b, str) and b.lower().endswith("steamapps\\common")}
     vdf = r"C:\Program Files (x86)\Steam\steamapps\libraryfolders.vdf"
@@ -104,14 +104,14 @@ _DIG_ROM = {v: k for k, v in _ROM_DIG.items()}
 
 
 def _tokens(s):
-    """Palabras normalizadas; los numeros romanos 2-4 y 6-9 se comparan como cifras (Alan Wake II = Alan Wake 2).
-    V y X no se tocan: pueden ser letras (Mega Man X)."""
+    """Normalized words; Roman numerals 2-4 and 6-9 are compared as digits (Alan Wake II = Alan Wake 2).
+    V and X are left alone: they can be letters (Mega Man X)."""
     t = [_ROM_DIG.get(w, w) for w in normalize(s).split()]
     return t[1:] if len(t) > 1 and t[0] == "the" else t      # "The Legend of Zelda" = "Legend of Zelda"
 
 
 def _prefix_ok(corto, largo):
-    """True si 'largo' = 'corto' + palabras que no cambian de juego (sin numero de secuela, DLC ni pack)."""
+    """True when 'long' = 'short' plus words that do not change the game (no sequel number, DLC or pack)."""
     if not corto or largo[:len(corto)] != corto or len(largo) == len(corto):
         return False
     extra = largo[len(corto):]
@@ -121,8 +121,8 @@ def _prefix_ok(corto, largo):
 
 
 def match_title(names, cands):
-    """names: names a probar (carpeta, ficha de Steam). cands: [(ref, titulo)].
-    Devuelve (ref, titulo) si hay una coincidencia clara, "ambiguo" si hay varias, None si ninguna."""
+    """names: names to try (folder, Steam page). cands: [(ref, title)].
+    Return (ref, title) on a clear match, "ambiguous" when there are several, None when there is none."""
     vistos, cu = set(), []
     for c in cands:
         if c[0] not in vistos:
@@ -152,18 +152,18 @@ def _slugs(name):
     b = re.sub(r"['\u2019]", "", b)
     base = re.sub(r"[^a-z0-9]+", "-", b).strip("-")
     out = [base]
-    partes = base.split("-")
-    for i in range(len(partes) - 1, 0, -1):          # ultimo numero (o romano) del titulo: se prueba la otra grafia
-        if partes[i] in _DIG_ROM:
-            out.append("-".join(partes[:i] + [_DIG_ROM[partes[i]]] + partes[i + 1:]))
+    parts = base.split("-")
+    for i in range(len(parts) - 1, 0, -1):          # last number (or Roman numeral) in the title: try the other spelling
+        if parts[i] in _DIG_ROM:
+            out.append("-".join(parts[:i] + [_DIG_ROM[parts[i]]] + parts[i + 1:]))
             break
-        if partes[i] in _ROM_DIG:
-            out.append("-".join(partes[:i] + [_ROM_DIG[partes[i]]] + partes[i + 1:]))
+        if parts[i] in _ROM_DIG:
+            out.append("-".join(parts[:i] + [_ROM_DIG[parts[i]]] + parts[i + 1:]))
             break
-    sin_ed = re.sub(r"-(classic|remastered|remaster|definitive-edition|enhanced-edition|game-of-the-year-edition|"
+    without_edition = re.sub(r"-(classic|remastered|remaster|definitive-edition|enhanced-edition|game-of-the-year-edition|"
                     r"goty-edition|pirate-edition|deluxe-edition|complete-edition|directors-cut)$", "", base)
-    if sin_ed != base:
-        out.append(sin_ed)
+    if without_edition != base:
+        out.append(without_edition)
     return out
 
 
@@ -171,7 +171,7 @@ def _slugs_for(names):
     return list(dict.fromkeys(s for n in names for s in _slugs(n) if s))
 
 
-# --- hours: Deku Deals (cita HowLongToBeat) -------------------------------
+# --- hours: Deku Deals (cites HowLongToBeat) -------------------------------
 def deku_search(name):
     r = http_get("https://www.dekudeals.com/search?q=" + urllib.parse.quote_plus(name))
     if not r or r[0] != 200:
@@ -204,7 +204,7 @@ def deku_item(path):
     return _hours_text(m.group(1)) if m else None
 
 
-# --- hours: twoaveragegamers.com (prensa, espejo sin source declarada) -----
+# --- hours: twoaveragegamers.com (press, mirror without a declared source) -----
 def tag_hours(names):
     for sl in _slugs_for(names):
         r = http_get("https://www.twoaveragegamers.com/games/%s/" % sl)
@@ -226,9 +226,9 @@ def tag_hours(names):
 
 # --- Steam -----------------------------------------------------------------
 def steam_search(names):
-    """(appid, name) por busqueda en la tienda, solo con coincidencia de titulo clara."""
+    """(appid, name) by store search, only with a clear title match."""
     for nom in dict.fromkeys(names):
-        # la busqueda de Steam falla con " - " en el termino: se prueba tambien el name solo con letras y numeros
+        # Steam search fails with " - " in the term: also try the name with letters and digits only
         for term in dict.fromkeys([nom, normalize(nom)]):
             d = _json_get("https://store.steampowered.com/api/storesearch/?term=%s&cc=es&l=en"
                           % urllib.parse.quote_plus(term))
@@ -245,7 +245,7 @@ def steam_search(names):
 
 
 def steam_store_name(appid):
-    """Nombre oficial de la ficha de tienda (el del manifiesto puede ser mas corto)."""
+    """Official store page name (the manifest one may be shorter)."""
     d = _json_get("https://store.steampowered.com/api/appdetails?appids=%d&filters=basic&l=english" % appid)
     try:
         return d[str(appid)]["data"]["name"]
@@ -254,7 +254,7 @@ def steam_store_name(appid):
 
 
 def steam_reviews(appid):
-    """(total, % positivas) de todas las resenas y todos los idiomas, o None. % None si hay menos de 10."""
+    """(total, % positive) across all reviews and languages, or None. % None when there are fewer than 10."""
     d = _json_get("https://store.steampowered.com/appreviewhistogram/%d?l=english" % appid)
     try:
         ro = d["results"]["rollups"]
@@ -267,26 +267,26 @@ def steam_reviews(appid):
 
 
 def steam_estimate(appid):
-    """Mediana de las hours totales jugadas por autores de resenas (10 mas utiles + 10 recientes) o None."""
-    hs, partes = [], []
-    for filtro in ("toprated", "mostrecent"):
+    """Median total hours played by review authors (10 most helpful + 10 recent) or None."""
+    hs, parts = [], []
+    for review_filter in ("toprated", "mostrecent"):
         r = http_get("https://steamcommunity.com/app/%d/reviews/?browsefilter=%s&snr=1_5_100010_&filterLanguage=all"
-                     % (appid, filtro))
+                     % (appid, review_filter))
         if not r or r[0] != 200:
             continue
         v = [float(x.replace(",", "")) for x in re.findall(r"([\d,]+(?:\.\d+)?) hrs on record", r[1])]
         hs += v
-        partes.append(len(v))
+        parts.append(len(v))
     if len(hs) < 8:
         return None
-    return round(statistics.median(hs), 1), len(hs), partes
+    return round(statistics.median(hs), 1), len(hs), parts
 
 
 # --- Metacritic ------------------------------------------------------------
 def mc_search(names):
-    """Entrada para _metacritic ({s, p, n, f[, nota]}) o None si no hay ficha.
-    PC primero; si PC no tiene Metascore, la primera plataforma que lo tenga (queda en 'p' y en 'nota')."""
-    hoy = datetime.date.today().isoformat()
+    """Entry for _metacritic ({s, p, n, f[, nota]}) or None when there is no page.
+    PC first; when PC has no Metascore, the first platform that has one (stored in 'p' and 'nota')."""
+    today = datetime.date.today().isoformat()
     for sl in _slugs_for(names):
         r = http_get("https://www.metacritic.com/game/%s/" % sl)
         if not r or r[0] != 200:
@@ -295,15 +295,15 @@ def mc_search(names):
         if not t or not isinstance(match_title(names, [(sl, _html.unescape(t.group(1)))]), tuple):
             continue
         pl = re.search(r'"gamePlatform":\[([^\]]*)\]', r[1])
-        lista = re.findall(r'"([^"]+)"', pl.group(1)) if pl else []
-        if len(lista) <= 1:
+        platforms = re.findall(r'"([^"]+)"', pl.group(1)) if pl else []
+        if len(platforms) <= 1:
             m = re.search(r'"name":"Metascore"[^}]*?"ratingValue":(\d+),"reviewCount":(\d+)', r[1])
-            p = lista[0] if lista else "?"
+            p = platforms[0] if platforms else "?"
             if m:
-                return {"s": int(m.group(1)), "p": p, "n": int(m.group(2)), "f": hoy}
-            return {"s": "s/n", "p": p, "f": hoy}
+                return {"s": int(m.group(1)), "p": p, "n": int(m.group(2)), "f": today}
+            return {"s": "s/n", "p": p, "f": today}
         n_pc = None
-        for p in sorted(lista, key=lambda x: x != "PC"):
+        for p in sorted(platforms, key=lambda x: x != "PC"):
             rp = http_get("https://www.metacritic.com/game/%s/critic-reviews/?platform=%s"
                           % (sl, re.sub(r"[^a-z0-9]+", "-", p.lower()).strip("-")))
             if not rp or rp[0] != 200:
@@ -313,26 +313,26 @@ def mc_search(names):
             if p == "PC" and nr:
                 n_pc = int(nr.group(1))
             if ms:
-                e = {"s": int(ms.group(1)), "p": p, "f": hoy}
+                e = {"s": int(ms.group(1)), "p": p, "f": today}
                 if nr:
                     e["n"] = int(nr.group(1))
-                if p != "PC" and "PC" in lista:
+                if p != "PC" and "PC" in platforms:
                     e["nota"] = "PC sin Metascore; se usa la ficha de %s" % p
                 return e
-        e = {"s": "s/n", "p": "PC" if "PC" in lista else lista[0], "f": hoy}
+        e = {"s": "s/n", "p": "PC" if "PC" in platforms else platforms[0], "f": today}
         if n_pc is not None:
             e["n"] = n_pc
         return e
     return None
 
 
-# --- resolucion de hours ----------------------------------------------------
+# --- hours resolution ------------------------------------------------------
 def _fmt_h(v):
     return "%g" % v
 
 
-def resolve_hours(names, get_appid, hoy_es, es_wl):
-    """{value, nota, source, ambiguous}. value None = ninguna source utilizable (ambiguous = fichas ambiguas de Deku)."""
+def resolve_hours(names, get_appid, today_es, is_wishlist):
+    """{value, nota, source, ambiguous}. value None = no usable source (ambiguous = ambiguous Deku entries)."""
     cands, sel = [], None
     for nom in dict.fromkeys(names):
         cands += deku_search(nom)
@@ -340,8 +340,8 @@ def resolve_hours(names, get_appid, hoy_es, es_wl):
         if isinstance(sel, tuple):
             break
     if sel == "ambiguo":
-        # varias fichas con el mismo comienzo (p. ej. juego base y secuela independiente): se desempata con el
-        # name oficial de la ficha de Steam
+        # several entries with the same beginning (e.g. base game and standalone sequel): break the tie with the
+        # official name from the Steam page
         ap = get_appid()
         nm = steam_store_name(ap[0]) if ap and ap[0] else None
         if nm:
@@ -351,13 +351,13 @@ def resolve_hours(names, get_appid, hoy_es, es_wl):
         if v:
             return {"value": v, "source": "Deku/HLTB", "ambiguous": None,
                     "nota": "%s Main Story %s h (Deku Deals, %s). Ficha: %s."
-                            % ("Deku/HLTB" if es_wl else "HLTB", _fmt_h(v), hoy_es, sel[1])}
+                            % ("Deku/HLTB" if is_wishlist else "HLTB", _fmt_h(v), today_es, sel[1])}
     ambiguous = [c[1] for c in cands][:4] if sel == "ambiguo" else None
     t = tag_hours(names)
     if t:
         return {"value": t[0], "source": "twoaveragegamers (prensa)", "ambiguous": None,
                 "nota": "PRENSA (twoaveragegamers.com, %s): %s h; ficha %s (%s). Espejo sin source declarada: "
-                        "certeza media-baja." % (hoy_es, _fmt_h(t[0]), t[1], t[2])}
+                        "certeza media-baja." % (today_es, _fmt_h(t[0]), t[1], t[2])}
     ap = get_appid()
     if ap and ap[0]:
         e = steam_estimate(ap[0])
@@ -366,23 +366,23 @@ def resolve_hours(names, get_appid, hoy_es, es_wl):
                     "nota": "ESTIMACION (%s): mediana de %d resenas de Steam (%d mas utiles + %d recientes), tiempo "
                             "total jugado por sus autores. No hay duracion de campana publicada; incluye jugadores que "
                             "no terminaron y rejugadores. Certeza muy baja."
-                            % (hoy_es, e[1], e[2][0] if e[2] else 0, e[2][1] if len(e[2]) > 1 else 0)}
+                            % (today_es, e[1], e[2][0] if e[2] else 0, e[2][1] if len(e[2]) > 1 else 0)}
     return {"value": None, "nota": None, "source": None, "ambiguous": ambiguous}
 
 
-def _should_retry(e, hoy):
-    """Entradas automaticas sin Metascore (con fecha 'f') se vuelven a mirar a los RETRY_DAYS days."""
+def _should_retry(e, today):
+    """Automatic entries without a Metascore (with an 'f' date) are checked again after RETRY_DAYS days."""
     if not (isinstance(e, dict) and e.get("f") and e.get("s") in (None, "s/n")):
         return False
     try:
-        return (hoy - datetime.date.fromisoformat(e["f"])).days >= RETRY_DAYS
+        return (today - datetime.date.fromisoformat(e["f"])).days >= RETRY_DAYS
     except Exception:
         return False
 
 
 def autocomplete(games, hours, wl_meta):
-    hoy = datetime.date.today()
-    hoy_es, hoy_iso = hoy.strftime("%d/%m/%Y"), hoy.isoformat()
+    today = datetime.date.today()
+    today_es, today_iso = today.strftime("%d/%m/%Y"), today.isoformat()
     nts, mc, st = _dict_block(hours, "_notas"), _dict_block(hours, "_metacritic"), _dict_block(hours, "_steam")
     wj = wl_meta.get("juegos") if isinstance(wl_meta.get("juegos"), dict) else {}
     wl_num = {normalize(t): v for t, v in wj.items() if is_valid_hours(v)}
@@ -392,7 +392,7 @@ def autocomplete(games, hours, wl_meta):
             continue
         k = normalize(j["name"])
         missing_hours = hours.get(k, "?") == "?" and k not in wl_num
-        missing_note = (k not in mc) or _should_retry(mc.get(k), hoy)
+        missing_note = (k not in mc) or _should_retry(mc.get(k), today)
         if missing_hours or missing_note:
             pending.append((j, k, missing_hours, missing_note))
     wishlist_pending = []
@@ -400,7 +400,7 @@ def autocomplete(games, hours, wl_meta):
         wmc, wst, wnt = _dict_block(wl_meta, "_metacritic"), _dict_block(wl_meta, "_steam"), _dict_block(wl_meta, "_notas")
         for title, value in wj.items():
             missing_hours = isinstance(value, str) and value == "?"
-            missing_note = (title not in wmc) or _should_retry(wmc.get(title), hoy)
+            missing_note = (title not in wmc) or _should_retry(wmc.get(title), today)
             if missing_hours or missing_note:
                 wishlist_pending.append((title, missing_hours, missing_note))
     if not pending and not wishlist_pending:
@@ -408,7 +408,7 @@ def autocomplete(games, hours, wl_meta):
         return
     print("\n" + t("net.start", installed=len(pending), wishlist=len(wishlist_pending)))
     sys.stdout.flush()
-    log, sin = [], []
+    log, missing = [], []
     changed_hours = changed_wishlist = False
     cache_app = {}
 
@@ -418,25 +418,25 @@ def autocomplete(games, hours, wl_meta):
         return cache_app[key]
 
     def process_item(key, display, names, app_m, missing_hours, missing_note, set_hours, mcd, std):
-        cambio = False
+        changed = False
         print("   %s" % display)
         sys.stdout.flush()
         if missing_hours:
-            r = resolve_hours(names, lambda: appid_for(key, names, app_m), hoy_es, mcd is not mc)
+            r = resolve_hours(names, lambda: appid_for(key, names, app_m), today_es, mcd is not mc)
             if r["value"] is not None:
                 set_hours(r["value"], r["nota"])
-                cambio = True
+                changed = True
                 log.append(t("net.hours_log", name=display, hours=_fmt_h(r["value"]),
                              source=r["source"]))
             else:
                 extra = t("net.ambiguous", names=" | ".join(r["ambiguous"])) if r["ambiguous"] else ""
-                sin.append("%s%s" % (display, extra))
+                missing.append("%s%s" % (display, extra))
         if missing_note:
             e = mc_search(names)
             if e is None:
-                e = {"s": None, "nota": "sin ficha en Metacritic (%s)" % hoy_es, "f": hoy_iso}
+                e = {"s": None, "nota": "sin ficha en Metacritic (%s)" % today_es, "f": today_iso}
             mcd[key] = e
-            cambio = True
+            changed = True
             reviews = t("net.reviews", n=e["n"]) if e.get("n") else ""
             d = (t("net.metascore", score=e["s"], platform=e.get("p", "?"), reviews=reviews)
                  if isinstance(e.get("s"), int) else t("net.no_metascore"))
@@ -450,7 +450,7 @@ def autocomplete(games, hours, wl_meta):
                 else:
                     d += t("net.no_steam")
             log.append(t("net.note_log", name=display, desc=d))
-        return cambio
+        return changed
 
     try:
         if pending:
@@ -458,14 +458,14 @@ def autocomplete(games, hours, wl_meta):
             for j, k, missing_hours, missing_note in pending:
                 app_m = manifests.get(k)
                 names = [j["name"]] + ([app_m[1]] if app_m and app_m[1] else [])
-                sin_camel = re.sub(r"(?<=[a-z0-9])(?=[A-Z])", " ", j["name"])      # CatherineClassic -> Catherine Classic
-                if sin_camel != j["name"]:
-                    names.append(sin_camel)
+                camel_spaced = re.sub(r"(?<=[a-z0-9])(?=[A-Z])", " ", j["name"])      # CatherineClassic -> Catherine Classic
+                if camel_spaced != j["name"]:
+                    names.append(camel_spaced)
 
-                def poner(v, nota, k=k):
+                def put_hours(v, nota, k=k):
                     hours[k] = v
                     nts[k] = nota
-                if process_item(k, j["name"], names, app_m, missing_hours, missing_note, poner, mc, st):
+                if process_item(k, j["name"], names, app_m, missing_hours, missing_note, put_hours, mc, st):
                     changed_hours = True
         for title, missing_hours, missing_note in wishlist_pending:
             def set_wishlist(v, nota, title=title):
@@ -477,14 +477,14 @@ def autocomplete(games, hours, wl_meta):
         if changed_hours:
             _save_json(HOURS_JSON, write_hours, hours)
         if changed_wishlist:
-            wl_meta["_actualizado"] = hoy_iso
+            wl_meta["_actualizado"] = today_iso
             _save_json(WISHLIST_JSON, write_wishlist, wl_meta)
         print("\n" + t("net.done", n=_NET["n"],
                        offline=t("net.offline") if _NET["down"] else ""))
         for line in log:
             print(line)
-        if sin:
-            print(t("net.no_source", n=len(sin)))
-            for item in sin:
+        if missing:
+            print(t("net.no_source", n=len(missing)))
+            for item in missing:
                 print("      " + item)
         sys.stdout.flush()
