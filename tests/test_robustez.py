@@ -19,8 +19,8 @@ from inventory.cli import inside_data
 from inventory.config import DATA_DIR
 from inventory.i18n import set_lang
 from inventory.data import (_save_json, clean_hours, write_atomic, write_hours,
-                              is_valid_hours, read_keys, read_json, clean_temp_files,
-                              purge_hours, acquire_lock)
+                              write_wishlist, is_valid_hours, read_keys, read_json,
+                              clean_temp_files, purge_hours, acquire_lock)
 from inventory.scan import scan_games
 from inventory.cell_format import clean_text
 from inventory.network import steam_search
@@ -55,6 +55,13 @@ class ReadJsonTests(unittest.TestCase):
                 json.dump({"a": 1}, f)
             with self.assertRaises(ValueError):
                 read_keys(path)
+
+    def test_keys_accept_list(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "x.json")
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(["Game A", 123, "_meta"], f)
+            self.assertEqual(read_keys(path), {"game a", "123"})
 
     def test_no_utf8(self):
         with tempfile.TemporaryDirectory() as d:
@@ -264,6 +271,17 @@ class WriteTests(unittest.TestCase):
             with open(path + ".bak", encoding="utf-8") as f:
                 self.assertEqual(json.load(f), {"game": 10})
             self.assertEqual(read_json(path, None), {"_notas": {}})
+
+    def test_write_wishlist_roundtrip(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "wishlist.json")
+            with mock.patch("inventory.data.WISHLIST_JSON", path):
+                write_wishlist({"juegos": {"Hades": 10.0, "Other": "?"},
+                                "_notas": {"Hades": "note"}})
+            data = read_json(path, {})
+            self.assertEqual(data["juegos"]["Hades"], 10.0)
+            self.assertEqual(data["juegos"]["Other"], "?")
+            self.assertEqual(data["_notas"]["Hades"], "note")
 
     def test_output_inside_data(self):
         self.assertTrue(inside_data(os.path.join(DATA_DIR, "x.xlsx")))

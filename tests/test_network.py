@@ -4,6 +4,7 @@
 import io
 import os
 import sys
+import tempfile
 import unittest
 from contextlib import redirect_stdout
 from unittest import mock
@@ -14,8 +15,8 @@ if ROOT not in sys.path:
 
 from inventory.i18n import set_lang
 from inventory.network import (autocomplete, deku_item, deku_search, mc_search,
-                               resolve_hours, steam_estimate, steam_reviews,
-                               steam_search, tag_hours)
+                               resolve_hours, steam_estimate, steam_manifests,
+                               steam_reviews, steam_search, tag_hours)
 
 
 class NetworkTests(unittest.TestCase):
@@ -128,6 +129,33 @@ class NetworkTests(unittest.TestCase):
         self.assertEqual(hours["_notas"]["hades"], "test note")
         self.assertEqual(hours["_metacritic"]["hades"]["s"], 90)
         self.assertTrue(save.called)
+
+    def test_autocomplete_fills_wishlist(self):
+        meta = {"juegos": {"Hades": "?"}}
+        resolved = {"value": 10.0, "nota": "test note", "source": "test",
+                    "ambiguous": None}
+        with mock.patch("inventory.network.steam_manifests", return_value={}), \
+             mock.patch("inventory.network.resolve_hours", return_value=resolved), \
+             mock.patch("inventory.network.mc_search",
+                        return_value={"s": 90, "p": "PC", "n": 10}), \
+             mock.patch("inventory.network._save_json") as save:
+            with redirect_stdout(io.StringIO()):
+                autocomplete([], {}, meta)
+        self.assertEqual(meta["juegos"]["Hades"], 10.0)
+        self.assertEqual(meta["_notas"]["Hades"], "test note")
+        self.assertIn("_actualizado", meta)
+        self.assertTrue(save.called)
+
+    def test_steam_manifests_parses_acf(self):
+        with tempfile.TemporaryDirectory() as d:
+            acf = os.path.join(d, "appmanifest_123.acf")
+            with open(acf, "w", encoding="utf-8") as f:
+                f.write('"AppState" { "appid" "123" "installdir" "Hades" "name" "Hades" }')
+            base = os.path.join(d, "steamapps", "common")
+            with mock.patch("inventory.network.LIBRARIES", [base]), \
+                 mock.patch("inventory.network.glob.glob", return_value=[acf]):
+                manifests = steam_manifests()
+            self.assertEqual(manifests.get("hades"), (123, "Hades"))
 
 
 if __name__ == "__main__":

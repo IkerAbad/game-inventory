@@ -31,6 +31,11 @@ jobs:
       - name: Console script
         run: game-inventory --version
 
+      - name: Windows launcher
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: start.cmd --version
+
       - name: Lint
         run: python -m pyflakes inventory generate_inventory.py tests
 
