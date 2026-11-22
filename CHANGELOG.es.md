@@ -10,6 +10,7 @@ Cambios destacados del proyecto. El formato sigue [Keep a Changelog](https://kee
 - `--check-data` / `--validar`: valida los ficheros JSON y sale sin escanear ni escribir.
 - Textos de ayuda traducidos, así que `--help` sigue a `--lang`.
 - `docs/DATA.es.md`, `docs/ARCHITECTURE.es.md` y `SECURITY.es.md`.
+- Plantillas de incidencia y de pull request, y EditorConfig.
 - Actualizaciones de Dependabot para pip y GitHub Actions.
 - Guía de contribución en inglés y español.
 - Palabras clave y clasificadores del paquete.
@@ -17,6 +18,7 @@ Cambios destacados del proyecto. El formato sigue [Keep a Changelog](https://kee
 ### Cambiado
 
 - El CI cachea las descargas de pip, cancela ejecuciones sustituidas, usa permisos de solo lectura y un límite de 15 minutos.
+- El CI construye el wheel y el sdist, comprueba que no llevan `data/`, instala el wheel y lo ejecuta.
 - El comando instalado `game-inventory` lee `data/` del checkout o de la carpeta actual. `GAME_INVENTORY_DATA` lo cambia.
 
 ## [1.0.0] - 2026-11-22

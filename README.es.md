@@ -97,6 +97,8 @@ SECURITY.es.md             política de seguridad en español
 docs/
   DATA.es.md               formatos de datos y copias
   ARCHITECTURE.es.md       flujo, módulos y garantías
+tools/
+  check_dist.py            comprueba el contenido del wheel y del sdist
 inventory/
   config.py                unidades, rutas y ajustes de red
   data.py                  JSON: carga, formato y escritura segura

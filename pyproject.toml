@@ -25,7 +25,10 @@ classifiers = [
 ]
 
 [project.urls]
+Homepage = "https://github.com/IkerAbad/game-inventory"
 Repository = "https://github.com/IkerAbad/game-inventory"
+Issues = "https://github.com/IkerAbad/game-inventory/issues"
+Changelog = "https://github.com/IkerAbad/game-inventory/blob/main/CHANGELOG.md"
 
 [project.scripts]
 game-inventory = "inventory.cli:main"

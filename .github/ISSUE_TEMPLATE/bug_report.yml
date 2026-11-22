@@ -1,0 +1,75 @@
+name: Bug report / Informe de error
+description: Something fails or gives a wrong result. Algo falla o da un resultado incorrecto.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not attach personal files from `data/`. / No adjuntes ficheros personales de `data/`.
+  - type: dropdown
+    id: language
+    attributes:
+      label: Language / Idioma
+      options:
+        - English
+        - Español
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version / Versión
+      description: Output of `game-inventory --version` or the commit hash. / Salida de `game-inventory --version` o el hash del commit.
+      placeholder: game-inventory 1.0.0
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: System / Sistema
+      options:
+        - Windows 11
+        - Windows 10
+        - Linux
+        - macOS
+        - Other / Otro
+    validations:
+      required: true
+  - type: input
+    id: python
+    attributes:
+      label: Python
+      description: Output of `py --version` or `python3 --version`. / Salida de `py --version` o `python3 --version`.
+      placeholder: Python 3.14.0
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Command / Comando
+      description: The exact command you ran. / El comando exacto que ejecutaste.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected / Esperado
+      description: What you expected to happen. / Qué esperabas que pasara.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual / Real
+      description: What happened instead. Remove personal paths and titles. / Qué pasó en realidad. Quita rutas y títulos personales.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / Registro
+      description: Console output or `data/last_run.log`. Remove personal data. / Salida de consola o `data/last_run.log`. Quita datos personales.
+      render: shell
+    validations:
+      required: false

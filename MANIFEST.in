@@ -1,0 +1,13 @@
+include LICENSE
+include README.md
+include README.es.md
+include CHANGELOG.md
+include CHANGELOG.es.md
+include CONTRIBUTING.md
+include CONTRIBUTING.es.md
+include SECURITY.md
+include SECURITY.es.md
+include requirements.txt
+include requirements-dev.txt
+recursive-include docs *.md
+recursive-include tests *.py

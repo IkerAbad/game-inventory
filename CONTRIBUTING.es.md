@@ -16,7 +16,7 @@ py -m pip install -e .
 ## Comprobaciones
 
 ```
-py -m pyflakes inventory generate_inventory.py tests
+py -m pyflakes inventory generate_inventory.py tests tools
 py -m coverage run --source=inventory -m unittest discover -s tests -v
 py -m coverage report -m
 ```

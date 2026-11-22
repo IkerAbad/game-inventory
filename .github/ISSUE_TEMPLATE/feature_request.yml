@@ -1,0 +1,34 @@
+name: Feature request / Petición de mejora
+description: Suggest a change or a new option. Propón un cambio o una opción nueva.
+labels: ["enhancement"]
+body:
+  - type: dropdown
+    id: language
+    attributes:
+      label: Language / Idioma
+      options:
+        - English
+        - Español
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / Problema
+      description: What is missing or awkward today. / Qué falta o resulta incómodo hoy.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal / Propuesta
+      description: The behaviour you would like. / El comportamiento que te gustaría.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives / Alternativas
+      description: Other options you considered. / Otras opciones que hayas considerado.
+    validations:
+      required: false

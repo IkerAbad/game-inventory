@@ -10,6 +10,7 @@ All notable changes to this project. The format follows [Keep a Changelog](https
 - `--check-data` / `--validar`: validate the JSON data files and exit without scanning or writing.
 - Help texts translated, so `--help` follows `--lang`.
 - `docs/DATA.md` and `docs/ARCHITECTURE.md`, and `SECURITY.md`.
+- Issue forms, pull request template and EditorConfig.
 - Dependabot updates for pip and GitHub Actions.
 - Contributing guide in English and Spanish.
 - Package keywords and classifiers.
@@ -17,6 +18,7 @@ All notable changes to this project. The format follows [Keep a Changelog](https
 ### Changed
 
 - CI caches pip downloads, cancels superseded runs, uses read-only permissions and a 15-minute timeout.
+- CI builds the wheel and sdist, checks that `data/` is not inside, installs the wheel and runs it.
 - The installed `game-inventory` command reads `data/` from the source checkout or the current folder. `GAME_INVENTORY_DATA` overrides it.
 
 ## [1.0.0] - 2026-11-22

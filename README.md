@@ -97,6 +97,8 @@ SECURITY.md                English security policy
 docs/
   DATA.md                  data formats and backups
   ARCHITECTURE.md          flow, modules and guarantees
+tools/
+  check_dist.py            checks the wheel and sdist contents
 inventory/
   config.py                drives, paths and network settings
   data.py                  JSON: loading, formatting and safe writing
