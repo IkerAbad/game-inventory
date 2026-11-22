@@ -10,7 +10,7 @@ Escanea las carpetas donde tienes juegos instalados, cruza el tamaño en disco c
 - Escanea las unidades y carpetas configuradas en `inventario/config.py` y mide cada juego en disco.
 - Completa por red las horas que falten (Deku Deals, twoaveragegamers y una estimación con reseñas de Steam), el Metascore y, si no hay Metascore, el porcentaje de reseñas positivas de Steam.
 - Purga de `horas.json` las claves de juegos que ya no están instalados, solo si están todas las unidades.
-- Genera el Excel con seis hojas: Juegos, Espacio, Resumen, Plan, Historico y Wishlist.
+- Genera el Excel con las hojas Juegos, Espacio, Resumen, Plan, Historico y, si hay wishlist, Wishlist.
 
 ## Requisitos
 

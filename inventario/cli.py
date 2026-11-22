@@ -37,6 +37,8 @@ def main(argv=None):
         print("   Cierralo y vuelve a ejecutar. No se ha escaneado nada.")
         return
     os.makedirs(DATOS, exist_ok=True)
+    if not os.path.exists(HORAS_JSON):
+        print("Aviso: no hay horas.json en datos/. Todos los juegos saldran como SIN DATOS.")
     horas = json.load(open(HORAS_JSON, encoding="utf-8")) if os.path.exists(HORAS_JSON) else {}
     if os.path.exists(COMPLETADOS_JSON):
         completados = {normaliza(x) for x in json.load(open(COMPLETADOS_JSON, encoding="utf-8"))
