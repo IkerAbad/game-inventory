@@ -52,6 +52,7 @@ Options:
 | `--offline`, `--sin-red` | Do not use the network. |
 | `--keep`, `--conservar` | Do not purge uninstalled game keys. |
 | `--force-purge`, `--forzar-purga` | Allow purging more than half of the keys at once. |
+| `--dry-run`, `--simular` | Scan and show the summary without writing anything. |
 | `--output PATH`, `--salida PATH` | Write the Excel workbook to another path. |
 | `--version` | Show the installed version. |
 
@@ -82,11 +83,15 @@ The source notes inside the JSON files keep the language they were written in.
 - Only one run can be active at a time, enforced by a lock in `data/`.
 - BOM-prefixed JSON is accepted and broken history rows are skipped with a warning.
 
+- `--dry-run` scans and prints the summary but writes no workbook, history or JSON.
+
 ## Structure
 
 ```
 generate_inventory.py      entry point
 pyproject.toml             package metadata and console script
+CHANGELOG.md               English changelog
+CONTRIBUTING.md            English contributing guide
 inventory/
   config.py                drives, paths and network settings
   data.py                  JSON: loading, formatting and safe writing
@@ -114,6 +119,9 @@ The CI fails below 97% coverage.
 ## Documentation
 
 `README.es.md` is the Spanish version. The personal notes with sources and decisions live in `data/NOTES.md`, which is not versioned.
+
+- [Changelog](CHANGELOG.md) / [Registro de cambios](CHANGELOG.es.md)
+- [Contributing](CONTRIBUTING.md) / [Contribuir](CONTRIBUTING.es.md)
 
 ## License
 

@@ -332,6 +332,17 @@ class BranchTests(unittest.TestCase):
         self.assertEqual(rc, 0)
         self.assertIn("KEYS WITHOUT A FOLDER", console)
 
+    def test_dry_run_writes_nothing(self):
+        with tempfile.TemporaryDirectory() as d:
+            out = os.path.join(d, "output.xlsx")
+            rc, console, _, _ = self._run(
+                d, hours={"installed": 10.0}, games=[fake_game("Installed", 1.0)],
+                args=["--offline", "--keep", "--dry-run", "--output", out])
+            self.assertEqual(rc, 0)
+            self.assertFalse(os.path.exists(out))
+            self.assertFalse(os.path.exists(os.path.join(d, "data", "history.csv")))
+            self.assertIn("DRY RUN", console)
+
     def test_history_delta(self):
         with tempfile.TemporaryDirectory() as d:
             rc, console, _, _ = self._run(d, hours={}, history=True)

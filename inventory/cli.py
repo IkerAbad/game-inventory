@@ -56,6 +56,9 @@ def main(argv=None):
     parser.add_argument("--force-purge", "--forzar-purga", dest="force_purge",
                         action="store_true",
                         help="allow purging more than half of the keys at once")
+    parser.add_argument("--dry-run", "--simular", dest="dry_run",
+                        action="store_true",
+                        help="scan and show the summary without writing anything")
     parser.add_argument("--output", "--salida", dest="output", default=None,
                         help="Excel path (default: config.py)")
     args = parser.parse_args(argv)
@@ -120,7 +123,7 @@ def main(argv=None):
         if len(hour_warnings) > 10:
             print(t("cli.more", n=len(hour_warnings) - 10))
     games, failed_bases = scan_games()
-    if not args.offline:
+    if not args.offline and not args.dry_run:
         try:
             autocomplete(games, hours, wl_meta)
         except Exception as e:
@@ -179,6 +182,18 @@ def main(argv=None):
                             "bad")
 
     games.sort(key=lambda x: (not x["playing"], -x["ratio"], -x["gb"]))
+
+    if args.dry_run:
+        dry_hours = sum(j["hours"] for j in games
+                        if isinstance(j["hours"], (int, float))
+                        and not j["completed"])
+        print(t("cli.found", n=len(games), gb=sum(j["gb"] for j in games)))
+        print(t("cli.pending", hours=dry_hours, days=round(dry_hours / 4),
+                years=dry_hours / 4 / 365.25))
+        print(t("cli.quartiles", q1=q1, q2=q2, q3=q3))
+        print(t("cli.dry_run"))
+        lock.close()
+        return 0
 
     wb, total_hours, history_rows = build_workbook(
         games, q1, q2, q3, wl=wishlist,

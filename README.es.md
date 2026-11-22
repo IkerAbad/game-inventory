@@ -52,6 +52,7 @@ Opciones:
 | `--offline`, `--sin-red` | No consulta internet. |
 | `--keep`, `--conservar` | No purga las claves de juegos desinstalados. |
 | `--force-purge`, `--forzar-purga` | Permite purgar más de la mitad de las claves de una vez. |
+| `--dry-run`, `--simular` | Escanea y muestra el resumen sin escribir nada. |
 | `--output RUTA`, `--salida RUTA` | Escribe el Excel en otra ruta. |
 | `--version` | Muestra la versión instalada. |
 
@@ -82,11 +83,15 @@ Las notas de fuentes dentro de los JSON conservan el idioma en que se escribiero
 - Solo puede haber una ejecución a la vez, con un bloqueo en `data/`.
 - Acepta JSON con BOM y descarta filas corruptas del histórico con un aviso.
 
+- `--dry-run` escanea y muestra el resumen, pero no escribe libro, histórico ni JSON.
+
 ## Estructura
 
 ```
 generate_inventory.py      punto de entrada
 pyproject.toml             metadatos del paquete y comando de consola
+CHANGELOG.es.md            registro de cambios en español
+CONTRIBUTING.es.md         guía de contribución en español
 inventory/
   config.py                unidades, rutas y ajustes de red
   data.py                  JSON: carga, formato y escritura segura
@@ -114,6 +119,9 @@ El CI falla por debajo del 97% de cobertura.
 ## Documentación
 
 `README.md` es la versión inglesa. Las notas personales con fuentes y decisiones viven en `data/NOTES.md`, que no se versiona.
+
+- [Changelog](CHANGELOG.md) / [Registro de cambios](CHANGELOG.es.md)
+- [Contributing](CONTRIBUTING.md) / [Contribuir](CONTRIBUTING.es.md)
 
 ## Licencia
 

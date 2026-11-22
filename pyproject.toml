@@ -11,6 +11,18 @@ requires-python = ">=3.12"
 license = {text = "MIT"}
 authors = [{name = "Iker Abad"}]
 dependencies = ["openpyxl>=3.1.5,<3.2"]
+keywords = ["games", "backlog", "excel", "openpyxl", "inventory", "steam"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Games/Entertainment",
+    "Topic :: Office/Business",
+]
 
 [project.urls]
 Repository = "https://github.com/IkerAbad/game-inventory"
