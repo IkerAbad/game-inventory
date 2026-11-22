@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "game-inventory"
+dynamic = ["version"]
+description = "Game inventory: GB per hour, backlog plan, history and wishlist"
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "MIT"}
+authors = [{name = "Iker Abad"}]
+dependencies = ["openpyxl>=3.1.5,<3.2"]
+
+[project.urls]
+Repository = "https://github.com/IkerAbad/game-inventory"
+
+[project.scripts]
+game-inventory = "inventory.cli:main"
+
+[tool.setuptools]
+packages = ["inventory"]
+
+[tool.setuptools.dynamic]
+version = {attr = "inventory.__version__"}

@@ -9,6 +9,7 @@ import sys
 
 from .cell_format import dif_cells
 from .config import COMPLETED_JSON, DATA_DIR, HOURS_JSON, OUTPUT, PLAYING_JSON, WISHLIST_JSON
+from . import __version__
 from .data import (acquire_lock, clean_hours, clean_temp_files, is_valid_hours,
                    normalize, purge_hours, read_json, read_keys)
 from .excel import build_workbook
@@ -42,10 +43,12 @@ def main(argv=None):
     if lang in ("en", "es"):
         set_lang(lang)
     parser = argparse.ArgumentParser(
-        prog="generate_inventory",
+        prog="game-inventory",
         description="Scan installed games, fill missing data from the network and build the Excel workbook.")
     parser.add_argument("--lang", choices=["en", "es"], default="en",
                         help="output language (default: en)")
+    parser.add_argument("--version", action="version",
+                        version="game-inventory " + __version__)
     parser.add_argument("--offline", "--sin-red", dest="offline", action="store_true",
                         help="do not use the network")
     parser.add_argument("--keep", "--conservar", dest="keep", action="store_true",

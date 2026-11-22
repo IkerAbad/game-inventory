@@ -25,6 +25,12 @@ jobs:
       - name: Dependencies
         run: python -m pip install -r requirements.txt
 
+      - name: Install package
+        run: python -m pip install -e .
+
+      - name: Console script
+        run: game-inventory --version
+
       - name: Compile
         run: python -m compileall -q inventory generate_inventory.py
 

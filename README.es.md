@@ -19,6 +19,15 @@ Escanea las carpetas donde tienes juegos instalados, cruza el tamaño en disco c
 - Python 3.12 o superior.
 - `openpyxl` (está en `requirements.txt`).
 
+## Instalar como paquete
+
+```
+py -m pip install .
+game-inventory --lang es
+```
+
+Los comandos directos de abajo también funcionan sin instalar.
+
 ## Uso
 
 ```
@@ -44,6 +53,7 @@ Opciones:
 | `--keep`, `--conservar` | No purga las claves de juegos desinstalados. |
 | `--force-purge`, `--forzar-purga` | Permite purgar más de la mitad de las claves de una vez. |
 | `--output RUTA`, `--salida RUTA` | Escribe el Excel en otra ruta. |
+| `--version` | Muestra la versión instalada. |
 
 El Excel sale por defecto a `%USERPROFILE%\Desktop\Juegos\Inventario juegos GB por hora.xlsx` y deja una copia `.bak.xlsx` de la ejecución anterior. Se mantiene el nombre español para actualizar el libro que ya existe. Ciérralo antes de ejecutar, si está abierto el script aborta sin escanear nada.
 
@@ -76,6 +86,7 @@ Las notas de fuentes dentro de los JSON conservan el idioma en que se escribiero
 
 ```
 generate_inventory.py      punto de entrada
+pyproject.toml             metadatos del paquete y comando de consola
 inventory/
   config.py                unidades, rutas y ajustes de red
   data.py                  JSON: carga, formato y escritura segura

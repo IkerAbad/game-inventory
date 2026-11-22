@@ -19,6 +19,15 @@ Scan the folders where your games are installed, cross the disk size with the ma
 - Python 3.12 or newer.
 - `openpyxl` (see `requirements.txt`).
 
+## Install as a package
+
+```
+py -m pip install .
+game-inventory --lang es
+```
+
+The direct script and module commands below also work without installing.
+
 ## Usage
 
 ```
@@ -44,6 +53,7 @@ Options:
 | `--keep`, `--conservar` | Do not purge uninstalled game keys. |
 | `--force-purge`, `--forzar-purga` | Allow purging more than half of the keys at once. |
 | `--output PATH`, `--salida PATH` | Write the Excel workbook to another path. |
+| `--version` | Show the installed version. |
 
 The workbook is written by default to `%USERPROFILE%\Desktop\Juegos\Inventario juegos GB por hora.xlsx` and keeps a `.bak.xlsx` copy of the previous run. The Spanish file name is kept so the existing workbook is updated in place. Close the workbook before running, otherwise the script stops before scanning anything.
 
@@ -76,6 +86,7 @@ The source notes inside the JSON files keep the language they were written in.
 
 ```
 generate_inventory.py      entry point
+pyproject.toml             package metadata and console script
 inventory/
   config.py                drives, paths and network settings
   data.py                  JSON: loading, formatting and safe writing

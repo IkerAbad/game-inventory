@@ -76,6 +76,13 @@ class IntegrationTests(unittest.TestCase):
             self.assertEqual(wb["Games"]["A6"].value, "Juego B")
             self.assertIn("NO END", wb["Games"]["F6"].value)
 
+    def test_version(self):
+        with redirect_stdout(io.StringIO()) as output:
+            with self.assertRaises(SystemExit) as ctx:
+                main(["--version"])
+        self.assertEqual(ctx.exception.code, 0)
+        self.assertIn("game-inventory", output.getvalue())
+
 
 class AbortTests(unittest.TestCase):
     def test_aborts_when_output_is_folder(self):
