@@ -11,7 +11,7 @@ Escanea las carpetas donde tienes juegos instalados, cruza el tamaño en disco c
 
 ## Requisitos
 
-- Python 3.9 o superior.
+- Python 3.12 o superior.
 - `openpyxl` (está en `requirements.txt`).
 
 ## Uso
