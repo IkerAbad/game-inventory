@@ -223,7 +223,7 @@ class PruebasEscritura(unittest.TestCase):
             with mock.patch("inventario.datos.BASES", [d]):
                 horas = {"juego": 10, "_notas": {"juego": "x"}}
                 with redirect_stdout(io.StringIO()):
-                    quitadas = purgar_horas(horas, set(), [d])
+                    quitadas = purgar_horas(horas, set(), [d], forzar=True)
                 self.assertEqual(quitadas, 0)
                 self.assertIn("juego", horas)
                 self.assertIn("juego", horas["_notas"])
