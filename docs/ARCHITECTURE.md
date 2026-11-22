@@ -39,6 +39,7 @@ The tool is a local command-line program. It reads the installed games, enriches
 - A broken JSON aborts before any write.
 - The purge refuses to run when a drive is missing or unreadable, or when it would remove more than half of the keys.
 - Excel text is written as text, never as a formula.
+- Ctrl+C exits with code 130 and the workbook is either the old one or the new one, never half written.
 - Personal data stays in `data/` and is not versioned.
 
 ## Tests

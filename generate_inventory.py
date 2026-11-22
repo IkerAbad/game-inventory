@@ -2,11 +2,10 @@
 """Game inventory generator.
 
 Usage:  py generate_inventory.py (from the project folder)
-Options: --lang en|es, --offline, --keep, --force-purge, --output PATH.
-The code lives in the inventory/ package.
+Run with --help for the options. The code lives in the inventory/ package.
 """
 
-from inventory.cli import main
+from inventory.cli import run
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    raise SystemExit(run())

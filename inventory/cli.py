@@ -10,7 +10,8 @@ import subprocess
 import sys
 
 from .cell_format import dif_cells
-from .config import COMPLETED_JSON, DATA_DIR, HOURS_JSON, OUTPUT, PLAYING_JSON, WISHLIST_JSON
+from .config import (COMPLETED_JSON, CONFIG_JSON, DATA_DIR, HOURS_JSON, OUTPUT,
+                     PLAYING_JSON, WISHLIST_JSON)
 from . import __version__
 from .data import (acquire_lock, clean_hours, clean_temp_files, is_valid_hours,
                    normalize, purge_hours, read_json, read_keys)
@@ -58,6 +59,12 @@ def check_data():
     """Validate the JSON data files without scanning or writing. Return 0 or 1."""
     print(t("check.title"))
     try:
+        config = read_json(CONFIG_JSON, {})
+        if not isinstance(config, dict):
+            raise ValueError("%s must be a JSON object" % CONFIG_JSON)
+        print(t("check.config", n=sum(1 for key in
+                                      ("libraries", "loose_paths", "exclude", "output")
+                                      if key in config)))
         hours = read_json(HOURS_JSON, {})
         if not isinstance(hours, dict):
             raise ValueError("%s must be a JSON object" % HOURS_JSON)
@@ -173,7 +180,9 @@ def main(argv=None):
         set_lang(lang)
     parser = argparse.ArgumentParser(
         prog="game-inventory",
-        description=t("help.description"))
+        description=t("help.description"),
+        epilog=t("help.examples"),
+        formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--lang", choices=["en", "es"], default="en",
                         help=t("help.lang"))
     parser.add_argument("--version", action="version",
@@ -187,7 +196,7 @@ def main(argv=None):
                         action="store_true", help=t("help.force_purge"))
     parser.add_argument("--dry-run", "--simular", dest="dry_run",
                         action="store_true", help=t("help.dry_run"))
-    parser.add_argument("--open", dest="open_file", action="store_true",
+    parser.add_argument("--open", "--abrir", dest="open_file", action="store_true",
                         help=t("help.open"))
     parser.add_argument("--check-data", "--validar", dest="check_data",
                         action="store_true", help=t("help.check_data"))
@@ -452,3 +461,13 @@ def main(argv=None):
         else:
             print(t("cli.open_failed", error=error))
     return 0
+
+
+def run(argv=None):
+    """Console entry point: turn Ctrl+C into a message and exit code 130."""
+    try:
+        return main(argv)
+    except KeyboardInterrupt:
+        print()
+        print(t("cli.cancelled"))
+        return 130

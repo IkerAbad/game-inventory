@@ -61,12 +61,14 @@ Opciones:
 | `--keep`, `--conservar` | No purga las claves de juegos desinstalados. |
 | `--force-purge`, `--forzar-purga` | Permite purgar más de la mitad de las claves de una vez. |
 | `--dry-run`, `--simular` | Escanea y muestra el resumen sin escribir nada. |
-| `--open` | Abre el libro guardado con la aplicación predeterminada. |
+| `--open`, `--abrir` | Abre el libro guardado con la aplicación predeterminada. |
 | `--check-data`, `--validar` | Valida los ficheros JSON, las claves de metadatos huérfanas, los valores de metadatos inválidos, los títulos repetidos de la wishlist y el histórico, y sale. |
 | `--output RUTA`, `--salida RUTA` | Escribe el Excel en otra ruta. |
 | `--version` | Muestra la versión instalada. |
 
 El Excel sale por defecto a `%USERPROFILE%\Desktop\Juegos\Inventario juegos GB por hora.xlsx` y deja una copia `.bak.xlsx` de la ejecución anterior. Se mantiene el nombre español para actualizar el libro que ya existe. Ciérralo antes de ejecutar, si está abierto el script aborta sin escanear nada.
+
+Códigos de salida: `0` éxito, `1` abortado o datos inválidos, `130` cancelado con Ctrl+C.
 
 ## Datos
 

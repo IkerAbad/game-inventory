@@ -61,12 +61,14 @@ Options:
 | `--keep`, `--conservar` | Do not purge uninstalled game keys. |
 | `--force-purge`, `--forzar-purga` | Allow purging more than half of the keys at once. |
 | `--dry-run`, `--simular` | Scan and show the summary without writing anything. |
-| `--open` | Open the saved workbook with the default application. |
+| `--open`, `--abrir` | Open the saved workbook with the default application. |
 | `--check-data`, `--validar` | Validate the JSON data files, stale metadata keys, invalid metadata values, repeated wishlist titles and the history, then exit. |
 | `--output PATH`, `--salida PATH` | Write the Excel workbook to another path. |
 | `--version` | Show the installed version. |
 
 The workbook is written by default to `%USERPROFILE%\Desktop\Juegos\Inventario juegos GB por hora.xlsx` and keeps a `.bak.xlsx` copy of the previous run. The Spanish file name is kept so the existing workbook is updated in place. Close the workbook before running, otherwise the script stops before scanning anything.
+
+Exit codes: `0` success, `1` aborted or invalid data, `130` cancelled with Ctrl+C.
 
 ## Data
 

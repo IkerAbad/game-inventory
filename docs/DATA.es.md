@@ -87,7 +87,7 @@ Opcional. Sustituye los valores por defecto de `inventory/config.py`:
 - `exclude`: nombres de carpeta que se saltan. No distingue mayúsculas ni puntuación.
 - `output`: ruta del libro; `~` se expande.
 
-Una clave ausente o inválida mantiene el valor por defecto. El fichero vive en `data/` y no se versiona.
+Una clave ausente o inválida mantiene el valor por defecto. `~` se expande en todas las rutas. El fichero vive en `data/` y no se versiona.
 
 ## Escrituras y copias
 

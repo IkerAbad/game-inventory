@@ -87,7 +87,7 @@ Optional. It overrides the defaults written in `inventory/config.py`:
 - `exclude`: folder names to skip. Case and punctuation are ignored.
 - `output`: workbook path; `~` is expanded.
 
-A missing or invalid key keeps the default. The file lives in `data/` and is not versioned.
+A missing or invalid key keeps the default. `~` is expanded in every path. The file lives in `data/` and is not versioned.
 
 ## Writes and backups
 

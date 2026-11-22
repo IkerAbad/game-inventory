@@ -10,6 +10,8 @@ import unittest
 from contextlib import redirect_stdout
 from unittest import mock
 
+import openpyxl
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
@@ -17,7 +19,7 @@ if ROOT not in sys.path:
 from inventory import excel
 from inventory.cli import _bad_metadata, _stale_keys, inside_data
 from inventory.config import (DATA_DIR, EXCLUDE, LIBRARIES, LOOSE_PATHS, OUTPUT,
-                              _apply_config, _data_root, _read_config)
+                              _apply_config, _data_root, _desktop, _read_config)
 from inventory.i18n import set_lang
 from inventory.data import (_save_json, _same, clean_hours, write_atomic, write_hours,
                               write_wishlist, is_valid_hours, read_keys, read_json,
@@ -465,6 +467,15 @@ class WriteTests(unittest.TestCase):
             self.assertEqual(data["juegos"]["Other"], "?")
             self.assertEqual(data["_notas"]["Hades"], "note")
 
+    def test_write_wishlist_with_scalar_block(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "wishlist.json")
+            with mock.patch("inventory.data.WISHLIST_JSON", path):
+                write_wishlist({"juegos": {"Hades": 10.0},
+                                "_actualizado": "2026-11-22"})
+            data = read_json(path, {})
+            self.assertEqual(data["_actualizado"], "2026-11-22")
+
     def test_output_inside_data(self):
         self.assertTrue(inside_data(os.path.join(DATA_DIR, "x.xlsx")))
         self.assertTrue(inside_data(os.path.join(DATA_DIR, "sub", "x.xlsx")))
@@ -584,6 +595,89 @@ class WriteTests(unittest.TestCase):
                 excel.HISTORY_CSV = original
 
 
+class WorkbookCoverageTests(unittest.TestCase):
+    def setUp(self):
+        set_lang("en")
+
+    def tearDown(self):
+        set_lang("en")
+
+    def game(self, name, gb, hours, **extra):
+        game = {"name": name, "gb": gb, "hours": hours,
+                "ratio": round(gb / hours, 2) if hours else 0.0,
+                "unit": "C:", "verdict": "good", "days": 10,
+                "path": "C:\\" + name, "completed": False, "playing": False,
+                "duplicate": False, "note": "", "mc": None, "steam": None,
+                "dif": None}
+        game.update(extra)
+        return game
+
+    def test_text_cell_with_format(self):
+        wb = openpyxl.Workbook()
+        cell = excel.text_cell(wb.active, 1, 1, "x", fmt="0.0")
+        self.assertEqual(cell.number_format, "0.0")
+
+    def test_history_backup_error_is_ignored(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "history.csv")
+            with open(path, "w", encoding="utf-8") as f:
+                f.write("date,games,gb,hours\nbad\n")
+            with mock.patch("inventory.excel.HISTORY_CSV", path), \
+                 mock.patch("inventory.excel.shutil.copy2", side_effect=OSError("x")):
+                with redirect_stdout(io.StringIO()):
+                    rows = excel.append_history([], 1.0)
+        self.assertEqual(len(rows), 1)
+
+    def test_history_write_error_is_reported(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "history.csv")
+            with mock.patch("inventory.excel.HISTORY_CSV", path), \
+                 mock.patch("inventory.excel.write_atomic", side_effect=OSError("x")):
+                with redirect_stdout(io.StringIO()) as out:
+                    rows = excel.append_history([], 1.0)
+        self.assertEqual(len(rows), 1)
+        self.assertIn("could not write", out.getvalue())
+
+    def test_workbook_with_scores_notes_and_wishlist_statuses(self):
+        games = [
+            self.game("Alpha", 10, 5, note="ESTIMACION: 5 h",
+                      steam={"pct": 90, "n": 10}),
+            self.game("Beta", 20, 10,
+                      mc={"s": 85, "p": "PS5", "n": 5, "nota": "nota"}),
+            self.game("Gamma", 30, 15,
+                      mc={"s": "s/n", "nota": "sin metascore"}),
+            self.game("Hades", 40, 20),
+        ]
+        wishlist = {"Hades": 10.0, "Hadess": 5.0, "Endless": None,
+                    "Unknown": "?", "Steam Game": 8.0}
+        with tempfile.TemporaryDirectory() as d:
+            with mock.patch("inventory.excel.HISTORY_CSV",
+                            os.path.join(d, "history.csv")):
+                wb, _, _ = excel.build_workbook(
+                    games, 1.0, 2.0, 3.0, wl=wishlist,
+                    mc_w={"Hades": {"s": 90, "p": "PS5", "n": 4}},
+                    notes_w={"Hades": "PRENSA: x", "Hadess": "ESTIMACION: y",
+                             "Unknown": "SIN DATO"},
+                    st_w={"Steam Game": {"pct": 88, "n": 20}},
+                    dif_w={"Hades": {"h": 5, "c": 5, "ct": "inferencia",
+                                     "src": "x"}})
+        ws = wb["Games"]
+        self.assertEqual(ws.cell(5, 8).number_format, '"S "0"%"')
+        self.assertIsNotNone(ws.cell(5, 3).comment)
+        self.assertIsNotNone(ws.cell(6, 8).comment)
+        self.assertIsNotNone(ws.cell(7, 8).comment)
+        self.assertGreaterEqual(wb["Plan"].max_row, 6)
+        wish = wb["Wishlist"]
+        statuses = {wish.cell(row, 1).value: str(wish.cell(row, 3).value).lower()
+                    for row in range(5, 10)}
+        self.assertIn("installed", statuses.values())
+        self.assertIn("no end", statuses.values())
+        self.assertIn("no data", statuses.values())
+        values = [wish.cell(row, 4).value for row in range(5, 10)]
+        self.assertIn(90, values)
+        self.assertTrue(any(isinstance(value, excel.PctSteam) for value in values))
+
+
 class ConfigTests(unittest.TestCase):
     def test_data_root_prefers_project_data(self):
         with tempfile.TemporaryDirectory() as d:
@@ -599,6 +693,11 @@ class ConfigTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             self.assertEqual(_data_root(d, "elsewhere"), "elsewhere")
 
+    def test_desktop_fallback(self):
+        with mock.patch("inventory.config.os.path.isdir", return_value=False):
+            desktop = _desktop()
+        self.assertEqual(os.path.basename(desktop), "Desktop")
+
     def test_config_defaults(self):
         libraries, loose, exclude, output = _apply_config({})
         self.assertIs(libraries, LIBRARIES)
@@ -607,12 +706,13 @@ class ConfigTests(unittest.TestCase):
         self.assertIs(output, OUTPUT)
 
     def test_config_overrides_every_setting(self):
-        config = {"libraries": ["D:/Games"], "loose_paths": ["E:/Loose"],
+        config = {"libraries": ["~/Games", "D:/Games"],
+                  "loose_paths": ["~/Loose", "E:/Loose"],
                   "exclude": ["Steam Controller Configs", "Emuladores"],
                   "output": "~/out.xlsx"}
         libraries, loose, exclude, output = _apply_config(config)
-        self.assertEqual(libraries, ["D:/Games"])
-        self.assertEqual(loose, ["E:/Loose"])
+        self.assertEqual(libraries, [os.path.expanduser("~/Games"), "D:/Games"])
+        self.assertEqual(loose, [os.path.expanduser("~/Loose"), "E:/Loose"])
         self.assertEqual(exclude, {"steam controller configs", "emuladores"})
         self.assertEqual(output, os.path.expanduser("~/out.xlsx"))
 

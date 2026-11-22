@@ -7,9 +7,11 @@ All notable changes to this project. The format follows [Keep a Changelog](https
 ### Added
 
 - `--dry-run` / `--simular`: scan and print the summary without writing the workbook, history, JSON or purging.
-- `--check-data` / `--validar`: validate the JSON data files, stale metadata keys, invalid metadata values, repeated wishlist titles and the history, then exit without scanning or writing.
-- `--open`: open the workbook with the default application after saving it.
-- `data/config.json` can override the libraries, loose paths, exclusions and output path.
+- `--check-data` / `--validar`: validate the JSON data files, `config.json`, stale metadata keys, invalid metadata values, repeated wishlist titles and the history, then exit without scanning or writing.
+- `--open` / `--abrir`: open the workbook with the default application after saving it.
+- Help output with usage examples.
+- Ctrl+C is caught: the command prints `Cancelled.` and exits with code 130.
+- `data/config.json` can override the libraries, loose paths, exclusions and output path. `~` is expanded in every path.
 - Progress lines for the folder scan and the network step.
 - `tools/check_i18n.py`: fails when the English and Spanish keys or placeholders differ, or when a translation key is repeated.
 - Help texts translated, so `--help` follows `--lang`.

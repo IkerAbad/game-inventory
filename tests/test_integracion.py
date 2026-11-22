@@ -16,7 +16,7 @@ if ROOT not in sys.path:
 
 import openpyxl
 
-from inventory.cli import _preselect_lang, main, open_file
+from inventory.cli import _preselect_lang, main, open_file, run
 from inventory.data import read_json
 from inventory.i18n import set_lang
 
@@ -185,6 +185,7 @@ class IntegrationTests(unittest.TestCase):
                 main(["--help"])
         self.assertEqual(ctx.exception.code, 0)
         self.assertIn("Scan installed games", output.getvalue())
+        self.assertIn("examples:", output.getvalue())
 
     def test_help_spanish(self):
         with redirect_stdout(io.StringIO()) as output:
@@ -192,6 +193,17 @@ class IntegrationTests(unittest.TestCase):
                 main(["--lang", "es", "--help"])
         self.assertEqual(ctx.exception.code, 0)
         self.assertIn("Escanea los juegos instalados", output.getvalue())
+        self.assertIn("ejemplos:", output.getvalue())
+
+    def test_run_returns_main_result(self):
+        with mock.patch("inventory.cli.main", return_value=7):
+            self.assertEqual(run(["--version"]), 7)
+
+    def test_run_catches_keyboard_interrupt(self):
+        with mock.patch("inventory.cli.main", side_effect=KeyboardInterrupt):
+            with redirect_stdout(io.StringIO()) as output:
+                self.assertEqual(run([]), 130)
+        self.assertIn("Cancelled", output.getvalue())
 
     def test_module_entry_point(self):
         import runpy
@@ -264,7 +276,7 @@ class BranchTests(unittest.TestCase):
 
     def _run(self, d, hours=None, completed=None, playing=None, wishlist=None,
              games=None, args=None, extra=None, create_output=False, output=None,
-             history=None):
+             history=None, config=None):
         data_dir = os.path.join(d, "data")
         os.makedirs(data_dir)
         paths = {
@@ -272,12 +284,19 @@ class BranchTests(unittest.TestCase):
             "WISHLIST_JSON": os.path.join(data_dir, "wishlist.json"),
             "COMPLETED_JSON": os.path.join(data_dir, "completed.json"),
             "PLAYING_JSON": os.path.join(data_dir, "playing.json"),
+            "CONFIG_JSON": os.path.join(data_dir, "config.json"),
         }
         for key, value in (("HOURS_JSON", hours), ("COMPLETED_JSON", completed),
                            ("PLAYING_JSON", playing), ("WISHLIST_JSON", wishlist)):
             if value is not None:
                 with open(paths[key], "w", encoding="utf-8") as f:
                     json.dump(value, f)
+        if config is not None:
+            with open(paths["CONFIG_JSON"], "w", encoding="utf-8") as f:
+                if isinstance(config, str):
+                    f.write(config)
+                else:
+                    json.dump(config, f)
         out = output or os.path.join(d, "output.xlsx")
         if create_output:
             with open(out, "wb") as f:
@@ -388,6 +407,17 @@ class BranchTests(unittest.TestCase):
         self.assertEqual(rc, 0)
         self.assertIn("could not open", console)
 
+    def test_open_spanish_alias(self):
+        with tempfile.TemporaryDirectory() as d:
+            out = os.path.join(d, "out.xlsx")
+            with mock.patch("inventory.cli.open_file", return_value=None) as opener:
+                rc, _, _, _ = self._run(
+                    d, hours={"installed": 10.0},
+                    games=[fake_game("Installed", 1.0)],
+                    args=["--offline", "--keep", "--abrir", "--output", out])
+        self.assertEqual(rc, 0)
+        opener.assert_called_once_with(out)
+
     def test_open_file_without_error(self):
         if hasattr(os, "startfile"):
             patch = mock.patch("inventory.cli.os.startfile", create=True)
@@ -426,8 +456,37 @@ class BranchTests(unittest.TestCase):
         self.assertEqual(rc, 0)
         self.assertIn("DATA CHECK", console)
         self.assertIn("Wishlist", console)
+        self.assertIn("Config: 0", console)
         self.assertIn("Metadata keys without a game", console)
         self.assertIn("no rows yet", console)
+
+    def test_check_data_counts_config_overrides(self):
+        with tempfile.TemporaryDirectory() as d:
+            rc, console, _, _ = self._run(
+                d, hours={"game": 10.0}, completed=[], playing=[],
+                wishlist={"juegos": {}}, config={"libraries": ["D:/Games"],
+                                                 "output": "C:/out.xlsx"},
+                args=["--check-data"])
+        self.assertEqual(rc, 0)
+        self.assertIn("Config: 2 overrides", console)
+
+    def test_check_data_with_broken_config(self):
+        with tempfile.TemporaryDirectory() as d:
+            rc, console, _, _ = self._run(
+                d, hours={"game": 10.0}, completed=[], playing=[],
+                wishlist={"juegos": {}}, config="{broken",
+                args=["--check-data"])
+        self.assertEqual(rc, 1)
+        self.assertIn("ABORTED", console)
+
+    def test_check_data_with_config_that_is_not_an_object(self):
+        with tempfile.TemporaryDirectory() as d:
+            rc, console, _, _ = self._run(
+                d, hours={"game": 10.0}, completed=[], playing=[],
+                wishlist={"juegos": {}}, config=[],
+                args=["--check-data"])
+        self.assertEqual(rc, 1)
+        self.assertIn("ABORTED", console)
 
     def test_check_data_reports_metadata_duplicates_and_history(self):
         with tempfile.TemporaryDirectory() as d:

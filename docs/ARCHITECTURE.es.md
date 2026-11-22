@@ -39,6 +39,7 @@ La herramienta es un programa local de consola. Lee los juegos instalados, compl
 - Un JSON roto aborta antes de escribir.
 - La purga se niega si falta una unidad, no se puede leer o borraría más de la mitad.
 - El texto del Excel se escribe como texto, nunca como fórmula.
+- Ctrl+C sale con código 130 y el libro es el anterior o el nuevo, nunca uno a medias.
 - Los datos personales viven en `data/` y no se versionan.
 
 ## Pruebas

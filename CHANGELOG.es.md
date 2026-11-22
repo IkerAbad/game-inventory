@@ -7,9 +7,11 @@ Cambios destacados del proyecto. El formato sigue [Keep a Changelog](https://kee
 ### Añadido
 
 - `--dry-run` / `--simular`: escanea y muestra el resumen sin escribir el libro, el histórico, los JSON ni purgar.
-- `--check-data` / `--validar`: valida los ficheros JSON, las claves de metadatos huérfanas, los valores de metadatos inválidos, los títulos repetidos de la wishlist y el histórico, y sale sin escanear ni escribir.
-- `--open`: abre el libro con la aplicación predeterminada al guardarlo.
-- `data/config.json` puede sustituir bibliotecas, rutas sueltas, exclusiones y ruta de salida.
+- `--check-data` / `--validar`: valida los ficheros JSON, `config.json`, las claves de metadatos huérfanas, los valores de metadatos inválidos, los títulos repetidos de la wishlist y el histórico, y sale sin escanear ni escribir.
+- `--open` / `--abrir`: abre el libro con la aplicación predeterminada al guardarlo.
+- Ayuda con ejemplos de uso.
+- Ctrl+C se captura: el comando muestra `Cancelado.` y sale con código 130.
+- `data/config.json` puede sustituir bibliotecas, rutas sueltas, exclusiones y ruta de salida. `~` se expande en todas las rutas.
 - Avisos de progreso para el escaneo de carpetas y el paso de red.
 - `tools/check_i18n.py`: falla si las claves o los marcadores de inglés y español difieren, o si una clave de traducción está repetida.
 - Textos de ayuda traducidos, así que `--help` sigue a `--lang`.

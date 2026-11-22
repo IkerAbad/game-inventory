@@ -90,9 +90,9 @@ def _apply_config(config):
     if not isinstance(config, dict):
         return libraries, loose, exclude, output
     if _string_list(config.get("libraries")):
-        libraries = list(config["libraries"])
+        libraries = [os.path.expanduser(item) for item in config["libraries"]]
     if _string_list(config.get("loose_paths")):
-        loose = list(config["loose_paths"])
+        loose = [os.path.expanduser(item) for item in config["loose_paths"]]
     if _string_list(config.get("exclude")):
         exclude = {_normalize_exclude(item) for item in config["exclude"]}
     if isinstance(config.get("output"), str) and config["output"].strip():
