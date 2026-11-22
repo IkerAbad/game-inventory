@@ -1,5 +1,8 @@
 # Inventario de juegos
 
+[![CI](https://github.com/IkerAbad/inventario-juegos/actions/workflows/ci.yml/badge.svg)](https://github.com/IkerAbad/inventario-juegos/actions/workflows/ci.yml)
+[![Licencia MIT](https://img.shields.io/badge/licencia-MIT-blue.svg)](LICENSE)
+
 Escanea las carpetas donde tienes juegos instalados, cruza el tamaño en disco con las horas de la historia principal y genera un Excel con el ratio GB por hora, un plan de borrado, el histórico y la wishlist.
 
 ## Qué hace
