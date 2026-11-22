@@ -109,6 +109,8 @@ py -m coverage report -m
 py -m pyflakes inventory generate_inventory.py tests
 ```
 
+The CI fails below 90% coverage.
+
 ## Documentation
 
 `README.es.md` is the Spanish version. The personal notes with sources and decisions live in `data/NOTES.md`, which is not versioned.

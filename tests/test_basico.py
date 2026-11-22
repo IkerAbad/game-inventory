@@ -11,7 +11,7 @@ if ROOT not in sys.path:
 
 from inventory.data import normalize
 from inventory.cell_format import PctSteam, dif_cells, mc_cell
-from inventory.i18n import set_lang, t
+from inventory.i18n import get_lang, set_lang, t
 from inventory.network import _fmt_h, _hours_text, _slugs, _tokens, match_title
 
 
@@ -148,6 +148,22 @@ class FormatTests(unittest.TestCase):
             set_lang("fr")
         set_lang("en")
         self.assertEqual(t("missing.key"), "missing.key")
+
+    def test_metascore_without_dict(self):
+        self.assertEqual(mc_cell(3.14), (None, None))
+
+    def test_metascore_reviews_only(self):
+        value, text = mc_cell({"s": 85, "n": 10})
+        self.assertEqual(value, 85)
+        self.assertIsNone(text)
+
+    def test_difficulty_empty(self):
+        self.assertEqual(dif_cells({}), (None, None, None, False))
+
+    def test_language_getter(self):
+        set_lang("es")
+        self.assertEqual(get_lang(), "es")
+        set_lang("en")
 
     def test_metacritic_with_odd_fields(self):
         value, texto = mc_cell({"s": 85, "p": 123, "n": "muchas", "nota": ["rara"]})

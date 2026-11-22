@@ -109,6 +109,8 @@ py -m coverage report -m
 py -m pyflakes inventory generate_inventory.py tests
 ```
 
+El CI falla por debajo del 90% de cobertura.
+
 ## Documentación
 
 `README.md` es la versión inglesa. Las notas personales con fuentes y decisiones viven en `data/NOTES.md`, que no se versiona.

@@ -48,7 +48,7 @@ jobs:
       - name: Unit tests and coverage
         run: |
           python -m coverage run --source=inventory -m unittest discover -s tests -v
-          python -m coverage report --fail-under=80
+          python -m coverage report --fail-under=90
 
       - name: Generate with empty data
         run: python generate_inventory.py --offline --keep --output salida_prueba.xlsx

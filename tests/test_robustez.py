@@ -18,10 +18,10 @@ from inventory import excel
 from inventory.cli import inside_data
 from inventory.config import DATA_DIR
 from inventory.i18n import set_lang
-from inventory.data import (_save_json, clean_hours, write_atomic, write_hours,
+from inventory.data import (_save_json, _same, clean_hours, write_atomic, write_hours,
                               write_wishlist, is_valid_hours, read_keys, read_json,
                               clean_temp_files, purge_hours, acquire_lock)
-from inventory.scan import scan_games
+from inventory.scan import excel_locked, scan_games
 from inventory.cell_format import clean_text
 from inventory.network import steam_search
 
@@ -148,6 +148,49 @@ class WriteTests(unittest.TestCase):
             with mock.patch("inventory.data.HOURS_JSON", path):
                 write_hours({"game": 10, "_raro": {"a": 1}})
             self.assertEqual(read_json(path, {})["_raro"], {"a": 1})
+
+    def test_hours_writes_all_blocks(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "hours.json")
+            with mock.patch("inventory.data.HOURS_JSON", path):
+                write_hours({"_comentario": "comment", "game": 10.0,
+                             "_metacritic": {"game": {"s": 90}},
+                             "_steam": {"game": {"pct": 90}},
+                             "_dificultad": {"game": {"h": 5}},
+                             "_notas": {"game": "note"},
+                             "_raro": {"a": 1}})
+            data = read_json(path, {})
+            self.assertEqual(data["_comentario"], "comment")
+            self.assertEqual(data["_metacritic"]["game"]["s"], 90)
+            self.assertEqual(data["_steam"]["game"]["pct"], 90)
+            self.assertEqual(data["_dificultad"]["game"]["h"], 5)
+            self.assertEqual(data["_notas"]["game"], "note")
+            self.assertEqual(data["_raro"], {"a": 1})
+
+    def test_read_json_directory(self):
+        with tempfile.TemporaryDirectory() as d:
+            with self.assertRaises(ValueError):
+                read_json(d, {})
+
+    def test_purge_refuses_missing_library(self):
+        with tempfile.TemporaryDirectory() as d:
+            hours = {"game": 10}
+            with mock.patch("inventory.data.LIBRARIES",
+                            [os.path.join(d, "missing")]):
+                with redirect_stdout(io.StringIO()):
+                    removed = purge_hours(hours, set())
+            self.assertEqual(removed, 0)
+            self.assertEqual(hours, {"game": 10})
+
+    def test_clean_temp_files_missing_folder(self):
+        with tempfile.TemporaryDirectory() as d:
+            clean_temp_files(os.path.join(d, "missing"))
+
+    def test_same_containers(self):
+        self.assertTrue(_same([1, 2], [1, 2]))
+        self.assertFalse(_same([1], [1, 2]))
+        self.assertTrue(_same({"a": [1]}, {"a": [1]}))
+        self.assertFalse(_same({"a": 1}, {"a": 2}))
 
     def test_history_ignores_broken_rows(self):
         with tempfile.TemporaryDirectory() as d:
@@ -302,6 +345,8 @@ class WriteTests(unittest.TestCase):
         self.assertTrue(inside_data(os.path.join(DATA_DIR, "x.xlsx")))
         self.assertTrue(inside_data(os.path.join(DATA_DIR, "sub", "x.xlsx")))
         self.assertFalse(inside_data(os.path.join(tempfile.gettempdir(), "x.xlsx")))
+        with mock.patch("inventory.cli.os.path.commonpath", side_effect=ValueError):
+            self.assertFalse(inside_data("x"))
 
     def test_exclusive_lock_between_processes(self):
         import subprocess
@@ -415,6 +460,44 @@ class ScanTests(unittest.TestCase):
             self.assertEqual(failed, [])
             self.assertTrue(any(g["duplicate"] for g in games))
             self.assertTrue(any(g["path"] == first for g in games))
+
+    def test_scan_reports_unreadable_library(self):
+        with tempfile.TemporaryDirectory() as d:
+            with mock.patch("inventory.scan.LIBRARIES", [d]), \
+                 mock.patch("inventory.scan.LOOSE_PATHS", []), \
+                 mock.patch("inventory.scan.os.listdir", side_effect=OSError("no")):
+                with redirect_stdout(io.StringIO()):
+                    games, failed = scan_games()
+            self.assertEqual(games, [])
+            self.assertEqual(failed, [d])
+
+    def test_scan_survives_size_and_stat_errors(self):
+        with tempfile.TemporaryDirectory() as d:
+            game_dir = os.path.join(d, "Game")
+            os.makedirs(game_dir)
+            with open(os.path.join(game_dir, "file.bin"), "wb") as f:
+                f.write(b"x")
+            with mock.patch("inventory.scan.LIBRARIES", [d]), \
+                 mock.patch("inventory.scan.LOOSE_PATHS", []), \
+                 mock.patch("inventory.scan.os.path.getsize", side_effect=OSError("x")), \
+                 mock.patch("inventory.scan.os.stat", side_effect=OSError("x")):
+                games, failed = scan_games()
+            self.assertEqual(failed, [])
+            self.assertEqual(games[0]["gb"], 0.0)
+            self.assertEqual(games[0]["days"], "")
+
+    def test_excel_locked(self):
+        with tempfile.TemporaryDirectory() as d:
+            target = os.path.join(d, "x.xlsx")
+            with open(target, "w", encoding="utf-8") as f:
+                f.write("x")
+            self.assertFalse(excel_locked(target))
+            with open(os.path.join(d, "~$x.xlsx"), "w", encoding="utf-8") as f:
+                f.write("x")
+            self.assertTrue(excel_locked(target))
+            os.remove(os.path.join(d, "~$x.xlsx"))
+            with mock.patch("inventory.scan.os.rename", side_effect=OSError("locked")):
+                self.assertTrue(excel_locked(target))
 
 
 if __name__ == "__main__":
