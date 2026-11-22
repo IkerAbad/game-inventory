@@ -61,8 +61,10 @@ Options:
 | `--keep`, `--conservar` | Do not purge uninstalled game keys. |
 | `--force-purge`, `--forzar-purga` | Allow purging more than half of the keys at once. |
 | `--dry-run`, `--simular` | Scan and show the summary without writing anything. |
+| `--top N` | Show the N best GB/h picks that are not completed or playing (0 disables it). |
 | `--open`, `--abrir` | Open the saved workbook with the default application. |
 | `--check-data`, `--validar` | Validate the JSON data files, stale metadata keys, invalid metadata values, repeated wishlist titles and the history, then exit. |
+| `--strict`, `--estricto` | With `--check-data`, exit with code 1 when warnings are found. |
 | `--output PATH`, `--salida PATH` | Write the Excel workbook to another path. |
 | `--version` | Show the installed version. |
 

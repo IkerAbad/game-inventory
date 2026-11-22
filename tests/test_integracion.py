@@ -373,6 +373,38 @@ class BranchTests(unittest.TestCase):
         self.assertEqual(rc, 0)
         self.assertIn("Scanning game folders", console)
         self.assertNotIn("Completing data from the network", console)
+        self.assertNotIn("TOP PICKS", console)
+
+    def test_top_option(self):
+        games = [fake_game("A", 1.0), fake_game("B", 1.0),
+                 fake_game("C", 1.0), fake_game("D", 1.0)]
+        with tempfile.TemporaryDirectory() as d:
+            out = os.path.join(d, "out.xlsx")
+            rc, console, _, _ = self._run(
+                d, hours={"a": 1.0, "b": 2.0, "c": 3.0, "d": 4.0}, games=games,
+                args=["--offline", "--keep", "--top", "2", "--output", out])
+        self.assertEqual(rc, 0)
+        self.assertIn("TOP PICKS", console)
+        self.assertIn("1. A", console)
+
+    def test_top_option_in_dry_run(self):
+        games = [fake_game("A", 1.0), fake_game("B", 1.0),
+                 fake_game("C", 1.0), fake_game("D", 1.0)]
+        with tempfile.TemporaryDirectory() as d:
+            rc, console, _, _ = self._run(
+                d, hours={"a": 1.0, "b": 2.0, "c": 3.0, "d": 4.0}, games=games,
+                args=["--offline", "--keep", "--top", "1", "--dry-run"])
+        self.assertEqual(rc, 0)
+        self.assertIn("TOP PICKS", console)
+        self.assertIn("DRY RUN", console)
+
+    def test_top_option_without_picks(self):
+        with tempfile.TemporaryDirectory() as d:
+            rc, console, _, _ = self._run(
+                d, hours={"only": 1.0}, games=[fake_game("Only", 1.0)],
+                args=["--offline", "--keep", "--top", "3", "--dry-run"])
+        self.assertEqual(rc, 0)
+        self.assertNotIn("TOP PICKS", console)
 
     def test_network_progress_message(self):
         with tempfile.TemporaryDirectory() as d:
@@ -504,9 +536,53 @@ class BranchTests(unittest.TestCase):
                 args=["--check-data"])
         self.assertEqual(rc, 0)
         self.assertIn("hours 1 | wishlist 1", console)
+        self.assertIn("Stale in hours: gone | wishlist: Gone", console)
         self.assertIn("metacritic 0 | steam 0 | difficulty 1", console)
         self.assertIn("repeated after normalization: 1", console)
         self.assertIn("2 days, last 2026-11-02 (1 bad rows)", console)
+
+    def test_check_data_reports_key_problems_and_missing_titles(self):
+        with tempfile.TemporaryDirectory() as d:
+            rc, console, _, _ = self._run(
+                d,
+                hours={"Game!": 10.0, "game": 20.0, "hades": 5.0},
+                completed=["Hades"], playing=["Gone"],
+                wishlist={"juegos": {}}, config={"libs": []},
+                args=["--check-data"])
+        self.assertEqual(rc, 0)
+        self.assertIn("Unknown config keys (1): libs", console)
+        self.assertIn("Unnormalized keys in hours.json (1): Game!", console)
+        self.assertIn("Keys that collide after normalization (2): Game!, game", console)
+        self.assertIn("completed - | playing gone", console)
+
+    def test_check_data_strict_with_warnings(self):
+        with tempfile.TemporaryDirectory() as d:
+            rc, console, _, _ = self._run(
+                d, hours={"game": 0}, completed=[], playing=[],
+                wishlist={"juegos": {}}, args=["--check-data", "--strict"])
+        self.assertEqual(rc, 1)
+        self.assertIn("STRICT: 1 warnings", console)
+
+    def test_check_data_strict_without_warnings(self):
+        with tempfile.TemporaryDirectory() as d:
+            rc, console, _, _ = self._run(
+                d, hours={"game": 10.0}, completed=[], playing=[],
+                wishlist={"juegos": {}}, args=["--check-data", "--strict"])
+        self.assertEqual(rc, 0)
+        self.assertNotIn("STRICT", console)
+
+    def test_check_data_spanish(self):
+        try:
+            with tempfile.TemporaryDirectory() as d:
+                rc, console, _, _ = self._run(
+                    d, hours={"game": 10.0}, completed=[], playing=[],
+                    wishlist={"juegos": {}},
+                    args=["--lang", "es", "--check-data"])
+        finally:
+            set_lang("en")
+        self.assertEqual(rc, 0)
+        self.assertIn("COMPROBACION DE DATOS", console)
+        self.assertIn("Config: 0 ajustes", console)
 
     def test_check_data_corrupt(self):
         with tempfile.TemporaryDirectory() as d:

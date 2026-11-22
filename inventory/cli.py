@@ -55,24 +55,48 @@ def open_file(path):
     return None
 
 
-def check_data():
+def top_picks(games, limit):
+    """Best GB per hour among games that are not completed, playing or duplicated."""
+    picks = [j for j in games if j["verdict"] == "great"
+             and not j["completed"] and not j["playing"] and not j["duplicate"]]
+    picks.sort(key=lambda j: (-j["ratio"], -j["gb"]))
+    return picks[:limit]
+
+
+def print_top(games, limit):
+    picks = top_picks(games, limit)
+    if not picks:
+        return
+    print("\n" + t("cli.top"))
+    for i, j in enumerate(picks, 1):
+        print(t("cli.top_line", i=i, name=j["name"], ratio=j["ratio"],
+                hours=j["hours"], gb=j["gb"]))
+
+
+def check_data(strict=False):
     """Validate the JSON data files without scanning or writing. Return 0 or 1."""
     print(t("check.title"))
+    warnings = 0
     try:
         config = read_json(CONFIG_JSON, {})
         if not isinstance(config, dict):
             raise ValueError("%s must be a JSON object" % CONFIG_JSON)
-        print(t("check.config", n=sum(1 for key in
-                                      ("libraries", "loose_paths", "exclude", "output")
-                                      if key in config)))
+        known_config = {"libraries", "loose_paths", "exclude", "output"}
+        print(t("check.config", n=sum(1 for key in known_config if key in config)))
+        unknown_config = sorted(set(config) - known_config)
+        if unknown_config:
+            warnings += len(unknown_config)
+            print(t("check.config_unknown", n=len(unknown_config),
+                    names=_names(unknown_config)))
         hours = read_json(HOURS_JSON, {})
         if not isinstance(hours, dict):
             raise ValueError("%s must be a JSON object" % HOURS_JSON)
-        _, warnings = clean_hours(hours)
+        _, hour_warnings = clean_hours(hours)
+        warnings += len(hour_warnings)
         print(t("check.hours",
                 n=sum(1 for key in hours if not key.startswith("_")),
-                warnings=len(warnings)))
-        for warning in warnings[:10]:
+                warnings=len(hour_warnings)))
+        for warning in hour_warnings[:10]:
             print("   " + warning)
         completed = read_keys(COMPLETED_JSON)
         playing = read_keys(PLAYING_JSON)
@@ -85,11 +109,19 @@ def check_data():
             raise ValueError("%s: 'juegos' must be a JSON object" % WISHLIST_JSON)
         bad = sum(1 for value in wishlist.values()
                   if not (value is None or value == "?" or is_valid_hours(value)))
+        warnings += bad
         print(t("check.wishlist", n=len(wishlist), warnings=bad))
-        print(t("check.stale", hours=_stale_keys(hours, hours),
-                wishlist=_stale_keys(meta, wishlist)))
+        stale_hours = _stale_keys(hours, hours)
+        stale_wish = _stale_keys(meta, wishlist)
+        warnings += len(stale_hours) + len(stale_wish)
+        print(t("check.stale", hours=len(stale_hours), wishlist=len(stale_wish)))
+        if stale_hours or stale_wish:
+            print(t("check.stale_names", hours=_names(stale_hours),
+                    wishlist=_names(stale_wish)))
         mc_bad, steam_bad, dif_bad = _bad_metadata(hours)
         mc_w, steam_w, dif_w = _bad_metadata(meta)
+        metadata_bad = mc_bad + mc_w + steam_bad + steam_w + dif_bad + dif_w
+        warnings += metadata_bad
         print(t("check.metadata",
                 metacritic=mc_bad + mc_w,
                 steam=steam_bad + steam_w,
@@ -99,30 +131,80 @@ def check_data():
             groups.setdefault(normalize(title), []).append(title)
         repeated = sum(len(titles) - 1 for titles in groups.values()
                        if len(titles) > 1)
+        warnings += repeated
         print(t("check.duplicates", n=repeated))
+        unnormalized, collisions = _hours_key_problems(hours)
+        warnings += len(unnormalized) + len(collisions)
+        if unnormalized:
+            print(t("check.unnormalized", n=len(unnormalized),
+                    names=_names(unnormalized)))
+        if collisions:
+            print(t("check.collisions", n=len(collisions),
+                    names=_names(collisions)))
+        missing_completed = sorted(completed - _game_keys(hours))
+        missing_playing = sorted(playing - _game_keys(hours))
+        if missing_completed or missing_playing:
+            warnings += len(missing_completed) + len(missing_playing)
+            print(t("check.missing", completed=_names(missing_completed),
+                    playing=_names(missing_playing)))
         rows, problems = read_history()
+        warnings += len(problems)
         if rows:
             print(t("check.history", n=len(rows), last=max(r[0] for r in rows),
                     warnings=len(problems)))
         else:
             print(t("check.history_empty", warnings=len(problems)))
+        if strict and warnings:
+            print(t("check.strict", n=warnings))
+            return 1
         return 0
     except ValueError as e:
         print(t("cli.abort", error=e))
         return 1
 
 
+def _names(items, limit=5):
+    items = list(items)
+    if not items:
+        return "-"
+    text = ", ".join(str(item) for item in items[:limit])
+    if len(items) > limit:
+        text += " (+%d)" % (len(items) - limit)
+    return text
+
+
+def _game_keys(data):
+    return {str(key) for key in data if not str(key).startswith("_")}
+
+
+def _hours_key_problems(hours):
+    """Return (unnormalized keys, keys that collide after normalization)."""
+    if not isinstance(hours, dict):
+        return [], []
+    keys = sorted(_game_keys(hours))
+    unnormalized = [key for key in keys if normalize(key) != key]
+    seen, collisions = {}, set()
+    for key in keys:
+        normalized = normalize(key)
+        if normalized in seen:
+            collisions.add(seen[normalized])
+            collisions.add(key)
+        else:
+            seen[normalized] = key
+    return unnormalized, sorted(collisions)
+
+
 def _stale_keys(container, games):
     """Metadata keys that do not match any game key in the same file."""
     if not isinstance(container, dict) or not isinstance(games, dict):
-        return 0
-    known = {key for key in games if not str(key).startswith("_")}
-    total = 0
+        return []
+    known = _game_keys(games)
+    stale = set()
     for block in ("_metacritic", "_steam", "_dificultad", "_notas"):
         value = container.get(block)
         if isinstance(value, dict):
-            total += sum(1 for key in value if key not in known)
-    return total
+            stale.update(str(key) for key in value if key not in known)
+    return sorted(stale)
 
 
 def _number_in(value, low, high):
@@ -196,10 +278,14 @@ def main(argv=None):
                         action="store_true", help=t("help.force_purge"))
     parser.add_argument("--dry-run", "--simular", dest="dry_run",
                         action="store_true", help=t("help.dry_run"))
+    parser.add_argument("--top", dest="top", type=int, default=0, metavar="N",
+                        help=t("help.top"))
     parser.add_argument("--open", "--abrir", dest="open_file", action="store_true",
                         help=t("help.open"))
     parser.add_argument("--check-data", "--validar", dest="check_data",
                         action="store_true", help=t("help.check_data"))
+    parser.add_argument("--strict", "--estricto", dest="strict",
+                        action="store_true", help=t("help.strict"))
     parser.add_argument("--output", "--salida", dest="output", default=None,
                         help=t("help.output"))
     args = parser.parse_args(argv)
@@ -209,7 +295,7 @@ def main(argv=None):
     except Exception:
         pass
     if args.check_data:
-        return check_data()
+        return check_data(args.strict)
     output = os.path.expanduser(args.output) if args.output else OUTPUT
     if os.path.isdir(output):
         print(t("cli.output_is_dir"))
@@ -336,6 +422,8 @@ def main(argv=None):
         print(t("cli.pending", hours=dry_hours, days=round(dry_hours / 4),
                 years=dry_hours / 4 / 365.25))
         print(t("cli.quartiles", q1=q1, q2=q2, q3=q3))
+        if args.top > 0:
+            print_top(games, args.top)
         print(t("cli.dry_run"))
         lock.close()
         return 0
@@ -376,6 +464,8 @@ def main(argv=None):
     print(t("cli.pending", hours=total_hours, days=round(total_hours / 4),
             years=total_hours / 4 / 365.25))
     print(t("cli.quartiles", q1=q1, q2=q2, q3=q3))
+    if args.top > 0:
+        print_top(games, args.top)
     completed_games = [j for j in games if j["completed"]]
     if completed_games:
         print("\n" + t("cli.completed", n=len(completed_games),

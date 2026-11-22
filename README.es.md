@@ -61,8 +61,10 @@ Opciones:
 | `--keep`, `--conservar` | No purga las claves de juegos desinstalados. |
 | `--force-purge`, `--forzar-purga` | Permite purgar más de la mitad de las claves de una vez. |
 | `--dry-run`, `--simular` | Escanea y muestra el resumen sin escribir nada. |
+| `--top N` | Muestra los N mejores GB/h que no estén completados ni en curso (0 lo desactiva). |
 | `--open`, `--abrir` | Abre el libro guardado con la aplicación predeterminada. |
 | `--check-data`, `--validar` | Valida los ficheros JSON, las claves de metadatos huérfanas, los valores de metadatos inválidos, los títulos repetidos de la wishlist y el histórico, y sale. |
+| `--strict`, `--estricto` | Con `--check-data`, sale con código 1 si encuentra avisos. |
 | `--output RUTA`, `--salida RUTA` | Escribe el Excel en otra ruta. |
 | `--version` | Muestra la versión instalada. |
 

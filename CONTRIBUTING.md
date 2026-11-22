@@ -9,9 +9,10 @@ git clone https://github.com/IkerAbad/game-inventory.git
 cd game-inventory
 py -m venv .venv
 .venv\Scripts\activate
-py -m pip install -r requirements-dev.txt
-py -m pip install -e .
+py -m pip install -e ".[dev]"
 ```
+
+`requirements-dev.txt` holds the same tools for the CI.
 
 ## Checks
 

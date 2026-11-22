@@ -24,6 +24,9 @@ classifiers = [
     "Topic :: Office/Business",
 ]
 
+[project.optional-dependencies]
+dev = ["build>=1.2", "coverage>=7.6", "pyflakes>=3.2"]
+
 [project.urls]
 Homepage = "https://github.com/IkerAbad/game-inventory"
 Repository = "https://github.com/IkerAbad/game-inventory"

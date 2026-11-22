@@ -17,7 +17,8 @@ if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
 from inventory import excel
-from inventory.cli import _bad_metadata, _stale_keys, inside_data
+from inventory.cli import (_bad_metadata, _hours_key_problems, _names,
+                           _stale_keys, inside_data)
 from inventory.config import (DATA_DIR, EXCLUDE, LIBRARIES, LOOSE_PATHS, OUTPUT,
                               _apply_config, _data_root, _desktop, _read_config)
 from inventory.i18n import set_lang
@@ -484,13 +485,27 @@ class WriteTests(unittest.TestCase):
             self.assertFalse(inside_data("x"))
 
     def test_stale_keys_with_wrong_types(self):
-        self.assertEqual(_stale_keys(None, {}), 0)
-        self.assertEqual(_stale_keys({}, []), 0)
-        self.assertEqual(_stale_keys({"_notas": {"gone": "x"}}, {"kept": 1.0}), 1)
+        self.assertEqual(_stale_keys(None, {}), [])
+        self.assertEqual(_stale_keys({}, []), [])
+        self.assertEqual(len(_stale_keys({"_notas": {"gone": "x"}}, {"kept": 1.0})), 1)
 
     def test_bad_metadata_with_wrong_types(self):
         self.assertEqual(_bad_metadata(None), (0, 0, 0))
         self.assertEqual(_bad_metadata({}), (0, 0, 0))
+
+    def test_hours_key_problems(self):
+        self.assertEqual(_hours_key_problems(None), ([], []))
+        unnormalized, collisions = _hours_key_problems(
+            {"Game!": 1.0, "game": 2.0, "hades": 3.0, "_notas": {}})
+        self.assertEqual(unnormalized, ["Game!"])
+        self.assertEqual(collisions, ["Game!", "game"])
+        self.assertEqual(_hours_key_problems({"hades": 1.0}), ([], []))
+
+    def test_names_list_is_shortened(self):
+        self.assertEqual(_names([]), "-")
+        self.assertEqual(_names(["a", "b"]), "a, b")
+        self.assertEqual(_names(["a", "b", "c", "d", "e", "f", "g"]),
+                         "a, b, c, d, e (+2)")
 
     def test_bad_metadata_counts_invalid_entries(self):
         data = {
@@ -616,6 +631,20 @@ class WorkbookCoverageTests(unittest.TestCase):
         wb = openpyxl.Workbook()
         cell = excel.text_cell(wb.active, 1, 1, "x", fmt="0.0")
         self.assertEqual(cell.number_format, "0.0")
+
+    def test_spanish_sheet_names(self):
+        set_lang("es")
+        try:
+            with tempfile.TemporaryDirectory() as d:
+                with mock.patch("inventory.excel.HISTORY_CSV",
+                                os.path.join(d, "history.csv")):
+                    wb, _, _ = excel.build_workbook(
+                        [self.game("Juego", 1.0, 1.0)], 1.0, 2.0, 3.0)
+                names = wb.sheetnames[:5]
+        finally:
+            set_lang("en")
+        self.assertEqual(names, ["Juegos", "Espacio", "Resumen", "Plan",
+                                 "Historico"])
 
     def test_history_backup_error_is_ignored(self):
         with tempfile.TemporaryDirectory() as d:

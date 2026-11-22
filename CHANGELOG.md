@@ -8,8 +8,11 @@ All notable changes to this project. The format follows [Keep a Changelog](https
 
 - `--dry-run` / `--simular`: scan and print the summary without writing the workbook, history, JSON or purging.
 - `--check-data` / `--validar`: validate the JSON data files, `config.json`, stale metadata keys, invalid metadata values, repeated wishlist titles and the history, then exit without scanning or writing.
+- `--strict` / `--estricto`: with `--check-data`, exit with code 1 when there are warnings.
+- The data check names the stale keys and reports unknown config keys, unnormalized `hours.json` keys, normalization collisions and completed/playing titles missing from `hours.json`.
 - `--open` / `--abrir`: open the workbook with the default application after saving it.
 - Help output with usage examples.
+- `--top N`: print the best GB/h picks that are not completed or playing.
 - Ctrl+C is caught: the command prints `Cancelled.` and exits with code 130.
 - `data/config.json` can override the libraries, loose paths, exclusions and output path. `~` is expanded in every path.
 - Progress lines for the folder scan and the network step.

@@ -8,8 +8,11 @@ Cambios destacados del proyecto. El formato sigue [Keep a Changelog](https://kee
 
 - `--dry-run` / `--simular`: escanea y muestra el resumen sin escribir el libro, el histórico, los JSON ni purgar.
 - `--check-data` / `--validar`: valida los ficheros JSON, `config.json`, las claves de metadatos huérfanas, los valores de metadatos inválidos, los títulos repetidos de la wishlist y el histórico, y sale sin escanear ni escribir.
+- `--strict` / `--estricto`: con `--check-data`, sale con código 1 si hay avisos.
+- La comprobación de datos nombra las claves huérfanas e informa de claves desconocidas en la configuración, claves sin normalizar en `hours.json`, choques al normalizar y títulos de completados/jugando que no están en `hours.json`.
 - `--open` / `--abrir`: abre el libro con la aplicación predeterminada al guardarlo.
 - Ayuda con ejemplos de uso.
+- `--top N`: muestra los mejores GB/h que no estén completados ni en curso.
 - Ctrl+C se captura: el comando muestra `Cancelado.` y sale con código 130.
 - `data/config.json` puede sustituir bibliotecas, rutas sueltas, exclusiones y ruta de salida. `~` se expande en todas las rutas.
 - Avisos de progreso para el escaneo de carpetas y el paso de red.
