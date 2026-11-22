@@ -7,6 +7,9 @@ Cambios destacados del proyecto. El formato sigue [Keep a Changelog](https://kee
 ### Añadido
 
 - `--dry-run` / `--simular`: escanea y muestra el resumen sin escribir el libro, el histórico, los JSON ni purgar.
+- `--check-data` / `--validar`: valida los ficheros JSON y sale sin escanear ni escribir.
+- Textos de ayuda traducidos, así que `--help` sigue a `--lang`.
+- `docs/DATA.es.md`, `docs/ARCHITECTURE.es.md` y `SECURITY.es.md`.
 - Actualizaciones de Dependabot para pip y GitHub Actions.
 - Guía de contribución en inglés y español.
 - Palabras clave y clasificadores del paquete.

@@ -179,6 +179,20 @@ class IntegrationTests(unittest.TestCase):
         self.assertEqual(ctx.exception.code, 0)
         self.assertIn("game-inventory", output.getvalue())
 
+    def test_help_english(self):
+        with redirect_stdout(io.StringIO()) as output:
+            with self.assertRaises(SystemExit) as ctx:
+                main(["--help"])
+        self.assertEqual(ctx.exception.code, 0)
+        self.assertIn("Scan installed games", output.getvalue())
+
+    def test_help_spanish(self):
+        with redirect_stdout(io.StringIO()) as output:
+            with self.assertRaises(SystemExit) as ctx:
+                main(["--lang", "es", "--help"])
+        self.assertEqual(ctx.exception.code, 0)
+        self.assertIn("Escanea los juegos instalados", output.getvalue())
+
     def test_module_entry_point(self):
         import runpy
         with mock.patch.object(sys, "argv", ["inventory", "--version"]):
@@ -342,6 +356,46 @@ class BranchTests(unittest.TestCase):
             self.assertFalse(os.path.exists(out))
             self.assertFalse(os.path.exists(os.path.join(d, "data", "history.csv")))
             self.assertIn("DRY RUN", console)
+
+    def test_check_data_ok(self):
+        with tempfile.TemporaryDirectory() as d:
+            rc, console, _, _ = self._run(
+                d, hours={"game": 10.0}, completed=[], playing=[],
+                wishlist={"juegos": {"Game": 10.0}}, args=["--check-data"])
+        self.assertEqual(rc, 0)
+        self.assertIn("DATA CHECK", console)
+        self.assertIn("Wishlist", console)
+
+    def test_check_data_corrupt(self):
+        with tempfile.TemporaryDirectory() as d:
+            rc, console, _, _ = self._run(d, hours=[], args=["--check-data"])
+        self.assertEqual(rc, 1)
+        self.assertIn("ABORTED", console)
+
+    def test_check_data_prints_warnings(self):
+        with tempfile.TemporaryDirectory() as d:
+            rc, console, _, _ = self._run(
+                d, hours={"bad%d" % i: 0 for i in range(12)},
+                completed=[], playing=[], wishlist={"juegos": {}},
+                args=["--check-data"])
+        self.assertEqual(rc, 0)
+        self.assertIn("12 warnings", console)
+
+    def test_check_data_wishlist_not_an_object(self):
+        with tempfile.TemporaryDirectory() as d:
+            rc, console, _, _ = self._run(
+                d, hours={"game": 10.0}, completed=[], playing=[],
+                wishlist=[], args=["--check-data"])
+        self.assertEqual(rc, 1)
+        self.assertIn("ABORTED", console)
+
+    def test_check_data_wishlist_games_not_an_object(self):
+        with tempfile.TemporaryDirectory() as d:
+            rc, console, _, _ = self._run(
+                d, hours={"game": 10.0}, completed=[], playing=[],
+                wishlist={"juegos": []}, args=["--check-data"])
+        self.assertEqual(rc, 1)
+        self.assertIn("ABORTED", console)
 
     def test_history_delta(self):
         with tempfile.TemporaryDirectory() as d:

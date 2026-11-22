@@ -53,6 +53,7 @@ Options:
 | `--keep`, `--conservar` | Do not purge uninstalled game keys. |
 | `--force-purge`, `--forzar-purga` | Allow purging more than half of the keys at once. |
 | `--dry-run`, `--simular` | Scan and show the summary without writing anything. |
+| `--check-data`, `--validar` | Validate the JSON data files and exit. |
 | `--output PATH`, `--salida PATH` | Write the Excel workbook to another path. |
 | `--version` | Show the installed version. |
 
@@ -92,6 +93,10 @@ generate_inventory.py      entry point
 pyproject.toml             package metadata and console script
 CHANGELOG.md               English changelog
 CONTRIBUTING.md            English contributing guide
+SECURITY.md                English security policy
+docs/
+  DATA.md                  data formats and backups
+  ARCHITECTURE.md          flow, modules and guarantees
 inventory/
   config.py                drives, paths and network settings
   data.py                  JSON: loading, formatting and safe writing
@@ -122,6 +127,9 @@ The CI fails below 97% coverage.
 
 - [Changelog](CHANGELOG.md) / [Registro de cambios](CHANGELOG.es.md)
 - [Contributing](CONTRIBUTING.md) / [Contribuir](CONTRIBUTING.es.md)
+- [Data formats](docs/DATA.md) / [Formatos de datos](docs/DATA.es.md)
+- [Architecture](docs/ARCHITECTURE.md) / [Arquitectura](docs/ARCHITECTURE.es.md)
+- [Security](SECURITY.md) / [Seguridad](SECURITY.es.md)
 
 ## License
 

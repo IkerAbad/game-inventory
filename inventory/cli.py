@@ -38,36 +38,70 @@ def _preselect_lang(argv):
     return "en"
 
 
+def check_data():
+    """Validate the JSON data files without scanning or writing. Return 0 or 1."""
+    print(t("check.title"))
+    try:
+        hours = read_json(HOURS_JSON, {})
+        if not isinstance(hours, dict):
+            raise ValueError("%s must be a JSON object" % HOURS_JSON)
+        _, warnings = clean_hours(hours)
+        print(t("check.hours",
+                n=sum(1 for key in hours if not key.startswith("_")),
+                warnings=len(warnings)))
+        for warning in warnings[:10]:
+            print("   " + warning)
+        completed = read_keys(COMPLETED_JSON)
+        playing = read_keys(PLAYING_JSON)
+        print(t("check.keys", completed=len(completed), playing=len(playing)))
+        meta = read_json(WISHLIST_JSON, {})
+        if not isinstance(meta, dict):
+            raise ValueError("%s must be a JSON object" % WISHLIST_JSON)
+        wishlist = meta.get("juegos", {})
+        if not isinstance(wishlist, dict):
+            raise ValueError("%s: 'juegos' must be a JSON object" % WISHLIST_JSON)
+        bad = sum(1 for value in wishlist.values()
+                  if not (value is None or value == "?" or is_valid_hours(value)))
+        print(t("check.wishlist", n=len(wishlist), warnings=bad))
+        return 0
+    except ValueError as e:
+        print(t("cli.abort", error=e))
+        return 1
+
+
 def main(argv=None):
     lang = _preselect_lang(argv)
     if lang in ("en", "es"):
         set_lang(lang)
     parser = argparse.ArgumentParser(
         prog="game-inventory",
-        description="Scan installed games, fill missing data from the network and build the Excel workbook.")
+        description=t("help.description"))
     parser.add_argument("--lang", choices=["en", "es"], default="en",
-                        help="output language (default: en)")
+                        help=t("help.lang"))
     parser.add_argument("--version", action="version",
-                        version="game-inventory " + __version__)
+                        version="game-inventory " + __version__,
+                        help=t("help.version"))
     parser.add_argument("--offline", "--sin-red", dest="offline", action="store_true",
-                        help="do not use the network")
+                        help=t("help.offline"))
     parser.add_argument("--keep", "--conservar", dest="keep", action="store_true",
-                        help="do not purge uninstalled game keys")
+                        help=t("help.keep"))
     parser.add_argument("--force-purge", "--forzar-purga", dest="force_purge",
-                        action="store_true",
-                        help="allow purging more than half of the keys at once")
+                        action="store_true", help=t("help.force_purge"))
     parser.add_argument("--dry-run", "--simular", dest="dry_run",
-                        action="store_true",
-                        help="scan and show the summary without writing the workbook, history or JSON")
+                        action="store_true", help=t("help.dry_run"))
+    parser.add_argument("--check-data", "--validar", dest="check_data",
+                        action="store_true", help=t("help.check_data"))
     parser.add_argument("--output", "--salida", dest="output", default=None,
-                        help="Excel path (default: config.py)")
+                        help=t("help.output"))
     args = parser.parse_args(argv)
     set_lang(args.lang)
-    output = os.path.expanduser(args.output) if args.output else OUTPUT
     try:
         sys.stdout.reconfigure(errors="replace")
     except Exception:
         pass
+    if args.check_data:
+        return check_data()
+    output = os.path.expanduser(args.output) if args.output else OUTPUT
     if os.path.isdir(output):
         print(t("cli.output_is_dir"))
         print("   " + output)

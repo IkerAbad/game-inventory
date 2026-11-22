@@ -53,6 +53,7 @@ Opciones:
 | `--keep`, `--conservar` | No purga las claves de juegos desinstalados. |
 | `--force-purge`, `--forzar-purga` | Permite purgar más de la mitad de las claves de una vez. |
 | `--dry-run`, `--simular` | Escanea y muestra el resumen sin escribir nada. |
+| `--check-data`, `--validar` | Valida los ficheros JSON y sale. |
 | `--output RUTA`, `--salida RUTA` | Escribe el Excel en otra ruta. |
 | `--version` | Muestra la versión instalada. |
 
@@ -92,6 +93,10 @@ generate_inventory.py      punto de entrada
 pyproject.toml             metadatos del paquete y comando de consola
 CHANGELOG.es.md            registro de cambios en español
 CONTRIBUTING.es.md         guía de contribución en español
+SECURITY.es.md             política de seguridad en español
+docs/
+  DATA.es.md               formatos de datos y copias
+  ARCHITECTURE.es.md       flujo, módulos y garantías
 inventory/
   config.py                unidades, rutas y ajustes de red
   data.py                  JSON: carga, formato y escritura segura
@@ -122,6 +127,9 @@ El CI falla por debajo del 97% de cobertura.
 
 - [Changelog](CHANGELOG.md) / [Registro de cambios](CHANGELOG.es.md)
 - [Contributing](CONTRIBUTING.md) / [Contribuir](CONTRIBUTING.es.md)
+- [Data formats](docs/DATA.md) / [Formatos de datos](docs/DATA.es.md)
+- [Architecture](docs/ARCHITECTURE.md) / [Arquitectura](docs/ARCHITECTURE.es.md)
+- [Security](SECURITY.md) / [Seguridad](SECURITY.es.md)
 
 ## Licencia
 

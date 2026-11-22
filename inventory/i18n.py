@@ -194,6 +194,20 @@ TEXT = {
         "cli.ok": "OK: {path}",
         "cli.dry_run": "DRY RUN: no workbook, history or JSON written.",
 
+        "help.description": "Scan installed games, fill missing data from the network and build the Excel workbook.",
+        "help.lang": "output language (default: en)",
+        "help.offline": "do not use the network",
+        "help.keep": "do not purge uninstalled game keys",
+        "help.force_purge": "allow purging more than half of the keys at once",
+        "help.dry_run": "scan and show the summary without writing the workbook, history or JSON",
+        "help.output": "Excel path (default: config.py)",
+        "help.check_data": "validate the JSON data files and exit",
+        "help.version": "show the installed version",
+        "check.title": "DATA CHECK",
+        "check.hours": "Hours: {n} games ({warnings} warnings)",
+        "check.keys": "Completed: {completed} | Playing: {playing}",
+        "check.wishlist": "Wishlist: {n} titles ({warnings} warnings)",
+
         "scan.read_error": "Warning: cannot read {path} ({error}); skipped.",
 
         "data.no_purge": "NOT PURGED: {problems}. With a drive off or without permission, valid keys would be lost.",
@@ -437,6 +451,20 @@ TEXT = {
         "cli.duplicates": "DUPLICADOS: {names}",
         "cli.ok": "OK: {path}",
         "cli.dry_run": "SIMULACION: no se ha escrito el Excel, el historico ni los JSON.",
+
+        "help.description": "Escanea los juegos instalados, completa por red lo que falta y genera el Excel.",
+        "help.lang": "idioma de salida (por defecto: en)",
+        "help.offline": "no consulta internet",
+        "help.keep": "no purga las claves de juegos desinstalados",
+        "help.force_purge": "permite purgar mas de la mitad de las claves de una vez",
+        "help.dry_run": "escanea y muestra el resumen sin escribir el libro, el historico ni los JSON",
+        "help.output": "ruta del Excel (por defecto, la de config.py)",
+        "help.check_data": "valida los ficheros JSON y sale",
+        "help.version": "muestra la version instalada",
+        "check.title": "COMPROBACION DE DATOS",
+        "check.hours": "Horas: {n} juegos ({warnings} avisos)",
+        "check.keys": "Completados: {completed} | Jugando: {playing}",
+        "check.wishlist": "Wishlist: {n} titulos ({warnings} avisos)",
 
         "scan.read_error": "Aviso: no se puede leer {path} ({error}); se omite.",
 
