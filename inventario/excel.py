@@ -197,6 +197,7 @@ def embellecer(wb, juegos):
     ws.sheet_properties.tabColor = "0D47A1"
     titulo(ws, "A", "ESPACIO POR UNIDAD", "E")
     cabecera(ws, 3, 1, 5)
+    ult_esp = max(ws.max_row, 4)    # rango valido aunque no se lea ninguna unidad
     for r in range(4, ws.max_row + 1):
         for c in range(1, 6):
             cel = ws.cell(r, c)
@@ -206,12 +207,12 @@ def embellecer(wb, juegos):
                 cel.number_format = "#,##0.00"
         ws.cell(r, 4).number_format = "0.0"
     ws.conditional_formatting.add(
-        "D4:D%d" % ws.max_row,
+        "D4:D%d" % ult_esp,
         CellIsRule(operator="lessThan", formula=["5"],
                    fill=PatternFill("solid", fgColor="FFCDD2"),
                    font=Font(bold=True, color="B71C1C")))
     ws.conditional_formatting.add(
-        "D4:D%d" % ws.max_row,
+        "D4:D%d" % ult_esp,
         CellIsRule(operator="between", formula=["5", "15"],
                    fill=PatternFill("solid", fgColor="FFE0B2")))
 
@@ -564,14 +565,15 @@ def hojas_extra(wb, juegos):
     g2.height, g2.width, g2.legend = 8, 16, None
     ws.add_chart(g2, "L29")
 
-    g3 = PieChart()
-    g3.title = "Reparto de GB instalados por unidad"
-    g3.add_data(Reference(ws, min_col=9, min_row=9, max_row=9 + len(uni)), titles_from_data=True)
-    g3.set_categories(Reference(ws, min_col=8, min_row=10, max_row=9 + len(uni)))
-    g3.dataLabels = DataLabelList()
-    g3.dataLabels.showPercent = True
-    g3.height, g3.width = 9, 13
-    ws.add_chart(g3, "A47")
+    if uni:
+        g3 = PieChart()
+        g3.title = "Reparto de GB instalados por unidad"
+        g3.add_data(Reference(ws, min_col=9, min_row=9, max_row=9 + len(uni)), titles_from_data=True)
+        g3.set_categories(Reference(ws, min_col=8, min_row=10, max_row=9 + len(uni)))
+        g3.dataLabels = DataLabelList()
+        g3.dataLabels.showPercent = True
+        g3.height, g3.width = 9, 13
+        ws.add_chart(g3, "A47")
 
     if top:
         g4 = BarChart()

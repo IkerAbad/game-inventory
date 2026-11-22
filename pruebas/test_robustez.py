@@ -8,6 +8,7 @@ import sys
 import tempfile
 import unittest
 from contextlib import redirect_stdout
+from unittest import mock
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if RAIZ not in sys.path:
@@ -94,6 +95,23 @@ class PruebasEscritura(unittest.TestCase):
                 texto = f.read()
             self.assertNotIn("no-es-fecha", texto)
             self.assertNotIn("2026-01-02", texto)
+
+    def test_libro_vacio_sin_unidades(self):
+        with tempfile.TemporaryDirectory() as d:
+            original = excel.HISTORICO_CSV
+            excel.HISTORICO_CSV = os.path.join(d, "historico.csv")
+            try:
+                with mock.patch("inventario.excel.shutil.disk_usage",
+                                side_effect=OSError("sin unidad")):
+                    wb, TH, filas = excel.construir([], 1.0, 2.0, 4.0)
+                self.assertEqual(TH, 0.0)
+                self.assertEqual(wb.sheetnames,
+                                 ["Juegos", "Espacio", "Resumen", "Plan", "Historico"])
+                ruta = os.path.join(d, "x.xlsx")
+                wb.save(ruta)
+                self.assertTrue(os.path.exists(ruta))
+            finally:
+                excel.HISTORICO_CSV = original
 
 
 if __name__ == "__main__":
