@@ -68,8 +68,13 @@ def _json_get(url):
 
 def steam_manifests():
     """Normalized installdir -> (appid, name), reading appmanifest_*.acf from every Steam library."""
-    dirs = {os.path.dirname(b) for b in LIBRARIES
-            if isinstance(b, str) and b.lower().endswith("steamapps\\common")}
+    dirs = set()
+    for base in LIBRARIES:
+        if not isinstance(base, str):
+            continue
+        normalized = base.replace("\\", os.sep).replace("/", os.sep)
+        if normalized.lower().endswith("steamapps" + os.sep + "common"):
+            dirs.add(os.path.dirname(normalized))
     vdf = r"C:\Program Files (x86)\Steam\steamapps\libraryfolders.vdf"
     try:
         for p in re.findall(r'"path"\s+"([^"]+)"', open(vdf, encoding="utf-8", errors="replace").read()):
