@@ -58,7 +58,7 @@ def main(argv=None):
                         help="allow purging more than half of the keys at once")
     parser.add_argument("--dry-run", "--simular", dest="dry_run",
                         action="store_true",
-                        help="scan and show the summary without writing anything")
+                        help="scan and show the summary without writing the workbook, history or JSON")
     parser.add_argument("--output", "--salida", dest="output", default=None,
                         help="Excel path (default: config.py)")
     args = parser.parse_args(argv)

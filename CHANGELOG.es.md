@@ -29,7 +29,7 @@ Cambios destacados del proyecto. El formato sigue [Keep a Changelog](https://kee
 - Copia antes de purgar y copia `.corrupto` del histórico roto.
 - Freno de purga que se niega a borrar más de la mitad de las claves sin `--force-purge`.
 - Paquete instalable con el comando `game-inventory`.
-- 150 pruebas, umbral de cobertura y lint en CI.
+- 154 pruebas, umbral de cobertura y lint en CI.
 
 ### Seguridad
 

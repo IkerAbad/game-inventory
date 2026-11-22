@@ -29,7 +29,7 @@ All notable changes to this project. The format follows [Keep a Changelog](https
 - Backup before purging and `.corrupto` copy of a broken history.
 - Purge guard that refuses to remove more than half of the keys without `--force-purge`.
 - Installable package with the `game-inventory` console script.
-- 150 tests, coverage gate and lint in CI.
+- 154 tests, coverage gate and lint in CI.
 
 ### Security
 

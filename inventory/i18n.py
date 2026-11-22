@@ -192,7 +192,7 @@ TEXT = {
         "cli.no_difficulty_wishlist": "NO DIFFICULTY IN THE WISHLIST: {n} of {total} titles (first: {names})",
         "cli.duplicates": "DUPLICATES: {names}",
         "cli.ok": "OK: {path}",
-        "cli.dry_run": "DRY RUN: no workbook or history written.",
+        "cli.dry_run": "DRY RUN: no workbook, history or JSON written.",
 
         "scan.read_error": "Warning: cannot read {path} ({error}); skipped.",
 
@@ -436,7 +436,7 @@ TEXT = {
         "cli.no_difficulty_wishlist": "SIN DIFICULTAD EN LA WISHLIST: {n} de {total} titulos (primeros: {names})",
         "cli.duplicates": "DUPLICADOS: {names}",
         "cli.ok": "OK: {path}",
-        "cli.dry_run": "SIMULACION: no se ha escrito el Excel ni el historico.",
+        "cli.dry_run": "SIMULACION: no se ha escrito el Excel, el historico ni los JSON.",
 
         "scan.read_error": "Aviso: no se puede leer {path} ({error}); se omite.",
 
