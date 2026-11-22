@@ -78,16 +78,16 @@ class FormatTests(unittest.TestCase):
         self.assertEqual(mc_cell({"s": 85, "p": "PC", "n": 48}), (85, None))
 
     def test_metascore_with_platform(self):
-        valor, texto = mc_cell({"s": 92, "p": "PS4", "n": 30})
-        self.assertEqual(valor, 92)
+        value, texto = mc_cell({"s": 92, "p": "PS4", "n": 30})
+        self.assertEqual(value, 92)
         self.assertIn("PS4", texto)
 
     def test_steam_fallback(self):
-        valor, texto = mc_cell(None, {"id": 1, "name": "Juego", "n": 1234,
+        value, texto = mc_cell(None, {"id": 1, "name": "Juego", "n": 1234,
                                        "desc": "histograma", "pct": 92})
-        self.assertIsInstance(valor, PctSteam)
-        self.assertEqual(int(valor), 92)
-        self.assertEqual(valor.fmt, '"S "0"%"')
+        self.assertIsInstance(value, PctSteam)
+        self.assertEqual(int(value), 92)
+        self.assertEqual(value.fmt, '"S "0"%"')
         self.assertIn("92%", texto)
 
     def test_difficulty_consensus(self):
@@ -125,15 +125,15 @@ class FormatTests(unittest.TestCase):
         self.assertIn("Platform: PS4", comment)
 
     def test_metacritic_with_odd_fields(self):
-        valor, texto = mc_cell({"s": 85, "p": 123, "n": "muchas", "nota": ["rara"]})
-        self.assertEqual(valor, 85)
+        value, texto = mc_cell({"s": 85, "p": 123, "n": "muchas", "nota": ["rara"]})
+        self.assertEqual(value, 85)
         self.assertIn("123", texto)
         self.assertIn("rara", texto)
 
     def test_steam_with_odd_reviews(self):
-        valor, texto = mc_cell(3.14, {"pct": 92, "n": {"a": 1}, "desc": 3.14,
+        value, texto = mc_cell(3.14, {"pct": 92, "n": {"a": 1}, "desc": 3.14,
                                        "name": 5, "id": 1})
-        self.assertEqual(int(valor), 92)
+        self.assertEqual(int(value), 92)
         self.assertIn("92%", texto)
         self.assertIn("0 resenas", texto)
 
@@ -147,3 +147,5 @@ class FormatTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+

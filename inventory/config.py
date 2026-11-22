@@ -42,7 +42,7 @@ def _desktop():
 
 
 # Kept under the original Spanish name so the existing workbook is updated in place.
-OUTPUT = os.path.join(_desktop(), "Juegos", "Inventario juegos GB por hora.xlsx")
+OUTPUT = os.path.join(_desktop(), "Juegos", "Inventario games GB por hora.xlsx")
 
 # Network autocomplete.
 USER_AGENT = "GameInventory/1.0 (personal use; no bulk automation)"

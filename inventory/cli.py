@@ -134,34 +134,34 @@ def main(argv=None):
     from_wishlist = []
     no_data = []
     for j in games:
-        key = normalize(j["nombre"])
-        j["horas"] = valid_hours.get(key, "?")
+        key = normalize(j["name"])
+        j["hours"] = valid_hours.get(key, "?")
         j["mc"] = mc_hours.get(key)
         j["steam"] = steam_hours.get(key)
         j["dif"] = dif_hours.get(key)
         notes = hours.get("_notas") if isinstance(hours.get("_notas"), dict) else {}
-        j["nota_h"] = str(notes.get(key) or "")
-        if j["horas"] == "?" and key in wishlist_hours:
-            j["horas"] = wishlist_hours[key]
-            from_wishlist.append((j["nombre"], wishlist_hours[key]))
-        j["completado"] = key in completed
-        j["jugando"] = key in playing and not j["completado"]
-        if j["completado"]:
+        j["note"] = str(notes.get(key) or "")
+        if j["hours"] == "?" and key in wishlist_hours:
+            j["hours"] = wishlist_hours[key]
+            from_wishlist.append((j["name"], wishlist_hours[key]))
+        j["completed"] = key in completed
+        j["playing"] = key in playing and not j["completed"]
+        if j["completed"]:
             j["ratio"] = -0.5
             j["verdict"] = "completed"
-        elif j["horas"] == "?":
+        elif j["hours"] == "?":
             j["ratio"] = -1
             j["verdict"] = "no_data"
-            no_data.append(j["nombre"])
-        elif j["horas"] is None:
+            no_data.append(j["name"])
+        elif j["hours"] is None:
             j["ratio"] = 0.0
             j["verdict"] = "no_end"
         else:
-            j["ratio"] = round(j["gb"] / j["horas"], 2)
+            j["ratio"] = round(j["gb"] / j["hours"], 2)
             j["verdict"] = "__RATIO__"
-        if j["duplicado"]:
+        if j["duplicate"]:
             j["verdict"] = "duplicate"
-        if j["jugando"]:
+        if j["playing"]:
             j["verdict"] = "playing"
 
     ratios = sorted(j["ratio"] for j in games
@@ -175,7 +175,7 @@ def main(argv=None):
                             "medium" if ratio >= q1 else
                             "bad")
 
-    games.sort(key=lambda x: (not x["jugando"], -x["ratio"], -x["gb"]))
+    games.sort(key=lambda x: (not x["playing"], -x["ratio"], -x["gb"]))
 
     wb, total_hours, history_rows = build_workbook(
         games, q1, q2, q3, wl=wishlist,
@@ -213,23 +213,23 @@ def main(argv=None):
     print(t("cli.pending", hours=total_hours, days=round(total_hours / 4),
             years=total_hours / 4 / 365.25))
     print(t("cli.quartiles", q1=q1, q2=q2, q3=q3))
-    completed_games = [j for j in games if j["completado"]]
+    completed_games = [j for j in games if j["completed"]]
     if completed_games:
         print("\n" + t("cli.completed", n=len(completed_games),
                        gb=sum(j["gb"] for j in completed_games)))
         for j in sorted(completed_games, key=lambda x: -x["gb"]):
-            print("   %-42s %6.2f GB  %s" % (j["nombre"], j["gb"], j["unidad"]))
-    playing_games = [j for j in games if j["jugando"]]
+            print("   %-42s %6.2f GB  %s" % (j["name"], j["gb"], j["unit"]))
+    playing_games = [j for j in games if j["playing"]]
     if playing_games:
         print("\n" + t("cli.playing", n=len(playing_games),
-                       names=", ".join(j["nombre"] for j in playing_games)))
+                       names=", ".join(j["name"] for j in playing_games)))
     if len(history_rows) > 1:
         a, b = history_rows[-2], history_rows[-1]
         print("\n" + t("cli.since", date=a[0],
                        gb=float(b[2]) - float(a[2]),
                        hours=float(b[3]) - float(a[3]),
                        games=int(b[1]) - int(a[1])))
-    installed_keys = {normalize(j["nombre"]) for j in games}
+    installed_keys = {normalize(j["name"]) for j in games}
     completed_orphans = completed - installed_keys
     if completed_orphans:
         print("\n" + t("cli.completed_orphans",
@@ -272,7 +272,7 @@ def main(argv=None):
         print("\n" + t("cli.no_hours_list", n=len(no_data)))
         for name in no_data:
             print("   " + name)
-    no_difficulty = [j["nombre"] for j in games if not j["duplicado"]
+    no_difficulty = [j["name"] for j in games if not j["duplicate"]
                      and dif_cells(j.get("dif"))[0] is None
                      and dif_cells(j.get("dif"))[1] is None]
     if no_difficulty:
@@ -286,7 +286,7 @@ def main(argv=None):
         if missing_dif:
             print("\n" + t("cli.no_difficulty_wishlist", n=len(missing_dif),
                            total=len(wishlist), names=", ".join(missing_dif[:5])))
-    duplicates = [j["nombre"] for j in games if j["duplicado"]]
+    duplicates = [j["name"] for j in games if j["duplicate"]]
     if duplicates:
         print("\n" + t("cli.duplicates", names=", ".join(duplicates)))
     print("\n" + t("cli.ok", path=output))

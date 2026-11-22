@@ -49,14 +49,14 @@ def scan_games():
             key = normalize(name)
             duplicate = key in seen
             seen.add(key)
-            games.append({"nombre": name, "gb": round(size_gb(path), 2),
-                          "dias": days_installed(path), "unidad": drive + ":",
-                          "ruta": path, "duplicado": duplicate})
+            games.append({"name": name, "gb": round(size_gb(path), 2),
+                          "days": days_installed(path), "unit": drive + ":",
+                          "path": path, "duplicate": duplicate})
     for path in LOOSE_PATHS:
         if isinstance(path, str) and path and os.path.isdir(path):
-            games.append({"nombre": os.path.basename(path), "gb": round(size_gb(path), 2),
-                          "dias": days_installed(path), "unidad": path[0] + ":",
-                          "ruta": path, "duplicado": False})
+            games.append({"name": os.path.basename(path), "gb": round(size_gb(path), 2),
+                          "days": days_installed(path), "unit": path[0] + ":",
+                          "path": path, "duplicate": False})
     return games, failed
 
 

@@ -110,7 +110,7 @@ def mc_format(ws, cell_range, first_cell):
 
 
 DIF_CERTAINTY = {
-    "fuente": "comment.backed",
+    "source": "comment.backed",
     "consenso": "comment.consensus",
     "inferencia": "comment.inference",
 }
@@ -119,7 +119,7 @@ DIF_CERTAINTY = {
 def dif_cells(e):
     """_dificultad entry ({h, c, ct, src, nota}) -> (skill, complexity, comment or None, is_inference).
     h = Skill 0-10 (reflexes, punishment, execution); c = Complexity 0-10 (rules, systems, learning
-    curve); ct = certainty: fuente | consenso | inferencia. A null axis is left empty."""
+    curve); ct = certainty: source | consenso | inferencia. A null axis is left empty."""
     if not isinstance(e, dict):
         return None, None, None, False
     num = lambda v: (v if isinstance(v, (int, float)) and not isinstance(v, bool)

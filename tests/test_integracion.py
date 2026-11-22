@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Prueba de extremo a extremo: main() con datos y juegos de mentira."""
+"""Prueba de extremo a extremo: main() con datos y games de mentira."""
 
 import io
 import json
@@ -19,9 +19,9 @@ import openpyxl
 from inventory.cli import main
 
 
-def juego(nombre, gb):
-    return {"nombre": nombre, "gb": gb, "dias": 3, "unidad": "C:",
-            "ruta": "C:\\" + nombre, "duplicado": False}
+def juego(name, gb):
+    return {"name": name, "gb": gb, "days": 3, "unit": "C:",
+            "path": "C:\\" + name, "duplicate": False}
 
 
 class IntegrationTests(unittest.TestCase):
@@ -55,9 +55,9 @@ class IntegrationTests(unittest.TestCase):
                 json.dump(["Juego A"], f)
 
             salida = os.path.join(d, "salida.xlsx")
-            juegos = [juego("Juego A", 2.0), juego("Juego B", 1.0)]
+            games = [juego("Juego A", 2.0), juego("Juego B", 1.0)]
             with mock.patch.multiple("inventory.cli", DATA_DIR=datos, **rutas), \
-                 mock.patch("inventory.cli.scan_games", return_value=(juegos, [])), \
+                 mock.patch("inventory.cli.scan_games", return_value=(games, [])), \
                  mock.patch("inventory.excel.HISTORY_CSV",
                             os.path.join(datos, "history.csv")):
                 with redirect_stdout(io.StringIO()) as consola:

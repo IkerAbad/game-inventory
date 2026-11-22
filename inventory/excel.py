@@ -497,10 +497,10 @@ def extra_sheets(wb, games):
             for i, width in enumerate(widths, 1):
                 ws.column_dimensions[get_column_letter(i)].width = width
 
-    with_end = [j for j in games if isinstance(j["horas"], (int, float)) and not j["completado"]]
-    no_end = [j for j in games if j["horas"] is None and not j["completado"]]
-    completed = [j for j in games if j["completado"]]
-    total_hours = sum(j["horas"] for j in with_end)
+    with_end = [j for j in games if isinstance(j["hours"], (int, float)) and not j["completed"]]
+    no_end = [j for j in games if j["hours"] is None and not j["completed"]]
+    completed = [j for j in games if j["completed"]]
+    total_hours = sum(j["hours"] for j in with_end)
     total_gb = sum(j["gb"] for j in games)
     free_gb = sum(j["gb"] for j in with_end)
     completed_gb = sum(j["gb"] for j in completed)
@@ -569,24 +569,24 @@ def extra_sheets(wb, games):
     for i, code in enumerate(categories, 3):
         subset = [j for j in with_end if j["verdict"] == code]
         ws.cell(i, 8, t("verdict.short." + code))
-        ws.cell(i, 9, round(sum(j["horas"] for j in subset), 1))
+        ws.cell(i, 9, round(sum(j["hours"] for j in subset), 1))
         ws.cell(i, 10, round(sum(j["gb"] for j in subset), 2))
 
     ws["H9"] = t("col.unit")
     ws["I9"] = t("col.gb")
     units = {}
     for j in games:
-        units[j["unidad"]] = units.get(j["unidad"], 0) + j["gb"]
+        units[j["unit"]] = units.get(j["unit"], 0) + j["gb"]
     for i, unit in enumerate(sorted(units), 10):
         ws.cell(i, 8, unit)
         ws.cell(i, 9, round(units[unit], 2))
 
     ws["H16"] = t("col.game")
     ws["I16"] = t("col.hours")
-    top = sorted(with_end, key=lambda x: -x["horas"])[:15]
+    top = sorted(with_end, key=lambda x: -x["hours"])[:15]
     for i, j in enumerate(top, 17):
-        text_cell(ws, i, 8, j["nombre"][:32])
-        ws.cell(i, 9, j["horas"])
+        text_cell(ws, i, 8, j["name"][:32])
+        ws.cell(i, 9, j["hours"])
     ws.column_dimensions["H"].width = 34
 
     chart1 = BarChart()
@@ -647,16 +647,16 @@ def extra_sheets(wb, games):
            [6, 42, 11, 10, 16, 10, 13, 18, 17, 14, 11, 13])
 
     hours_acc = gb_acc = 0.0
-    in_progress = sum(1 for j in with_end if j.get("jugando"))
+    in_progress = sum(1 for j in with_end if j.get("playing"))
     wb._in_progress = in_progress
     for i, j in enumerate(with_end, 1):
-        hours_acc += j["horas"]
+        hours_acc += j["hours"]
         gb_acc += j["gb"]
         row = i + 4
         wp.cell(row, 1, i)
-        text_cell(wp, row, 2, j["nombre"])
-        wp.cell(row, 3, j["unidad"])
-        wp.cell(row, 4, j["horas"])
+        text_cell(wp, row, 2, j["name"])
+        wp.cell(row, 3, j["unit"])
+        wp.cell(row, 4, j["hours"])
         wp.cell(row, 5, round(hours_acc, 1))
         wp.cell(row, 6, j["gb"])
         wp.cell(row, 7, round(gb_acc, 2))
@@ -731,7 +731,7 @@ def wishlist_sheet(wb, games, wl, source, mc=None, notes=None, st=None, dif=None
     is_duplicate = lambda title: note_for(title).upper().startswith("EDICION DUPLICADA")
     is_played = lambda title: note_for(title).upper().startswith("YA JUGADO")
     is_estimate = lambda title: note_for(title).upper().startswith("ESTIMACION")
-    installed = [normalize(j["nombre"]) for j in games]
+    installed = [normalize(j["name"]) for j in games]
     installed_set = set(installed)
 
     def is_installed(title):
@@ -936,16 +936,16 @@ def build_workbook(games, q1, q2, q3, wl=None, source="source not given",
         cell.alignment = Alignment(horizontal="center")
 
     for row, j in enumerate(games, 5):
-        text_cell(ws, row, 1, j["nombre"])
+        text_cell(ws, row, 1, j["name"])
         ws.cell(row, 2, j["gb"])
-        ws.cell(row, 3, t("row.endless") if j["horas"] is None else j["horas"])
-        if str(j.get("nota_h", "")).upper().startswith("ESTIMACION"):
-            ws.cell(row, 3).comment = note_comment(j["nota_h"])
+        ws.cell(row, 3, t("row.endless") if j["hours"] is None else j["hours"])
+        if str(j.get("note", "")).upper().startswith("ESTIMACION"):
+            ws.cell(row, 3).comment = note_comment(j["note"])
             ws.cell(row, 3).font = Font(italic=True, color="C2410C")
         ws.cell(row, 4, j["ratio"] if j["ratio"] > 0 else "")
-        ws.cell(row, 5, j["unidad"])
+        ws.cell(row, 5, j["unit"])
         ws.cell(row, 6, t("verdict." + j["verdict"]))
-        ws.cell(row, 7, j["dias"])
+        ws.cell(row, 7, j["days"])
         value, comment = mc_cell(j.get("mc"), j.get("steam"))
         cell = ws.cell(row, 8, value)
         if isinstance(value, PctSteam):
@@ -953,7 +953,7 @@ def build_workbook(games, q1, q2, q3, wl=None, source="source not given",
         if comment:
             cell.comment = mc_comment(comment)
         dif_write(ws, row, 9, j.get("dif"))
-        text_cell(ws, row, 11, j["ruta"])
+        text_cell(ws, row, 11, j["path"])
 
     for i, width in enumerate([44, 11, 11, 12, 12, 30, 17, 14, 11, 13, 58], 1):
         ws.column_dimensions[get_column_letter(i)].width = width
@@ -968,7 +968,7 @@ def build_workbook(games, q1, q2, q3, wl=None, source="source not given",
                   t("col.percent_free"), t("col.games_gb")])
     totals = {}
     for j in games:
-        totals[j["unidad"]] = totals.get(j["unidad"], 0) + j["gb"]
+        totals[j["unit"]] = totals.get(j["unit"], 0) + j["gb"]
     for unit in ["C:", "D:", "E:", "F:"]:
         try:
             total, used, free = shutil.disk_usage(unit + "\\")
