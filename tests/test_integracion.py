@@ -24,8 +24,8 @@ def juego(nombre, gb):
             "ruta": "C:\\" + nombre, "duplicado": False}
 
 
-class PruebasIntegracion(unittest.TestCase):
-    def test_main_completo(self):
+class IntegrationTests(unittest.TestCase):
+    def test_full_main(self):
         with tempfile.TemporaryDirectory() as d:
             datos = os.path.join(d, "datos")
             os.makedirs(datos)
@@ -77,8 +77,8 @@ class PruebasIntegracion(unittest.TestCase):
             self.assertIn("NO END", wb["Games"]["F6"].value)
 
 
-class PruebasAbortos(unittest.TestCase):
-    def test_aborta_si_la_salida_es_una_carpeta(self):
+class AbortTests(unittest.TestCase):
+    def test_aborts_when_output_is_folder(self):
         with tempfile.TemporaryDirectory() as d:
             datos = os.path.join(d, "datos")
             with mock.patch("inventory.cli.DATA_DIR", datos):
@@ -86,7 +86,7 @@ class PruebasAbortos(unittest.TestCase):
                     rc = main(["--sin-red", "--salida", d])
             self.assertEqual(rc, 1)
 
-    def test_aborta_si_la_salida_esta_en_datos(self):
+    def test_aborts_when_output_inside_data(self):
         with tempfile.TemporaryDirectory() as d:
             datos = os.path.join(d, "datos")
             os.makedirs(datos)
@@ -96,7 +96,7 @@ class PruebasAbortos(unittest.TestCase):
                                os.path.join(datos, "x.xlsx")])
             self.assertEqual(rc, 1)
 
-    def test_aborta_si_hay_otra_ejecucion(self):
+    def test_aborts_when_another_run(self):
         with tempfile.TemporaryDirectory() as d:
             datos = os.path.join(d, "datos")
             os.makedirs(datos)
@@ -107,7 +107,7 @@ class PruebasAbortos(unittest.TestCase):
                                os.path.join(d, "x.xlsx")])
             self.assertEqual(rc, 1)
 
-    def test_aborta_con_json_corrupto(self):
+    def test_aborts_with_corrupt_json(self):
         with tempfile.TemporaryDirectory() as d:
             datos = os.path.join(d, "datos")
             os.makedirs(datos)

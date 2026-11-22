@@ -26,19 +26,19 @@ from inventory.cell_format import clean_text
 from inventory.network import steam_search
 
 
-class PruebasLeerJson(unittest.TestCase):
-    def test_inexistente_devuelve_defecto(self):
+class ReadJsonTests(unittest.TestCase):
+    def test_missing_returns_default(self):
         with tempfile.TemporaryDirectory() as d:
             self.assertEqual(read_json(os.path.join(d, "no.json"), {"x": 1}), {"x": 1})
 
-    def test_acepta_bom(self):
+    def test_accepts_bom(self):
         with tempfile.TemporaryDirectory() as d:
             ruta = os.path.join(d, "x.json")
             with open(ruta, "w", encoding="utf-8-sig") as f:
                 json.dump({"a": 1}, f)
             self.assertEqual(read_json(ruta, {}), {"a": 1})
 
-    def test_corrupto_avisa_con_posicion(self):
+    def test_corrupt_reports_position(self):
         with tempfile.TemporaryDirectory() as d:
             ruta = os.path.join(d, "x.json")
             with open(ruta, "w", encoding="utf-8") as f:
@@ -48,7 +48,7 @@ class PruebasLeerJson(unittest.TestCase):
             self.assertIn("not valid JSON", str(ctx.exception))
             self.assertIn("line", str(ctx.exception))
 
-    def test_claves_exige_lista(self):
+    def test_keys_require_list(self):
         with tempfile.TemporaryDirectory() as d:
             ruta = os.path.join(d, "x.json")
             with open(ruta, "w", encoding="utf-8") as f:
@@ -66,8 +66,8 @@ class PruebasLeerJson(unittest.TestCase):
             self.assertIn("UTF-8", str(ctx.exception))
 
 
-class PruebasDepurarHoras(unittest.TestCase):
-    def test_validos(self):
+class CleanHoursTests(unittest.TestCase):
+    def test_valid(self):
         limpio, avisos = clean_hours({"a": 12.5, "b": None, "c": "?", "_notas": {"a": "x"}})
         self.assertEqual(limpio["a"], 12.5)
         self.assertIsNone(limpio["b"])
@@ -75,7 +75,7 @@ class PruebasDepurarHoras(unittest.TestCase):
         self.assertEqual(limpio["_notas"], {"a": "x"})
         self.assertEqual(avisos, [])
 
-    def test_invalidos_pasan_a_sin_datos(self):
+    def test_invalid_become_no_data(self):
         limpio, avisos = clean_hours(
             {"a": 0, "b": -3, "c": "doce", "d": True, "e": float("nan")})
         for k in "abcde":
@@ -85,7 +85,7 @@ class PruebasDepurarHoras(unittest.TestCase):
         self.assertEqual(limpio["f"], "?")
         self.assertEqual(len(avisos), 1)
 
-    def test_es_hora_valida(self):
+    def test_is_valid_hours(self):
         self.assertTrue(is_valid_hours(12.5))
         self.assertTrue(is_valid_hours(1))
         self.assertTrue(is_valid_hours(1000000))
@@ -99,18 +99,18 @@ class PruebasDepurarHoras(unittest.TestCase):
         self.assertFalse(is_valid_hours(None))
 
 
-class PruebasEscritura(unittest.TestCase):
+class WriteTests(unittest.TestCase):
     def setUp(self):
         set_lang("en")
 
-    def test_atomica_y_sin_temporales(self):
+    def test_atomic_and_no_temp_files(self):
         with tempfile.TemporaryDirectory() as d:
             ruta = os.path.join(d, "x.json")
             write_atomic(ruta, '{"a": 1}\n')
             self.assertEqual(read_json(ruta, {}), {"a": 1})
             self.assertEqual([n for n in os.listdir(d) if n.startswith(".tmp_")], [])
 
-    def test_guardar_json_tolera_nan(self):
+    def test_save_json_tolerates_nan(self):
         with tempfile.TemporaryDirectory() as d:
             ruta = os.path.join(d, "x.json")
 
@@ -120,14 +120,14 @@ class PruebasEscritura(unittest.TestCase):
 
             self.assertTrue(_save_json(ruta, escritor, {"a": float("nan")}))
 
-    def test_horas_conserva_bloques_desconocidos(self):
+    def test_hours_keeps_unknown_blocks(self):
         with tempfile.TemporaryDirectory() as d:
             ruta = os.path.join(d, "hours.json")
             with mock.patch("inventory.data.HOURS_JSON", ruta):
                 write_hours({"juego": 10, "_raro": {"a": 1}})
             self.assertEqual(read_json(ruta, {})["_raro"], {"a": 1})
 
-    def test_historico_ignora_filas_rotas(self):
+    def test_history_ignores_broken_rows(self):
         with tempfile.TemporaryDirectory() as d:
             ruta = os.path.join(d, "history.csv")
             with open(ruta, "w", encoding="utf-8") as f:
@@ -152,7 +152,7 @@ class PruebasEscritura(unittest.TestCase):
             with open(ruta + ".corrupto", encoding="utf-8") as f:
                 self.assertIn("no-es-fecha", f.read())
 
-    def test_historico_no_utf8_se_regenera(self):
+    def test_history_non_utf8_is_regenerated(self):
         with tempfile.TemporaryDirectory() as d:
             ruta = os.path.join(d, "history.csv")
             with open(ruta, "wb") as f:
@@ -170,7 +170,7 @@ class PruebasEscritura(unittest.TestCase):
             with open(ruta + ".corrupto", "rb") as f:
                 self.assertEqual(f.read(), b"\xff\xfe")
 
-    def test_libro_vacio_sin_unidades(self):
+    def test_empty_workbook_without_drives(self):
         with tempfile.TemporaryDirectory() as d:
             original = excel.HISTORY_CSV
             excel.HISTORY_CSV = os.path.join(d, "history.csv")
@@ -189,7 +189,7 @@ class PruebasEscritura(unittest.TestCase):
             finally:
                 excel.HISTORY_CSV = original
 
-    def test_celda_texto_no_es_formula(self):
+    def test_text_cell_is_not_formula(self):
         import openpyxl
         with tempfile.TemporaryDirectory() as d:
             wb = openpyxl.Workbook()
@@ -206,12 +206,12 @@ class PruebasEscritura(unittest.TestCase):
             self.assertEqual(wb2.active.cell(1, 3).value, "=2+2")
             self.assertEqual(wb2.active.cell(1, 3).data_type, "s")
 
-    def test_limpia_texto(self):
+    def test_clean_text(self):
         self.assertEqual(clean_text("a\x01b\x1fc"), "abc")
         self.assertEqual(clean_text("linea\nnormal"), "linea\nnormal")
         self.assertEqual(len(clean_text("x" * 40000)), 32767)
 
-    def test_limpiar_temporales(self):
+    def test_clean_temp_files(self):
         with tempfile.TemporaryDirectory() as d:
             viejo = os.path.join(d, ".tmp_resto.tmp")
             with open(viejo, "w", encoding="utf-8") as f:
@@ -222,7 +222,7 @@ class PruebasEscritura(unittest.TestCase):
             self.assertFalse(os.path.exists(viejo))
             self.assertTrue(os.path.exists(os.path.join(d, "hours.json")))
 
-    def test_purga_se_niega_si_falla_una_base(self):
+    def test_purge_refuses_on_failed_base(self):
         with tempfile.TemporaryDirectory() as d:
             with mock.patch("inventory.data.LIBRARIES", [d]):
                 horas = {"juego": 10, "_notas": {"juego": "x"}}
@@ -232,7 +232,7 @@ class PruebasEscritura(unittest.TestCase):
                 self.assertIn("juego", horas)
                 self.assertIn("juego", horas["_notas"])
 
-    def test_purga_guardada_por_mayoria(self):
+    def test_purge_guarded_by_majority(self):
         with tempfile.TemporaryDirectory() as d:
             ruta = os.path.join(d, "hours.json")
             horas = {"juego %d" % i: 10 for i in range(12)}
@@ -250,7 +250,7 @@ class PruebasEscritura(unittest.TestCase):
             self.assertEqual(quitadas, 10)
             self.assertEqual(len(read_json(ruta, {})), 3)  # 2 claves + _notas
 
-    def test_purga_guarda_copia_previa(self):
+    def test_purge_keeps_previous_copy(self):
         with tempfile.TemporaryDirectory() as d:
             ruta = os.path.join(d, "hours.json")
             with open(ruta, "w", encoding="utf-8") as f:
@@ -270,7 +270,7 @@ class PruebasEscritura(unittest.TestCase):
         self.assertTrue(inside_data(os.path.join(DATA_DIR, "sub", "x.xlsx")))
         self.assertFalse(inside_data(os.path.join(tempfile.gettempdir(), "x.xlsx")))
 
-    def test_bloqueo_exclusivo_entre_procesos(self):
+    def test_exclusive_lock_between_processes(self):
         import subprocess
         with tempfile.TemporaryDirectory() as d:
             f = acquire_lock(d)
@@ -286,7 +286,7 @@ class PruebasEscritura(unittest.TestCase):
             self.assertIsNotNone(f2)
             f2.close()
 
-    def test_steam_buscar_respuestas_raras(self):
+    def test_steam_search_odd_responses(self):
         with mock.patch("inventory.network._json_get", return_value=[]):
             self.assertIsNone(steam_search(["Juego"]))
         with mock.patch("inventory.network._json_get",
@@ -295,21 +295,21 @@ class PruebasEscritura(unittest.TestCase):
         with mock.patch("inventory.network._json_get", return_value={"items": "x"}):
             self.assertIsNone(steam_search(["Juego"]))
 
-    def test_escanear_ignora_bases_invalidas(self):
+    def test_scan_ignores_invalid_libraries(self):
         with tempfile.TemporaryDirectory() as d:
             with mock.patch("inventory.scan.LIBRARIES", [None, 123, d]):
                 juegos, fallos = scan_games()
             self.assertIsInstance(juegos, list)
             self.assertEqual(fallos, [])
 
-    def test_wishlist_bloques_no_dict(self):
+    def test_wishlist_non_dict_blocks(self):
         import openpyxl
         wb = openpyxl.Workbook()
         wb.remove(wb.active)
         excel.wishlist_sheet(wb, [], {"Juego": 10}, "origen", [], [], [], [])
         self.assertEqual(wb.sheetnames, ["Wishlist"])
 
-    def test_horas_absurdas_no_rompen(self):
+    def test_absurd_hours_do_not_break(self):
         juego = {"nombre": "Enorme", "gb": 1.0, "dias": 1, "unidad": "C:",
                  "ruta": "C:\\Enorme", "duplicado": False, "horas": 10000000.0,
                  "mc": None, "steam": None, "dif": None, "nota_h": "",
@@ -329,7 +329,7 @@ class PruebasEscritura(unittest.TestCase):
             finally:
                 excel.HISTORY_CSV = original
 
-    def test_juego_de_cero_gb(self):
+    def test_zero_gb_game(self):
         juego = {"nombre": "Vacio", "gb": 0.0, "dias": 1, "unidad": "C:",
                  "ruta": "C:\\Vacio", "duplicado": False, "horas": 10.0,
                  "mc": None, "steam": None, "dif": None, "nota_h": "",
