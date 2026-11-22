@@ -9,6 +9,10 @@ LANG = "en"
 
 TEXT = {
     "en": {
+        "app.title": "Game inventory",
+        "app.subject": "Game inventory workbook",
+        "app.description": "GB per hour, backlog plan, history and wishlist.",
+
         "sheet.games": "Games",
         "sheet.space": "Space",
         "sheet.summary": "Summary",
@@ -215,6 +219,7 @@ TEXT = {
         "check.title": "DATA CHECK",
         "check.hours": "Hours: {n} games ({warnings} warnings)",
         "check.keys": "Completed: {completed} | Playing: {playing}",
+        "check.overlap": "Completed and playing at the same time ({n}): {names}",
         "check.wishlist": "Wishlist: {n} titles ({warnings} warnings)",
         "check.config": "Config: {n} overrides in config.json",
         "check.config_unknown": "Unknown config keys ({n}): {names}",
@@ -290,6 +295,10 @@ TEXT = {
         "wish.chart_title": "Hours: installed backlog versus wishlist",
     },
     "es": {
+        "app.title": "Inventario de juegos",
+        "app.subject": "Libro de inventario de juegos",
+        "app.description": "GB por hora, plan de backlog, historico y wishlist.",
+
         "sheet.games": "Juegos",
         "sheet.space": "Espacio",
         "sheet.summary": "Resumen",
@@ -497,6 +506,7 @@ TEXT = {
         "check.title": "COMPROBACION DE DATOS",
         "check.hours": "Horas: {n} juegos ({warnings} avisos)",
         "check.keys": "Completados: {completed} | Jugando: {playing}",
+        "check.overlap": "Completados y jugando a la vez ({n}): {names}",
         "check.wishlist": "Wishlist: {n} titulos ({warnings} avisos)",
         "check.config": "Config: {n} ajustes en config.json",
         "check.config_unknown": "Claves desconocidas en la configuracion ({n}): {names}",

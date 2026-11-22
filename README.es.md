@@ -122,7 +122,9 @@ SECURITY.es.md             política de seguridad en español
 docs/
   DATA.es.md               formatos de datos y copias
   ARCHITECTURE.es.md       flujo, módulos y garantías
+  EXAMPLES.es.md           ejemplos de consola, libro y carpeta de datos
 tools/
+  check_all.py             ejecuta pyflakes, enlaces y traducciones
   check_dist.py            comprueba el contenido del wheel y del sdist
   check_links.py           comprueba los enlaces relativos de la documentación
 inventory/
@@ -157,6 +159,7 @@ El CI falla por debajo del 98% de cobertura.
 - [Contributing](CONTRIBUTING.md) / [Contribuir](CONTRIBUTING.es.md)
 - [Data formats](docs/DATA.md) / [Formatos de datos](docs/DATA.es.md)
 - [Architecture](docs/ARCHITECTURE.md) / [Arquitectura](docs/ARCHITECTURE.es.md)
+- [Examples](docs/EXAMPLES.md) / [Ejemplos](docs/EXAMPLES.es.md)
 - [Security](SECURITY.md) / [Seguridad](SECURITY.es.md)
 
 ## Licencia

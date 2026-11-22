@@ -489,6 +489,14 @@ def polish_workbook(wb, games):
                 chart.x_axis.majorGridlines = None
                 chart.x_axis.delete = False
 
+    from openpyxl.worksheet.properties import PageSetupProperties
+    for ws in wb.worksheets:
+        ws.page_setup.orientation = "landscape"
+        ws.page_setup.fitToWidth = 1
+        ws.page_setup.fitToHeight = 0
+        ws.sheet_properties.pageSetUpPr = PageSetupProperties(fitToPage=True)
+        ws.print_options.horizontalCentered = True
+
 
 def extra_sheets(wb, games):
     """Add the Summary and Plan sheets with their charts."""
@@ -932,6 +940,11 @@ def build_workbook(games, q1, q2, q3, wl=None, source="source not given",
     from openpyxl.utils import get_column_letter
 
     wb = openpyxl.Workbook()
+    wb.properties.title = t("app.title")
+    wb.properties.subject = t("app.subject")
+    wb.properties.creator = "game-inventory"
+    wb.properties.description = t("app.description")
+    wb.properties.keywords = "games, backlog, GB per hour, Excel"
     ws = wb.active
     ws.title = sheet("games")
     ws["A1"] = t("title.games")

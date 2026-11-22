@@ -17,10 +17,12 @@ py -m pip install -e ".[dev]"
 ## Comprobaciones
 
 ```
-py -m pyflakes inventory generate_inventory.py tests tools
+py tools/check_all.py
 py -m coverage run --source=inventory -m unittest discover -s tests -v
 py -m coverage report -m
 ```
+
+`check_all.py` ejecuta pyflakes, la comprobación de enlaces de la documentación y la de traducciones.
 
 El CI falla por debajo del 98% de cobertura.
 

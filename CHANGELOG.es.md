@@ -9,20 +9,23 @@ Cambios destacados del proyecto. El formato sigue [Keep a Changelog](https://kee
 - `--dry-run` / `--simular`: escanea y muestra el resumen sin escribir el libro, el histórico, los JSON ni purgar.
 - `--check-data` / `--validar`: valida los ficheros JSON, `config.json`, las claves de metadatos huérfanas, los valores de metadatos inválidos, los títulos repetidos de la wishlist y el histórico, y sale sin escanear ni escribir.
 - `--strict` / `--estricto`: con `--check-data`, sale con código 1 si hay avisos.
-- La comprobación de datos nombra las claves huérfanas e informa de claves desconocidas en la configuración, claves sin normalizar en `hours.json`, choques al normalizar y títulos de completados/jugando que no están en `hours.json`.
+- La comprobación de datos nombra las claves huérfanas e informa de claves desconocidas en la configuración, claves sin normalizar en `hours.json`, choques al normalizar, títulos de completados/jugando que no están en `hours.json` y juegos marcados como completados y jugando a la vez.
 - `--open` / `--abrir`: abre el libro con la aplicación predeterminada al guardarlo.
 - Ayuda con ejemplos de uso.
 - `--top N`: muestra los mejores GB/h que no estén completados ni en curso.
 - Ctrl+C se captura: el comando muestra `Cancelado.` y sale con código 130.
+- Metadatos del libro (título, autor, asunto, descripción y palabras clave) y configuración de impresión horizontal ajustada al ancho.
 - `data/config.json` puede sustituir bibliotecas, rutas sueltas, exclusiones y ruta de salida. `~` se expande en todas las rutas.
 - Avisos de progreso para el escaneo de carpetas y el paso de red.
 - `tools/check_i18n.py`: falla si las claves o los marcadores de inglés y español difieren, o si una clave de traducción está repetida.
 - Textos de ayuda traducidos, así que `--help` sigue a `--lang`.
 - `docs/DATA.es.md`, `docs/ARCHITECTURE.es.md` y `SECURITY.es.md`.
+- `docs/EXAMPLES.es.md`: ejemplos de consola, libro y carpeta de datos.
 - Plantillas de incidencia y de pull request, y EditorConfig.
 - Análisis CodeQL en cada push, en cada pull request y semanal.
 - Flujo de release: una etiqueta `v*` construye el wheel y el sdist, los revisa y publica una release de GitHub.
 - `tools/check_links.py`: falla si un enlace relativo de la documentación está roto.
+- `tools/check_all.py`: ejecuta pyflakes, la comprobación de enlaces y la de traducciones en un solo comando.
 - Instrucciones de instalación con pipx.
 - Actualizaciones de Dependabot para pip y GitHub Actions.
 - Guía de contribución en inglés y español.
@@ -32,6 +35,7 @@ Cambios destacados del proyecto. El formato sigue [Keep a Changelog](https://kee
 
 - El CI cachea las descargas de pip, cancela ejecuciones sustituidas, usa permisos de solo lectura y un límite de 15 minutos.
 - El CI construye el wheel y el sdist, comprueba que no llevan `data/`, instala el wheel y lo ejecuta.
+- La comprobación del paquete rechaza las herramientas de desarrollo en el wheel y las exige en el sdist.
 - El CI también instala el sdist y ejecuta el comando instalado.
 - Umbral de cobertura subido del 97% al 98%; Windows y Ubuntu dan ahora un 99%.
 - El comando instalado `game-inventory` lee `data/` del checkout o de la carpeta actual. `GAME_INVENTORY_DATA` lo cambia.

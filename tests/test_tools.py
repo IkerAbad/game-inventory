@@ -9,12 +9,13 @@ import tempfile
 import unittest
 import zipfile
 from contextlib import redirect_stdout
+from unittest import mock
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-from tools import check_dist, check_i18n, check_links
+from tools import check_all, check_dist, check_i18n, check_links
 
 
 def make_wheel(path, names):
@@ -71,9 +72,18 @@ class CheckDistTests(unittest.TestCase):
                 check_dist.check_wheel(path)
         self.assertIn("missing", out.getvalue())
 
+    def test_wheel_with_tools(self):
+        path = self.wheel(["inventory/__init__.py", "inventory/cli.py",
+                           "inventory/i18n.py", "tools/check_all.py"])
+        with redirect_stdout(io.StringIO()) as out:
+            with self.assertRaises(SystemExit):
+                check_dist.check_wheel(path)
+        self.assertIn("should not ship", out.getvalue())
+
     def test_good_sdist(self):
         path = self.sdist(["root/README.es.md", "root/CHANGELOG.md",
-                           "root/docs/DATA.md", "root/tests/test_basico.py"])
+                           "root/docs/DATA.md", "root/tests/test_basico.py",
+                           "root/tools/check_all.py"])
         with redirect_stdout(io.StringIO()) as out:
             check_dist.check_sdist(path)
         self.assertIn("OK sdist", out.getvalue())
@@ -81,6 +91,7 @@ class CheckDistTests(unittest.TestCase):
     def test_sdist_with_data(self):
         path = self.sdist(["root/README.es.md", "root/CHANGELOG.md",
                            "root/docs/DATA.md", "root/tests/test_basico.py",
+                           "root/tools/check_all.py",
                            "root/data/wishlist.json"])
         with redirect_stdout(io.StringIO()) as out:
             with self.assertRaises(SystemExit):
@@ -111,7 +122,8 @@ class CheckDistTests(unittest.TestCase):
                     "inventory/i18n.py"])
         make_sdist(os.path.join(self.dist, "game.tar.gz"),
                    ["root/README.es.md", "root/CHANGELOG.md",
-                    "root/docs/DATA.md", "root/tests/test_basico.py"])
+                    "root/docs/DATA.md", "root/tests/test_basico.py",
+                    "root/tools/check_all.py"])
         old = os.getcwd()
         os.chdir(self.tmp.name)
         try:
@@ -121,6 +133,41 @@ class CheckDistTests(unittest.TestCase):
             os.chdir(old)
         self.assertIn("OK wheel", out.getvalue())
         self.assertIn("OK sdist", out.getvalue())
+
+
+class CheckAllTests(unittest.TestCase):
+    def test_all_checks_pass(self):
+        with mock.patch("tools.check_all.subprocess.run") as run:
+            run.return_value.returncode = 0
+            with redirect_stdout(io.StringIO()) as out:
+                self.assertEqual(check_all.main([("a", ["x"]), ("b", ["y"])]), 0)
+        self.assertEqual(run.call_count, 2)
+        self.assertIn("OK: 2 checks", out.getvalue())
+
+    def test_one_check_fails(self):
+        first = mock.Mock(returncode=0)
+        second = mock.Mock(returncode=1)
+        with mock.patch("tools.check_all.subprocess.run",
+                        side_effect=[first, second]):
+            with redirect_stdout(io.StringIO()) as out:
+                self.assertEqual(check_all.main([("a", ["x"]), ("b", ["y"])]), 1)
+        self.assertIn("FAILED: b", out.getvalue())
+
+    def test_pyflakes_is_included_when_installed(self):
+        with mock.patch("tools.check_all.importlib.util.find_spec",
+                        return_value=object()):
+            names = [name for name, _ in check_all.checks()]
+        self.assertEqual(names[:1], ["pyflakes"])
+        self.assertIn("links", names)
+        self.assertIn("i18n", names)
+
+    def test_pyflakes_is_skipped_when_missing(self):
+        with mock.patch("tools.check_all.importlib.util.find_spec",
+                        return_value=None):
+            with redirect_stdout(io.StringIO()) as out:
+                names = [name for name, _ in check_all.checks()]
+        self.assertNotIn("pyflakes", names)
+        self.assertIn("skip pyflakes", out.getvalue())
 
 
 class CheckI18nTests(unittest.TestCase):

@@ -555,6 +555,15 @@ class BranchTests(unittest.TestCase):
         self.assertIn("Keys that collide after normalization (2): Game!, game", console)
         self.assertIn("completed - | playing gone", console)
 
+    def test_check_data_reports_completed_and_playing_overlap(self):
+        with tempfile.TemporaryDirectory() as d:
+            rc, console, _, _ = self._run(
+                d, hours={"hades": 10.0}, completed=["Hades"],
+                playing=["hades"], wishlist={"juegos": {}},
+                args=["--check-data", "--strict"])
+        self.assertEqual(rc, 1)
+        self.assertIn("Completed and playing at the same time (1): hades", console)
+
     def test_check_data_strict_with_warnings(self):
         with tempfile.TemporaryDirectory() as d:
             rc, console, _, _ = self._run(

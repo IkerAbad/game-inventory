@@ -9,8 +9,9 @@ All notable changes to this project. The format follows [Keep a Changelog](https
 - `--dry-run` / `--simular`: scan and print the summary without writing the workbook, history, JSON or purging.
 - `--check-data` / `--validar`: validate the JSON data files, `config.json`, stale metadata keys, invalid metadata values, repeated wishlist titles and the history, then exit without scanning or writing.
 - `--strict` / `--estricto`: with `--check-data`, exit with code 1 when there are warnings.
-- The data check names the stale keys and reports unknown config keys, unnormalized `hours.json` keys, normalization collisions and completed/playing titles missing from `hours.json`.
+- The data check names the stale keys and reports unknown config keys, unnormalized `hours.json` keys, normalization collisions, completed/playing titles missing from `hours.json` and games marked as completed and playing at the same time.
 - `--open` / `--abrir`: open the workbook with the default application after saving it.
+- Workbook metadata (title, creator, subject, description, keywords) and landscape print setup with fit-to-width.
 - Help output with usage examples.
 - `--top N`: print the best GB/h picks that are not completed or playing.
 - Ctrl+C is caught: the command prints `Cancelled.` and exits with code 130.
@@ -19,10 +20,12 @@ All notable changes to this project. The format follows [Keep a Changelog](https
 - `tools/check_i18n.py`: fails when the English and Spanish keys or placeholders differ, or when a translation key is repeated.
 - Help texts translated, so `--help` follows `--lang`.
 - `docs/DATA.md` and `docs/ARCHITECTURE.md`, and `SECURITY.md`.
+- `docs/EXAMPLES.md`: console, workbook and data folder examples.
 - Issue forms, pull request template and EditorConfig.
 - CodeQL analysis on every push and pull request, and weekly.
 - Release workflow: a `v*` tag builds the wheel and sdist, checks them and publishes a GitHub release.
 - `tools/check_links.py`: fails when a relative documentation link is broken.
+- `tools/check_all.py`: runs pyflakes, the link check and the translation check in one command.
 - pipx install instructions.
 - Dependabot updates for pip and GitHub Actions.
 - Contributing guide in English and Spanish.
@@ -32,6 +35,7 @@ All notable changes to this project. The format follows [Keep a Changelog](https
 
 - CI caches pip downloads, cancels superseded runs, uses read-only permissions and a 15-minute timeout.
 - CI builds the wheel and sdist, checks that `data/` is not inside, installs the wheel and runs it.
+- The package check rejects development tools in the wheel and requires them in the sdist.
 - CI also installs the sdist and runs the installed command.
 - Coverage gate raised from 97% to 98%; Windows and Ubuntu currently report 99%.
 - The installed `game-inventory` command reads `data/` from the source checkout or the current folder. `GAME_INVENTORY_DATA` overrides it.

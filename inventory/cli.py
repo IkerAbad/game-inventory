@@ -101,6 +101,10 @@ def check_data(strict=False):
         completed = read_keys(COMPLETED_JSON)
         playing = read_keys(PLAYING_JSON)
         print(t("check.keys", completed=len(completed), playing=len(playing)))
+        both = sorted(completed & playing)
+        if both:
+            warnings += len(both)
+            print(t("check.overlap", n=len(both), names=_names(both)))
         meta = read_json(WISHLIST_JSON, {})
         if not isinstance(meta, dict):
             raise ValueError("%s must be a JSON object" % WISHLIST_JSON)

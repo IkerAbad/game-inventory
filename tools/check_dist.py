@@ -32,6 +32,10 @@ def check_wheel(path):
                      "inventory/i18n.py"):
         if required not in names:
             fail("%s is missing %s" % (path, required))
+    leaked = [name for name in names if name.startswith("tools/")]
+    if leaked:
+        fail("%s should not ship the development tools: %s"
+             % (path, ", ".join(leaked[:5])))
     print("OK wheel: %s (%d files)" % (os.path.basename(path), len(names)))
 
 
@@ -40,7 +44,7 @@ def check_sdist(path):
         names = [member.name for member in archive.getmembers()]
     check_no_data(names, path)
     for required in ("README.es.md", "CHANGELOG.md", "docs/DATA.md",
-                     "tests/test_basico.py"):
+                     "tests/test_basico.py", "tools/check_all.py"):
         if not any(name.endswith(required) for name in names):
             fail("%s is missing %s" % (path, required))
     print("OK sdist: %s (%d files)" % (os.path.basename(path), len(names)))

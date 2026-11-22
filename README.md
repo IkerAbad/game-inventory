@@ -122,7 +122,9 @@ SECURITY.md                English security policy
 docs/
   DATA.md                  data formats and backups
   ARCHITECTURE.md          flow, modules and guarantees
+  EXAMPLES.md              console, workbook and data folder examples
 tools/
+  check_all.py             runs pyflakes, link and translation checks
   check_dist.py            checks the wheel and sdist contents
   check_links.py           checks relative links in the docs
 inventory/
@@ -157,6 +159,7 @@ The CI fails below 98% coverage.
 - [Contributing](CONTRIBUTING.md) / [Contribuir](CONTRIBUTING.es.md)
 - [Data formats](docs/DATA.md) / [Formatos de datos](docs/DATA.es.md)
 - [Architecture](docs/ARCHITECTURE.md) / [Arquitectura](docs/ARCHITECTURE.es.md)
+- [Examples](docs/EXAMPLES.md) / [Ejemplos](docs/EXAMPLES.es.md)
 - [Security](SECURITY.md) / [Seguridad](SECURITY.es.md)
 
 ## License

@@ -17,10 +17,12 @@ py -m pip install -e ".[dev]"
 ## Checks
 
 ```
-py -m pyflakes inventory generate_inventory.py tests tools
+py tools/check_all.py
 py -m coverage run --source=inventory -m unittest discover -s tests -v
 py -m coverage report -m
 ```
+
+`check_all.py` runs pyflakes, the documentation link check and the translation check.
 
 The CI fails below 98% coverage.
 

@@ -705,6 +705,10 @@ class WorkbookCoverageTests(unittest.TestCase):
         values = [wish.cell(row, 4).value for row in range(5, 10)]
         self.assertIn(90, values)
         self.assertTrue(any(isinstance(value, excel.PctSteam) for value in values))
+        self.assertEqual(wb.properties.creator, "game-inventory")
+        self.assertEqual(wb.properties.title, "Game inventory")
+        self.assertEqual(ws.page_setup.orientation, "landscape")
+        self.assertTrue(ws.sheet_properties.pageSetUpPr.fitToPage)
 
 
 class ConfigTests(unittest.TestCase):
