@@ -186,6 +186,99 @@ class WriteTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             clean_temp_files(os.path.join(d, "missing"))
 
+    def test_clean_temp_files_remove_error(self):
+        with tempfile.TemporaryDirectory() as d:
+            leftover = os.path.join(d, ".tmp_left")
+            with open(leftover, "w", encoding="utf-8") as f:
+                f.write("x")
+            with mock.patch("inventory.data.os.remove", side_effect=OSError("x")):
+                clean_temp_files(d)
+            self.assertTrue(os.path.exists(leftover))
+
+    def test_write_atomic_fsync_error(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "x.txt")
+            with mock.patch("inventory.data.os.fsync", side_effect=OSError("x")):
+                write_atomic(path, "hello")
+            with open(path, encoding="utf-8") as f:
+                self.assertEqual(f.read(), "hello")
+
+    def test_write_atomic_replace_error(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "x.txt")
+            with mock.patch("inventory.data.os.replace", side_effect=OSError("x")):
+                with self.assertRaises(OSError):
+                    write_atomic(path, "hello")
+            self.assertEqual([n for n in os.listdir(d) if n.startswith(".tmp_")], [])
+
+    def test_write_atomic_replace_and_unlink_error(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "x.txt")
+            with mock.patch("inventory.data.os.replace", side_effect=OSError("x")), \
+                 mock.patch("inventory.data.os.unlink", side_effect=OSError("y")):
+                with self.assertRaises(OSError):
+                    write_atomic(path, "hello")
+            self.assertFalse(os.path.exists(path))
+
+    def test_purge_removes_block_keys(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "hours.json")
+            hours = {"game": 10.0, "other": 5.0,
+                     "_notas": {"game": "a", "other": "b"}}
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(hours, f)
+            with mock.patch("inventory.data.LIBRARIES", [d]), \
+                 mock.patch("inventory.data.HOURS_JSON", path):
+                with redirect_stdout(io.StringIO()):
+                    removed = purge_hours(dict(hours), {"game"})
+            data = read_json(path, {})
+            self.assertEqual(removed, 1)
+            self.assertNotIn("other", data)
+            self.assertEqual(data["_notas"], {"game": "a"})
+
+    def test_purge_backup_failure(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "hours.json")
+            hours = {"game": 10.0, "orphan": 5.0}
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(hours, f)
+            with mock.patch("inventory.data.LIBRARIES", [d]), \
+                 mock.patch("inventory.data.HOURS_JSON", path), \
+                 mock.patch("inventory.data.shutil.copy2", side_effect=OSError("x")):
+                with redirect_stdout(io.StringIO()):
+                    removed = purge_hours(dict(hours), {"game"})
+            self.assertEqual(removed, 1)
+            self.assertIn("game", read_json(path, {}))
+
+    def test_purge_write_error(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "hours.json")
+            hours = {"game": 10.0, "orphan": 5.0}
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(hours, f)
+            with mock.patch("inventory.data.LIBRARIES", [d]), \
+                 mock.patch("inventory.data.HOURS_JSON", path), \
+                 mock.patch("inventory.data._save_json", side_effect=OSError("x")):
+                with redirect_stdout(io.StringIO()) as output:
+                    removed = purge_hours(dict(hours), {"game"})
+            self.assertEqual(removed, 1)
+            self.assertIn("could not write", output.getvalue())
+
+    def test_save_json_invalid_written(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "x.json")
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump({"a": 1}, f)
+
+            def bad_writer(obj):
+                with open(path, "w", encoding="utf-8") as f:
+                    f.write("{bad")
+
+            with redirect_stdout(io.StringIO()):
+                ok = _save_json(path, bad_writer, {"a": 1})
+            self.assertFalse(ok)
+            self.assertEqual(read_json(path, {}), {"a": 1})
+
     def test_same_containers(self):
         self.assertTrue(_same([1, 2], [1, 2]))
         self.assertFalse(_same([1], [1, 2]))
@@ -460,6 +553,16 @@ class ScanTests(unittest.TestCase):
             self.assertEqual(failed, [])
             self.assertTrue(any(g["duplicate"] for g in games))
             self.assertTrue(any(g["path"] == first for g in games))
+
+    def test_scan_excludes_known_folders(self):
+        with tempfile.TemporaryDirectory() as d:
+            os.makedirs(os.path.join(d, "emuladores"))
+            os.makedirs(os.path.join(d, "Game"))
+            with mock.patch("inventory.scan.LIBRARIES", [d]), \
+                 mock.patch("inventory.scan.LOOSE_PATHS", []):
+                games, failed = scan_games()
+            self.assertEqual(failed, [])
+            self.assertEqual([g["name"] for g in games], ["Game"])
 
     def test_scan_reports_unreadable_library(self):
         with tempfile.TemporaryDirectory() as d:

@@ -10,7 +10,7 @@ if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
 from inventory.data import normalize
-from inventory.cell_format import PctSteam, dif_cells, mc_cell
+from inventory.cell_format import PctSteam, dif_cells, dif_write, mc_cell, mc_comment
 from inventory.i18n import get_lang, set_lang, t
 from inventory.network import _fmt_h, _hours_text, _slugs, _tokens, match_title
 
@@ -164,6 +164,28 @@ class FormatTests(unittest.TestCase):
         set_lang("es")
         self.assertEqual(get_lang(), "es")
         set_lang("en")
+
+    def test_metascore_without_data(self):
+        value, text = mc_cell({"p": "PC"})
+        self.assertIsNone(value)
+        self.assertIn("sin dato", text)
+
+    def test_metascore_slash_with_note(self):
+        value, text = mc_cell({"s": "s/n", "p": "PC", "n": 5, "nota": "rara"})
+        self.assertIsNone(value)
+        self.assertIn("rara", text)
+        self.assertIn("5 resenas", text)
+
+    def test_comment_and_difficulty_write(self):
+        import openpyxl
+        self.assertEqual(mc_comment("hola").text.splitlines()[0], "Metacritic")
+        h, c, text, inference = dif_cells({"h": 5, "c": 5, "ct": "consenso",
+                                           "nota": "nota"})
+        self.assertEqual((h, c), (5, 5))
+        self.assertIn("nota", text)
+        wb = openpyxl.Workbook()
+        dif_write(wb.active, 1, 1, {"h": 5, "c": 5, "ct": "inferencia", "src": "x"})
+        self.assertTrue(wb.active.cell(1, 1).font.italic)
 
     def test_metacritic_with_odd_fields(self):
         value, texto = mc_cell({"s": 85, "p": 123, "n": "muchas", "nota": ["rara"]})

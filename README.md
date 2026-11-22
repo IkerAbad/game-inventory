@@ -109,7 +109,7 @@ py -m coverage report -m
 py -m pyflakes inventory generate_inventory.py tests
 ```
 
-The CI fails below 95% coverage.
+The CI fails below 98% coverage.
 
 ## Documentation
 

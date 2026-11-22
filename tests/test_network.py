@@ -284,6 +284,29 @@ class NetworkTests(unittest.TestCase):
                 autocomplete([game], hours, {})
         self.assertIn("NO USABLE SOURCE", output.getvalue())
 
+    def test_autocomplete_skips_duplicates(self):
+        with redirect_stdout(io.StringIO()) as output:
+            autocomplete([{"name": "X", "duplicate": True}], {}, {})
+        self.assertIn("nothing to fill", output.getvalue())
+
+    def test_autocomplete_steam_fallback(self):
+        game = {"name": "Hades", "duplicate": False}
+        hours = {}
+        resolved = {"value": 10.0, "nota": "n", "source": "s",
+                    "ambiguous": None}
+        with mock.patch("inventory.network.steam_manifests", return_value={}), \
+             mock.patch("inventory.network.steam_search",
+                        return_value=(1, "Hades")), \
+             mock.patch("inventory.network.resolve_hours", return_value=resolved), \
+             mock.patch("inventory.network.mc_search",
+                        return_value={"s": "s/n", "p": "PC"}), \
+             mock.patch("inventory.network.steam_reviews",
+                        return_value=(100, 90)), \
+             mock.patch("inventory.network._save_json"):
+            with redirect_stdout(io.StringIO()):
+                autocomplete([game], hours, {})
+        self.assertEqual(hours["_steam"]["hades"]["pct"], 90)
+
     def test_steam_manifests_broken_inputs(self):
         with mock.patch("inventory.network.LIBRARIES", [None, "bad"]), \
              mock.patch("inventory.network.glob.glob", return_value=[]), \

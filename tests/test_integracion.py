@@ -249,7 +249,8 @@ class BranchTests(unittest.TestCase):
         set_lang("en")
 
     def _run(self, d, hours=None, completed=None, playing=None, wishlist=None,
-             games=None, args=None, extra=None, create_output=False, output=None):
+             games=None, args=None, extra=None, create_output=False, output=None,
+             history=None):
         data_dir = os.path.join(d, "data")
         os.makedirs(data_dir)
         paths = {
@@ -267,6 +268,10 @@ class BranchTests(unittest.TestCase):
         if create_output:
             with open(out, "wb") as f:
                 f.write(b"old")
+        if history is not None:
+            with open(os.path.join(data_dir, "history.csv"), "w",
+                      encoding="utf-8") as f:
+                f.write("date,games,gb,hours\n2026-11-01,1,1.0,10.0\n")
         if args is None:
             args = ["--offline", "--keep", "--output", out]
         with ExitStack() as stack:
@@ -326,6 +331,20 @@ class BranchTests(unittest.TestCase):
                 games=[fake_game("Installed", 1.0)])
         self.assertEqual(rc, 0)
         self.assertIn("KEYS WITHOUT A FOLDER", console)
+
+    def test_history_delta(self):
+        with tempfile.TemporaryDirectory() as d:
+            rc, console, _, _ = self._run(d, hours={}, history=True)
+        self.assertEqual(rc, 0)
+        self.assertIn("Since", console)
+
+    def test_completed_and_playing_orphans(self):
+        with tempfile.TemporaryDirectory() as d:
+            rc, console, _, _ = self._run(
+                d, hours={}, completed=["Gone"], playing=["Lost"])
+        self.assertEqual(rc, 0)
+        self.assertIn("completed.json", console)
+        self.assertIn("playing.json", console)
 
     def test_hours_not_object(self):
         with tempfile.TemporaryDirectory() as d:
