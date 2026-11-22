@@ -33,6 +33,8 @@ def main(argv=None):
     p.add_argument("--sin-red", action="store_true", help="no consulta internet")
     p.add_argument("--conservar", action="store_true",
                    help="no purga las claves de juegos desinstalados")
+    p.add_argument("--forzar-purga", action="store_true",
+                   help="permite purgar mas de la mitad de las claves de una vez")
     p.add_argument("--salida", default=None,
                    help="ruta del Excel (por defecto, la de config.py)")
     args = p.parse_args(argv)
@@ -216,7 +218,7 @@ def main(argv=None):
                      | {k for bl in ("_notas", "_metacritic", "_steam", "_dificultad") if isinstance(horas.get(bl), dict)
                         for k in horas[bl]}) - inst_k)
     if not args.conservar:
-        q = purgar_horas(horas, inst_k, bases_fallidas)
+        q = purgar_horas(horas, inst_k, bases_fallidas, forzar=args.forzar_purga)
         if q:
             print("\nLIMPIEZA: %d claves sin carpeta quitadas de horas.json: %s"
                   % (q, ", ".join(huer_h)))

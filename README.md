@@ -37,6 +37,7 @@ Opciones:
 |---|---|
 | `--sin-red` | No consulta internet. |
 | `--conservar` | No purga las claves de juegos desinstalados. |
+| `--forzar-purga` | Permite purgar más de la mitad de las claves de una vez. |
 | `--salida RUTA` | Escribe el Excel en otra ruta. |
 
 El Excel sale por defecto a `%USERPROFILE%\Desktop\Juegos\Inventario juegos GB por hora.xlsx` y deja una copia `.bak.xlsx` de la ejecución anterior. Ciérralo antes de ejecutar: si está abierto, el script aborta sin escanear nada.
@@ -58,6 +59,7 @@ Todo lo personal vive en `datos/`, que no se versiona. El script crea la carpeta
 - Si un JSON tiene un error de sintaxis, el script aborta, indica la línea y la columna, y no escribe nada.
 - Los valores de horas que no sean números positivos, `null` o `"?"` se tratan como sin datos y se avisan.
 - Antes de purgar, `horas.json` se copia a `horas.json.bak`.
+- La purga se niega si borraría más de la mitad de las claves. Para hacerlo igual, `--forzar-purga`.
 - Si el histórico no se puede leer o tiene filas rotas, el original se guarda como `historico.csv.corrupto`.
 - Los JSON, el histórico y el Excel se escriben en un temporal y se renombran: un fallo a mitad no deja ficheros corruptos.
 - Si el Excel está abierto, aborta antes de escanear.

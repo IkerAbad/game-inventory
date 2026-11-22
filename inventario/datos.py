@@ -173,9 +173,9 @@ def escribir_horas(horas):
     escribir_atomico(HORAS_JSON, "\n".join(L) + "\n")
 
 
-def purgar_horas(horas, claves_instaladas, bases_fallidas=()):
-    """Quita de horas.json las claves sin carpeta. Se niega si falta alguna ubicacion
-    o si alguna no se pudo leer: con una unidad apagada se borrarian claves validas."""
+def purgar_horas(horas, claves_instaladas, bases_fallidas=(), forzar=False):
+    """Quita de horas.json las claves sin carpeta. Se niega si falta alguna ubicacion,
+    si alguna no se pudo leer o si se querria borrar mas de la mitad de un golpe."""
     problemas = []
     ausentes = [b for b in BASES if isinstance(b, str) and b and not os.path.isdir(b)]
     if ausentes:
@@ -186,7 +186,13 @@ def purgar_horas(horas, claves_instaladas, bases_fallidas=()):
         print("\nNO SE PURGA: %s. Con una unidad apagada o sin permiso se perderian "
               "claves validas." % "; ".join(problemas))
         return 0
+    total = sum(1 for k in horas if not k.startswith("_"))
     huerf = [k for k in horas if not k.startswith("_") and k not in claves_instaladas]
+    if not forzar and total >= 10 and len(huerf) > total // 2:
+        print("\nNO SE PURGA: se quitarian %d de %d claves (mas de la mitad). Revisa que "
+              "las unidades esten bien y repite con --forzar-purga si es correcto."
+              % (len(huerf), total))
+        return 0
     for k in huerf:
         del horas[k]
     quitadas = set(huerf)

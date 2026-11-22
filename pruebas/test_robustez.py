@@ -221,6 +221,24 @@ class PruebasEscritura(unittest.TestCase):
                 self.assertIn("juego", horas)
                 self.assertIn("juego", horas["_notas"])
 
+    def test_purga_guardada_por_mayoria(self):
+        with tempfile.TemporaryDirectory() as d:
+            ruta = os.path.join(d, "horas.json")
+            horas = {"juego %d" % i: 10 for i in range(12)}
+            with open(ruta, "w", encoding="utf-8") as f:
+                json.dump(horas, f)
+            instaladas = {"juego 0", "juego 1"}
+            with mock.patch("inventario.datos.BASES", [d]), \
+                 mock.patch("inventario.datos.HORAS_JSON", ruta):
+                with redirect_stdout(io.StringIO()):
+                    quitadas = purgar_horas(dict(horas), instaladas)
+                self.assertEqual(quitadas, 0)
+                self.assertEqual(len(leer_json(ruta, {})), 12)
+                with redirect_stdout(io.StringIO()):
+                    quitadas = purgar_horas(dict(horas), instaladas, forzar=True)
+            self.assertEqual(quitadas, 10)
+            self.assertEqual(len(leer_json(ruta, {})), 3)  # 2 claves + _notas
+
     def test_purga_guarda_copia_previa(self):
         with tempfile.TemporaryDirectory() as d:
             ruta = os.path.join(d, "horas.json")
