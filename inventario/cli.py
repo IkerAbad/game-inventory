@@ -8,7 +8,7 @@ import statistics
 import sys
 
 from .config import COMPLETADOS_JSON, DATOS, HORAS_JSON, JUGANDO_JSON, SALIDA, WISHLIST_JSON
-from .datos import depurar_horas, leer_claves, leer_json, normaliza, purgar_horas
+from .datos import depurar_horas, es_hora_valida, leer_claves, leer_json, normaliza, purgar_horas
 from .escaneo import bloqueado, escanear
 from .excel import construir
 from .formato import dif_celdas
@@ -73,8 +73,7 @@ def main(argv=None):
         except Exception as e:
             print("AVISO: autocompletado interrumpido (%s: %s); se sigue con los datos que hay." % (type(e).__name__, e))
         wl = wl_meta.get("juegos", {})
-    wl_num = {normaliza(t): v for t, v in wl.items()
-              if isinstance(v, (int, float)) and not isinstance(v, bool)}
+    wl_num = {normaliza(t): v for t, v in wl.items() if es_hora_valida(v)}
     mc_h = horas.get("_metacritic") if isinstance(horas.get("_metacritic"), dict) else {}
     mc_w = wl_meta.get("_metacritic") if isinstance(wl_meta.get("_metacritic"), dict) else {}
     st_h = horas.get("_steam") if isinstance(horas.get("_steam"), dict) else {}
@@ -201,10 +200,10 @@ def main(argv=None):
         for n_, v_ in desde_wl:
             print("   %-40s %s h" % (n_, v_))
     if wl:
-        con_ = sum(1 for v in wl.values() if isinstance(v, (int, float)) and not isinstance(v, bool))
+        con_ = sum(1 for v in wl.values() if es_hora_valida(v))
         sin_ = sum(1 for v in wl.values() if v == "?")
         nts_ = wl_meta.get("_notas") if isinstance(wl_meta.get("_notas"), dict) else {}
-        pre_ = sum(1 for t_, v in wl.items() if isinstance(v, (int, float)) and not isinstance(v, bool)
+        pre_ = sum(1 for t_, v in wl.items() if es_hora_valida(v)
                    and str(nts_.get(t_, "")).upper().startswith("PRENSA"))
         dup_ = sum(1 for t_ in wl if str(nts_.get(t_, "")).upper().startswith("EDICION DUPLICADA"))
         jug_ = sum(1 for t_ in wl if str(nts_.get(t_, "")).upper().startswith("YA JUGADO"))

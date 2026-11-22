@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """Formato de celdas: Metacritic, Steam y dificultad."""
 
+import math
+
 # Prefijo de la celda cuando la nota es el % de resenas positivas de Steam.
 
 MC_FMT_STEAM = '"S "0"%"'
@@ -51,7 +53,9 @@ def mc_celda(e, st=None):
         if nota:
             lin2.append(nota)
         return None, "\n".join(lin2)
-    return s, com
+    if isinstance(s, (int, float)) and not isinstance(s, bool) and math.isfinite(s):
+        return s, com
+    return None, com
 
 
 def mc_comentario(txt):
@@ -95,7 +99,8 @@ def dif_celdas(e):
     aprendizaje); ct = certeza: fuente | consenso | inferencia. Un eje a null queda vacio."""
     if not isinstance(e, dict):
         return None, None, None, False
-    num = lambda v: v if isinstance(v, (int, float)) and not isinstance(v, bool) else None
+    num = lambda v: (v if isinstance(v, (int, float)) and not isinstance(v, bool)
+                     and math.isfinite(v) else None)
     h, c = num(e.get("h")), num(e.get("c"))
     if h is None and c is None:
         return None, None, None, False

@@ -15,7 +15,7 @@ if RAIZ not in sys.path:
     sys.path.insert(0, RAIZ)
 
 from inventario import excel
-from inventario.datos import depurar_horas, escribir_atomico, leer_claves, leer_json
+from inventario.datos import depurar_horas, escribir_atomico, es_hora_valida, leer_claves, leer_json
 
 
 class PruebasLeerJson(unittest.TestCase):
@@ -64,6 +64,17 @@ class PruebasDepurarHoras(unittest.TestCase):
         for k in "abcde":
             self.assertEqual(limpio[k], "?")
         self.assertEqual(len(avisos), 5)
+
+    def test_es_hora_valida(self):
+        self.assertTrue(es_hora_valida(12.5))
+        self.assertTrue(es_hora_valida(1))
+        self.assertFalse(es_hora_valida(0))
+        self.assertFalse(es_hora_valida(-1))
+        self.assertFalse(es_hora_valida(float("nan")))
+        self.assertFalse(es_hora_valida(float("inf")))
+        self.assertFalse(es_hora_valida(True))
+        self.assertFalse(es_hora_valida("12"))
+        self.assertFalse(es_hora_valida(None))
 
 
 class PruebasEscritura(unittest.TestCase):

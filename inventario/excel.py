@@ -6,7 +6,7 @@ import re
 import shutil
 
 from .config import HISTORICO_CSV
-from .datos import escribir_atomico, normaliza
+from .datos import escribir_atomico, es_hora_valida, normaliza
 from .formato import (PctSteam, dif_escribir, dif_formato, mc_celda, mc_comentario,
                       mc_formato, nota_comentario)
 
@@ -692,7 +692,7 @@ def hoja_wishlist(wb, juegos, wl, fuente, mc=None, notas=None, st=None, dif=None
                 return True
         return False
 
-    es_num = lambda v: isinstance(v, (int, float)) and not isinstance(v, bool)
+    es_num = es_hora_valida
     filas = []
     for t, v in wl.items():
         if ya_instalado(t):

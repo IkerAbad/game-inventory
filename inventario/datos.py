@@ -15,6 +15,12 @@ def normaliza(n):
     return re.sub(r"\s+", " ", n).strip()
 
 
+def es_hora_valida(v):
+    """True para una duracion util: numero finito y mayor que cero (no vale bool)."""
+    return (isinstance(v, (int, float)) and not isinstance(v, bool)
+            and math.isfinite(v) and v > 0)
+
+
 def leer_json(ruta, defecto):
     """Lee un JSON UTF-8, con o sin BOM. Devuelve 'defecto' si no existe.
     Lanza ValueError con la ruta y la posicion si el fichero esta corrupto."""
@@ -47,12 +53,11 @@ def depurar_horas(horas):
             limpias[k] = v
         elif v is None or v == "?":
             limpias[k] = v
-        elif (isinstance(v, bool) or not isinstance(v, (int, float))
-              or not math.isfinite(v) or v <= 0):
+        elif es_hora_valida(v):
+            limpias[k] = v
+        else:
             limpias[k] = "?"
             avisos.append("%s = %r" % (k, v))
-        else:
-            limpias[k] = v
     return limpias, avisos
 
 

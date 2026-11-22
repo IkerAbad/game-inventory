@@ -92,6 +92,15 @@ class PruebasFormato(unittest.TestCase):
         self.assertIn("fuente citada", texto)
         self.assertTrue(inferencia)
 
+    def test_dificultad_ignora_nan(self):
+        h, c, texto, inferencia = dif_celdas({"h": float("nan"), "c": 3, "ct": "consenso"})
+        self.assertIsNone(h)
+        self.assertEqual(c, 3)
+        self.assertIn("Habilidad -/10", texto)
+
+    def test_metascore_ignora_nan(self):
+        self.assertEqual(mc_celda({"s": float("nan"), "p": "PC"}), (None, None))
+
     def test_sin_dificultad(self):
         self.assertEqual(dif_celdas(None), (None, None, None, False))
 
