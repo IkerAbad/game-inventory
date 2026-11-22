@@ -22,9 +22,21 @@ LOOSE_PATHS = [
 EXCLUDE = {"steamworks shared", "steam controller configs", "emuladores"}
 
 # Repository root (the package lives in <root>/inventory).
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PACKAGE_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+def _data_root(package_root, cwd):
+    """Use the source checkout when running from it; otherwise the current folder."""
+    if (os.path.isdir(os.path.join(package_root, "data"))
+            or os.path.isdir(os.path.join(package_root, ".git"))):
+        return package_root
+    return cwd
+
+
+BASE_DIR = _data_root(PACKAGE_ROOT, os.getcwd())
 # Personal data lives in data/ and is not versioned (see .gitignore).
-DATA_DIR = os.path.join(BASE_DIR, "data")
+# GAME_INVENTORY_DATA points to another data folder when needed.
+DATA_DIR = os.environ.get("GAME_INVENTORY_DATA") or os.path.join(BASE_DIR, "data")
 HOURS_JSON = os.path.join(DATA_DIR, "hours.json")
 COMPLETED_JSON = os.path.join(DATA_DIR, "completed.json")
 PLAYING_JSON = os.path.join(DATA_DIR, "playing.json")

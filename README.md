@@ -26,7 +26,7 @@ py -m pip install .
 game-inventory --lang es
 ```
 
-The direct script and module commands below also work without installing.
+The direct script and module commands below also work without installing. When installed, `data/` is read from the current folder unless `GAME_INVENTORY_DATA` points to another one.
 
 ## Usage
 

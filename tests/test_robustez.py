@@ -16,7 +16,7 @@ if ROOT not in sys.path:
 
 from inventory import excel
 from inventory.cli import inside_data
-from inventory.config import DATA_DIR
+from inventory.config import DATA_DIR, _data_root
 from inventory.i18n import set_lang
 from inventory.data import (_save_json, _same, clean_hours, write_atomic, write_hours,
                               write_wishlist, is_valid_hours, read_keys, read_json,
@@ -519,6 +519,22 @@ class WriteTests(unittest.TestCase):
                 self.assertTrue(os.path.exists(path))
             finally:
                 excel.HISTORY_CSV = original
+
+
+class ConfigTests(unittest.TestCase):
+    def test_data_root_prefers_project_data(self):
+        with tempfile.TemporaryDirectory() as d:
+            os.makedirs(os.path.join(d, "data"))
+            self.assertEqual(_data_root(d, "elsewhere"), d)
+
+    def test_data_root_accepts_git_checkout(self):
+        with tempfile.TemporaryDirectory() as d:
+            os.makedirs(os.path.join(d, ".git"))
+            self.assertEqual(_data_root(d, "elsewhere"), d)
+
+    def test_data_root_falls_back_to_cwd(self):
+        with tempfile.TemporaryDirectory() as d:
+            self.assertEqual(_data_root(d, "elsewhere"), "elsewhere")
 
 
 class ScanTests(unittest.TestCase):

@@ -26,7 +26,7 @@ py -m pip install .
 game-inventory --lang es
 ```
 
-Los comandos directos de abajo también funcionan sin instalar.
+Los comandos directos de abajo también funcionan sin instalar. Instalado, `data/` se lee de la carpeta actual salvo que `GAME_INVENTORY_DATA` apunte a otra.
 
 ## Uso
 
