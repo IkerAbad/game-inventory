@@ -16,7 +16,8 @@ import urllib.request
 
 from .config import (BASES, HORAS_JSON, MAX_PETICIONES, REINTENTO_DIAS, UA_WEB,
                      WISHLIST_JSON)
-from .datos import _dic, _guardar_json, escribir_horas, escribir_wishlist, normaliza
+from .datos import (_dic, _guardar_json, escribir_horas, escribir_wishlist,
+                    es_hora_valida, normaliza)
 
 _RED = {"ult": {}, "fallos": {}, "seguidos": 0, "n": 0, "caida": False}
 
@@ -383,7 +384,7 @@ def autocompletar(juegos, horas, wl_meta):
     hoy_es, hoy_iso = hoy.strftime("%d/%m/%Y"), hoy.isoformat()
     nts, mc, st = _dic(horas, "_notas"), _dic(horas, "_metacritic"), _dic(horas, "_steam")
     wj = wl_meta.get("juegos") if isinstance(wl_meta.get("juegos"), dict) else {}
-    wl_num = {normaliza(t): v for t, v in wj.items() if isinstance(v, (int, float)) and not isinstance(v, bool)}
+    wl_num = {normaliza(t): v for t, v in wj.items() if es_hora_valida(v)}
     pend = []
     for j in juegos:
         if j["duplicado"]:

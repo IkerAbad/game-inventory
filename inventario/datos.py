@@ -226,6 +226,19 @@ def escribir_wishlist(meta):
     escribir_atomico(WISHLIST_JSON, "\n".join(L) + "\n")
 
 
+def _mismo(a, b):
+    """Igualdad de datos JSON tolerante con NaN (nan != nan en Python)."""
+    if isinstance(a, float) and isinstance(b, float):
+        if math.isnan(a) and math.isnan(b):
+            return True
+        return a == b
+    if isinstance(a, dict) and isinstance(b, dict):
+        return a.keys() == b.keys() and all(_mismo(a[k], b[k]) for k in a)
+    if isinstance(a, list) and isinstance(b, list):
+        return len(a) == len(b) and all(_mismo(x, y) for x, y in zip(a, b))
+    return a == b
+
+
 def _guardar_json(ruta, escritor, objeto):
     """Escribe con 'escritor' y comprueba que el fichero releido es igual al objeto; si no, restaura la copia previa
     (guardada en la carpeta temporal)."""
@@ -236,7 +249,7 @@ def _guardar_json(ruta, escritor, objeto):
         previo = None
     escritor(objeto)
     try:
-        ok = leer_json(ruta, None) == objeto
+        ok = _mismo(leer_json(ruta, None), objeto)
     except ValueError:
         ok = False
     if not ok:

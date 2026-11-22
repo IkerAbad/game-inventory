@@ -17,8 +17,9 @@ if RAIZ not in sys.path:
 from inventario import excel
 from inventario.cli import dentro_de_datos
 from inventario.config import DATOS
-from inventario.datos import (depurar_horas, escribir_atomico, es_hora_valida, leer_claves,
-                              leer_json, limpiar_temporales, purgar_horas, tomar_bloqueo)
+from inventario.datos import (_guardar_json, depurar_horas, escribir_atomico, es_hora_valida,
+                              leer_claves, leer_json, limpiar_temporales, purgar_horas,
+                              tomar_bloqueo)
 from inventario.escaneo import escanear
 from inventario.formato import limpia_texto
 from inventario.red import steam_buscar
@@ -104,6 +105,16 @@ class PruebasEscritura(unittest.TestCase):
             escribir_atomico(ruta, '{"a": 1}\n')
             self.assertEqual(leer_json(ruta, {}), {"a": 1})
             self.assertEqual([n for n in os.listdir(d) if n.startswith(".tmp_")], [])
+
+    def test_guardar_json_tolera_nan(self):
+        with tempfile.TemporaryDirectory() as d:
+            ruta = os.path.join(d, "x.json")
+
+            def escritor(obj):
+                with open(ruta, "w", encoding="utf-8") as f:
+                    json.dump(obj, f)
+
+            self.assertTrue(_guardar_json(ruta, escritor, {"a": float("nan")}))
 
     def test_historico_ignora_filas_rotas(self):
         with tempfile.TemporaryDirectory() as d:
