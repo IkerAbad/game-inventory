@@ -6,26 +6,50 @@ import re
 import shutil
 
 from .config import HISTORICO_CSV
-from .datos import normaliza
+from .datos import escribir_atomico, normaliza
 from .formato import (PctSteam, dif_escribir, dif_formato, mc_celda, mc_comentario,
                       mc_formato, nota_comentario)
 
 def historico(juegos, TH):
-    """Registra una fila por dia en historico.csv y devuelve la serie completa."""
-    import csv, datetime
+    """Registra una fila por dia en historico.csv y devuelve la serie completa.
+    Las filas corruptas se avisan y se descartan. La escritura es atomica."""
+    import csv, datetime, io, math
     hoy = datetime.date.today().isoformat()
     fila = [hoy, len(juegos), round(sum(j["gb"] for j in juegos), 2), round(TH, 1)]
     filas = []
     if os.path.exists(HISTORICO_CSV):
-        with open(HISTORICO_CSV, newline="", encoding="utf-8") as f:
-            filas = [r for r in csv.reader(f) if r and r[0] != "fecha"]
+        try:
+            with open(HISTORICO_CSV, newline="", encoding="utf-8-sig") as f:
+                for r in csv.reader(f):
+                    if not r or r[0] == "fecha":
+                        continue
+                    if len(r) < 4:
+                        print("Aviso: fila incompleta ignorada en historico.csv: %r" % (r,))
+                        continue
+                    try:
+                        datetime.date.fromisoformat(r[0])
+                        int(r[1])
+                        vals = [float(r[2]), float(r[3])]
+                    except ValueError:
+                        print("Aviso: fila invalida ignorada en historico.csv: %r" % (r,))
+                        continue
+                    if not all(math.isfinite(v) for v in vals):
+                        print("Aviso: fila invalida ignorada en historico.csv: %r" % (r,))
+                        continue
+                    filas.append(r)
+        except OSError as e:
+            print("Aviso: no se puede leer historico.csv (%s); se empieza de cero." % e)
     filas = [r for r in filas if r[0] != hoy]
     filas.append([str(x) for x in fila])
     filas.sort(key=lambda r: r[0])
-    with open(HISTORICO_CSV, "w", newline="", encoding="utf-8") as f:
-        w = csv.writer(f)
-        w.writerow(["fecha", "juegos", "gb", "horas"])
-        w.writerows(filas)
+    s = io.StringIO()
+    w = csv.writer(s)
+    w.writerow(["fecha", "juegos", "gb", "horas"])
+    w.writerows(filas)
+    try:
+        escribir_atomico(HISTORICO_CSV, s.getvalue())
+    except OSError as e:
+        print("Aviso: no se pudo escribir historico.csv (%s); el Excel se genera igual." % e)
     return filas
 
 

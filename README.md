@@ -53,6 +53,14 @@ Todo lo personal vive en `datos/`, que no se versiona. El script crea la carpeta
 | `datos/completados.json` | Claves de lo que ya has terminado y sigue instalado. |
 | `datos/historico.csv` | Una fila por día de ejecución. Alimenta la hoja Historico. |
 
+## Robustez
+
+- Si un JSON tiene un error de sintaxis, el script aborta, indica la línea y la columna, y no escribe nada.
+- Los valores de horas que no sean números positivos, `null` o `"?"` se tratan como sin datos y se avisan.
+- Los JSON, el histórico y el Excel se escriben en un temporal y se renombran: un fallo a mitad no deja ficheros corruptos.
+- Si el Excel está abierto, aborta antes de escanear.
+- Acepta JSON con BOM y descarta filas corruptas del histórico con un aviso.
+
 ## Estructura
 
 ```

@@ -34,7 +34,12 @@ def escanear():
         if not os.path.isdir(base):
             continue
         u = base[0]
-        for n in sorted(os.listdir(base)):
+        try:
+            nombres = sorted(os.listdir(base))
+        except OSError as e:
+            print("Aviso: no se puede leer %s (%s); se omite." % (base, e))
+            continue
+        for n in nombres:
             p = os.path.join(base, n)
             if not os.path.isdir(p) or normaliza(n) in EXCLUIR:
                 continue

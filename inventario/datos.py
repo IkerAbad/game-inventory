@@ -2,6 +2,7 @@
 """Carga, formato y escritura de los JSON de datos."""
 
 import json
+import math
 import os
 import re
 import shutil
@@ -12,6 +13,69 @@ from .config import BASES, HORAS_JSON, WISHLIST_JSON
 def normaliza(n):
     n = re.sub(r"[^a-z0-9]+", " ", n.lower().strip())
     return re.sub(r"\s+", " ", n).strip()
+
+
+def leer_json(ruta, defecto):
+    """Lee un JSON UTF-8, con o sin BOM. Devuelve 'defecto' si no existe.
+    Lanza ValueError con la ruta y la posicion si el fichero esta corrupto."""
+    if not os.path.exists(ruta):
+        return defecto
+    try:
+        with open(ruta, encoding="utf-8-sig") as f:
+            return json.load(f)
+    except json.JSONDecodeError as e:
+        raise ValueError("%s no es JSON valido (linea %d, columna %d): %s"
+                         % (ruta, e.lineno, e.colno, e.msg)) from e
+    except OSError as e:
+        raise ValueError("no se puede leer %s: %s" % (ruta, e)) from e
+
+
+def leer_claves(ruta):
+    """Claves de un JSON que debe ser una lista de titulos (completados, jugando)."""
+    datos = leer_json(ruta, [])
+    if not isinstance(datos, list):
+        raise ValueError("%s debe ser una lista de titulos" % ruta)
+    return {normaliza(x) for x in datos if not str(x).startswith("_")}
+
+
+def depurar_horas(horas):
+    """Devuelve (horas limpias, avisos). Un valor que no sea un numero positivo, null o '?'
+    pasa a '?' para que no rompa los calculos. No modifica el fichero."""
+    limpias, avisos = {}, []
+    for k, v in horas.items():
+        if k.startswith("_"):
+            limpias[k] = v
+        elif v is None or v == "?":
+            limpias[k] = v
+        elif (isinstance(v, bool) or not isinstance(v, (int, float))
+              or not math.isfinite(v) or v <= 0):
+            limpias[k] = "?"
+            avisos.append("%s = %r" % (k, v))
+        else:
+            limpias[k] = v
+    return limpias, avisos
+
+
+def escribir_atomico(ruta, texto):
+    """Escribe en un temporal de la misma carpeta y lo renombra. Si falla a mitad,
+    el fichero original queda intacto."""
+    carpeta = os.path.dirname(os.path.abspath(ruta))
+    fd, tmp = tempfile.mkstemp(dir=carpeta, prefix=".tmp_", suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8", newline="") as f:
+            f.write(texto)
+            f.flush()
+            try:
+                os.fsync(f.fileno())
+            except OSError:
+                pass
+        os.replace(tmp, ruta)
+    except Exception:
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
+        raise
 
 
 def escribir_horas(horas):
@@ -63,8 +127,7 @@ def escribir_horas(horas):
                                    "," if i < len(items) - 1 else ""))
     L.append("  }")
     L.append("}")
-    with open(HORAS_JSON, "w", encoding="utf-8") as f:
-        f.write("\n".join(L) + "\n")
+    escribir_atomico(HORAS_JSON, "\n".join(L) + "\n")
 
 
 def purgar_horas(horas, claves_instaladas):
@@ -85,7 +148,10 @@ def purgar_horas(horas, claves_instaladas):
                 horas[bl].pop(k, None)
                 quitadas.add(k)
     if quitadas:
-        _guardar_json(HORAS_JSON, escribir_horas, horas)
+        try:
+            _guardar_json(HORAS_JSON, escribir_horas, horas)
+        except OSError as e:
+            print("AVISO: no se pudo escribir horas.json (%s)." % e)
     return len(quitadas)
 
 
@@ -105,8 +171,7 @@ def escribir_wishlist(meta):
         else:
             L.append("  %s: %s%s" % (json.dumps(k, ensure_ascii=False), json.dumps(v, ensure_ascii=False), coma))
     L.append("}")
-    with open(WISHLIST_JSON, "w", encoding="utf-8") as f:
-        f.write("\n".join(L) + "\n")
+    escribir_atomico(WISHLIST_JSON, "\n".join(L) + "\n")
 
 
 def _guardar_json(ruta, escritor, objeto):
@@ -119,8 +184,8 @@ def _guardar_json(ruta, escritor, objeto):
         previo = None
     escritor(objeto)
     try:
-        ok = json.load(open(ruta, encoding="utf-8")) == objeto
-    except Exception:
+        ok = leer_json(ruta, None) == objeto
+    except ValueError:
         ok = False
     if not ok:
         print("AVISO: %s no se pudo reescribir con fidelidad; restauro la version anterior "

@@ -2,14 +2,13 @@
 """Punto de entrada: opciones, orquestacion y resumen por consola."""
 
 import argparse
-import json
 import os
 import shutil
 import statistics
 import sys
 
 from .config import COMPLETADOS_JSON, DATOS, HORAS_JSON, JUGANDO_JSON, SALIDA, WISHLIST_JSON
-from .datos import normaliza, purgar_horas
+from .datos import depurar_horas, leer_claves, leer_json, normaliza, purgar_horas
 from .escaneo import bloqueado, escanear
 from .excel import construir
 from .formato import dif_celdas
@@ -35,25 +34,38 @@ def main(argv=None):
         print("ABORTADO: el Excel esta abierto en otro programa.")
         print("   " + salida)
         print("   Cierralo y vuelve a ejecutar. No se ha escaneado nada.")
-        return
-    os.makedirs(DATOS, exist_ok=True)
+        return 1
+    try:
+        os.makedirs(DATOS, exist_ok=True)
+    except OSError as e:
+        print("ABORTADO: no se puede crear la carpeta de datos (%s)." % e)
+        return 1
     if not os.path.exists(HORAS_JSON):
         print("Aviso: no hay horas.json en datos/. Todos los juegos saldran como SIN DATOS.")
-    horas = json.load(open(HORAS_JSON, encoding="utf-8")) if os.path.exists(HORAS_JSON) else {}
-    if os.path.exists(COMPLETADOS_JSON):
-        completados = {normaliza(x) for x in json.load(open(COMPLETADOS_JSON, encoding="utf-8"))
-                       if not str(x).startswith("_")}
-    else:
-        completados = set()
-    if os.path.exists(JUGANDO_JSON):
-        jugando = {normaliza(x) for x in json.load(open(JUGANDO_JSON, encoding="utf-8"))
-                   if not str(x).startswith("_")}
-    else:
-        jugando = set()
-    wl_meta, wl = {}, {}
-    if os.path.exists(WISHLIST_JSON):
-        wl_meta = json.load(open(WISHLIST_JSON, encoding="utf-8"))
+    try:
+        horas = leer_json(HORAS_JSON, {})
+        if not isinstance(horas, dict):
+            raise ValueError("%s debe ser un objeto JSON" % HORAS_JSON)
+        completados = leer_claves(COMPLETADOS_JSON)
+        jugando = leer_claves(JUGANDO_JSON)
+        wl_meta = leer_json(WISHLIST_JSON, {})
+        if not isinstance(wl_meta, dict):
+            raise ValueError("%s debe ser un objeto JSON" % WISHLIST_JSON)
         wl = wl_meta.get("juegos", {})
+        if not isinstance(wl, dict):
+            raise ValueError("%s: 'juegos' debe ser un objeto JSON" % WISHLIST_JSON)
+    except ValueError as e:
+        print("ABORTADO: " + str(e))
+        print("   Revisa el fichero o restaura la copia de datos/.")
+        return 1
+    horas_ok, avisos_h = depurar_horas(horas)
+    if avisos_h:
+        print("\nAVISO: %d entradas de horas.json no son validas y se tratan como SIN DATOS:"
+              % len(avisos_h))
+        for a in avisos_h[:10]:
+            print("   " + a)
+        if len(avisos_h) > 10:
+            print("   ... y %d mas" % (len(avisos_h) - 10))
     juegos = escanear()
     if not args.sin_red:
         try:
@@ -73,7 +85,7 @@ def main(argv=None):
     sin_datos = []
     for j in juegos:
         k = normaliza(j["nombre"])
-        j["horas"] = horas.get(k, "?")
+        j["horas"] = horas_ok.get(k, "?")
         j["mc"] = mc_h.get(k)
         j["steam"] = st_h.get(k)
         j["dif"] = dif_h.get(k)
@@ -121,12 +133,29 @@ def main(argv=None):
         notas_w=wl_meta.get("_notas") if isinstance(wl_meta.get("_notas"), dict) else None,
         st_w=st_w, dif_w=dif_w)
 
+    carpeta_salida = os.path.dirname(os.path.abspath(salida))
+    try:
+        os.makedirs(carpeta_salida, exist_ok=True)
+    except OSError as e:
+        print("ABORTADO: no se puede crear la carpeta del Excel (%s)." % e)
+        return 1
     if os.path.exists(salida):
+        base, ext = os.path.splitext(salida)
         try:
-            shutil.copy2(salida, salida[:-5] + ".bak.xlsx")
+            shutil.copy2(salida, base + ".bak" + (ext or ".xlsx"))
         except Exception as e:
             print("Aviso: no se pudo hacer copia previa (%s)" % e)
-    wb.save(salida)
+    tmp = salida + ".tmp"
+    try:
+        wb.save(tmp)
+        os.replace(tmp, salida)
+    except Exception as e:
+        try:
+            os.remove(tmp)
+        except OSError:
+            pass
+        print("ABORTADO: no se pudo guardar el Excel (%s). El anterior no se ha tocado." % e)
+        return 1
     print("Juegos detectados: %d  |  Total: %.2f GB" % (len(juegos), sum(j["gb"] for j in juegos)))
     print("Horas pendientes: %.1f  |  A 4 h/dia: %d dias (%.2f anios)"
           % (TH, round(TH / 4), TH / 4 / 365.25))
@@ -202,3 +231,4 @@ def main(argv=None):
     if dups:
         print("\nDUPLICADOS: " + ", ".join(dups))
     print("\nOK: " + salida)
+    return 0

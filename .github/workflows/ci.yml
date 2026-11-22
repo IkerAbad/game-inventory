@@ -33,3 +33,10 @@ jobs:
 
       - name: Pruebas unitarias
         run: python -m unittest discover -s pruebas -v
+
+      - name: Genera con datos vacios
+        run: python generar_inventario.py --sin-red --conservar --salida salida_prueba.xlsx
+
+      - name: Comprueba el Excel
+        run: |
+          python -c "import openpyxl; w=openpyxl.load_workbook('salida_prueba.xlsx'); assert w.sheetnames[:5]==['Juegos','Espacio','Resumen','Plan','Historico']; print('hojas OK')"
