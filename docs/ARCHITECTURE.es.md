@@ -44,4 +44,4 @@ La herramienta es un programa local de consola. Lee los juegos instalados, compl
 
 ## Pruebas
 
-`tests/` cubre los módulos con pruebas unitarias, respuestas HTTP simuladas, un `main` de extremo a extremo con datos falsos y los caminos de aborto. El CI instala el paquete, ejecuta el comando de consola, prueba el lanzador en Windows, pasa pyflakes y exige al menos un 97% de cobertura. Ver `CHANGELOG.es.md` y `CONTRIBUTING.es.md`.
+`tests/` cubre los módulos con pruebas unitarias, respuestas HTTP simuladas, un `main` de extremo a extremo con datos falsos y los caminos de aborto. El CI instala el paquete, ejecuta el comando de consola, prueba el lanzador en Windows, pasa pyflakes y exige al menos un 98% de cobertura. Ver `CHANGELOG.es.md` y `CONTRIBUTING.es.md`.

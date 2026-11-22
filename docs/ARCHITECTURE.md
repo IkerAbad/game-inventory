@@ -44,4 +44,4 @@ The tool is a local command-line program. It reads the installed games, enriches
 
 ## Tests
 
-`tests/` covers the modules with unit tests, mocked HTTP responses, an end-to-end `main` with fake data and the abort paths. CI installs the package, runs the console script, checks the launcher on Windows, runs pyflakes and enforces at least 97% coverage. See `CHANGELOG.md` and `CONTRIBUTING.md`.
+`tests/` covers the modules with unit tests, mocked HTTP responses, an end-to-end `main` with fake data and the abort paths. CI installs the package, runs the console script, checks the launcher on Windows, runs pyflakes and enforces at least 98% coverage. See `CHANGELOG.md` and `CONTRIBUTING.md`.

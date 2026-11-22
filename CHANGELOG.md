@@ -30,6 +30,7 @@ All notable changes to this project. The format follows [Keep a Changelog](https
 - CI caches pip downloads, cancels superseded runs, uses read-only permissions and a 15-minute timeout.
 - CI builds the wheel and sdist, checks that `data/` is not inside, installs the wheel and runs it.
 - CI also installs the sdist and runs the installed command.
+- Coverage gate raised from 97% to 98%; Windows and Ubuntu currently report 99%.
 - The installed `game-inventory` command reads `data/` from the source checkout or the current folder. `GAME_INVENTORY_DATA` overrides it.
 
 ## [1.0.0] - 2026-11-22

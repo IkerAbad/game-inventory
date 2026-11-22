@@ -21,7 +21,7 @@ py -m coverage run --source=inventory -m unittest discover -s tests -v
 py -m coverage report -m
 ```
 
-The CI fails below 97% coverage.
+The CI fails below 98% coverage.
 
 ## Code
 

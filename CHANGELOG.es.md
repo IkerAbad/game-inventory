@@ -30,6 +30,7 @@ Cambios destacados del proyecto. El formato sigue [Keep a Changelog](https://kee
 - El CI cachea las descargas de pip, cancela ejecuciones sustituidas, usa permisos de solo lectura y un límite de 15 minutos.
 - El CI construye el wheel y el sdist, comprueba que no llevan `data/`, instala el wheel y lo ejecuta.
 - El CI también instala el sdist y ejecuta el comando instalado.
+- Umbral de cobertura subido del 97% al 98%; Windows y Ubuntu dan ahora un 99%.
 - El comando instalado `game-inventory` lee `data/` del checkout o de la carpeta actual. `GAME_INVENTORY_DATA` lo cambia.
 
 ## [1.0.0] - 2026-11-22
