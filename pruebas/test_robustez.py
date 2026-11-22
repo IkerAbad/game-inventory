@@ -15,7 +15,8 @@ if RAIZ not in sys.path:
     sys.path.insert(0, RAIZ)
 
 from inventario import excel
-from inventario.datos import depurar_horas, escribir_atomico, es_hora_valida, leer_claves, leer_json
+from inventario.datos import (depurar_horas, escribir_atomico, es_hora_valida, leer_claves,
+                              leer_json, purgar_horas)
 from inventario.formato import limpia_texto
 
 
@@ -148,6 +149,36 @@ class PruebasEscritura(unittest.TestCase):
         self.assertEqual(limpia_texto("a\x01b\x1fc"), "abc")
         self.assertEqual(limpia_texto("linea\nnormal"), "linea\nnormal")
         self.assertEqual(len(limpia_texto("x" * 40000)), 32767)
+
+    def test_purga_se_niega_si_falla_una_base(self):
+        with tempfile.TemporaryDirectory() as d:
+            with mock.patch("inventario.datos.BASES", [d]):
+                horas = {"juego": 10, "_notas": {"juego": "x"}}
+                with redirect_stdout(io.StringIO()):
+                    quitadas = purgar_horas(horas, set(), [d])
+                self.assertEqual(quitadas, 0)
+                self.assertIn("juego", horas)
+                self.assertIn("juego", horas["_notas"])
+
+    def test_horas_absurdas_no_rompen(self):
+        juego = {"nombre": "Enorme", "gb": 1.0, "dias": 1, "unidad": "C:",
+                 "ruta": "C:\\Enorme", "duplicado": False, "horas": 10000000.0,
+                 "mc": None, "steam": None, "dif": None, "nota_h": "",
+                 "completado": False, "jugando": False, "ratio": 0.0,
+                 "veredicto": "Ratio medio"}
+        with tempfile.TemporaryDirectory() as d:
+            original = excel.HISTORICO_CSV
+            excel.HISTORICO_CSV = os.path.join(d, "historico.csv")
+            try:
+                with mock.patch("inventario.excel.shutil.disk_usage",
+                                side_effect=OSError("sin unidad")):
+                    wb, TH, filas = excel.construir([juego], 1.0, 2.0, 4.0)
+                self.assertEqual(TH, 10000000.0)
+                ruta = os.path.join(d, "x.xlsx")
+                wb.save(ruta)
+                self.assertTrue(os.path.exists(ruta))
+            finally:
+                excel.HISTORICO_CSV = original
 
     def test_juego_de_cero_gb(self):
         juego = {"nombre": "Vacio", "gb": 0.0, "dias": 1, "unidad": "C:",

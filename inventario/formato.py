@@ -115,7 +115,7 @@ def dif_celdas(e):
         return None, None, None, False
     ct = e.get("ct") or "inferencia"
     fmt = lambda v: "-" if v is None else ("%g" % v)
-    cert = DIF_CERT.get(ct, str(ct))
+    cert = DIF_CERT.get(ct, str(ct)) if isinstance(ct, str) else str(ct)
     if ct == "inferencia" and e.get("src"):
         cert = "inferencia mia a partir de la fuente citada (certeza baja)"
     lin = ["Habilidad %s/10  |  Complejidad %s/10" % (fmt(h), fmt(c)),

@@ -70,7 +70,7 @@ def main(argv=None):
             print("   " + a)
         if len(avisos_h) > 10:
             print("   ... y %d mas" % (len(avisos_h) - 10))
-    juegos = escanear()
+    juegos, bases_fallidas = escanear()
     if not args.sin_red:
         try:
             autocompletar(juegos, horas, wl_meta)
@@ -191,7 +191,7 @@ def main(argv=None):
                      | {k for bl in ("_notas", "_metacritic", "_steam", "_dificultad") if isinstance(horas.get(bl), dict)
                         for k in horas[bl]}) - inst_k)
     if not args.conservar:
-        q = purgar_horas(horas, inst_k)
+        q = purgar_horas(horas, inst_k, bases_fallidas)
         if q:
             print("\nLIMPIEZA: %d claves sin carpeta quitadas de horas.json: %s"
                   % (q, ", ".join(huer_h)))

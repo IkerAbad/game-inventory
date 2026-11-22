@@ -533,7 +533,11 @@ def hojas_extra(wb, juegos):
         ws.cell(i, 1, r)
         ws.cell(i, 2, d)
         ws.cell(i, 3, round(d / 365.25, 2)).number_format = "0.00"
-        ws.cell(i, 4, hoy + datetime.timedelta(days=d)).number_format = "DD/MM/YYYY"
+        try:
+            fecha = hoy + datetime.timedelta(days=d)
+        except (OverflowError, ValueError):
+            fecha = ""
+        ws.cell(i, 4, fecha).number_format = "DD/MM/YYYY"
 
     # tablas auxiliares para graficos (columnas H-I)
     cats = ["JUGAR YA - gran ratio", "Buen ratio", "Ratio medio", "Mal ratio - decidir"]
@@ -654,7 +658,7 @@ def hojas_extra(wb, juegos):
 
     # --- escenarios de fin de backlog: 2, 4 y 6 h/dia sobre el calendario ---
     RITMOS = [2, 4, 6]
-    meses = int(TH / (min(RITMOS) * 30.44)) + 2
+    meses = min(int(TH / (min(RITMOS) * 30.44)) + 2, 600)
     ws.cell(2, 24, "Fecha")
     for k, r in enumerate(RITMOS):
         ws.cell(2, 25 + k, "%d h/dia" % r)

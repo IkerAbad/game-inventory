@@ -102,6 +102,11 @@ class PruebasFormato(unittest.TestCase):
         self.assertEqual(c, 3)
         self.assertIn("Habilidad -/10", texto)
 
+    def test_dificultad_con_certeza_rara(self):
+        h, c, texto, inferencia = dif_celdas({"h": 5, "c": 5, "ct": ["raro"]})
+        self.assertEqual((h, c), (5, 5))
+        self.assertIn("raro", texto)
+
     def test_metascore_ignora_nan(self):
         self.assertEqual(mc_celda({"s": float("nan"), "p": "PC"}), (None, None))
 

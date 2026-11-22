@@ -229,7 +229,8 @@ def steam_buscar(nombres):
         for term in dict.fromkeys([nom, normaliza(nom)]):
             d = _json_get("https://store.steampowered.com/api/storesearch/?term=%s&cc=es&l=en"
                           % urllib.parse.quote_plus(term))
-            its = [(i["id"], i["name"]) for i in (d or {}).get("items", []) if i.get("type") == "app"]
+            its = [(i["id"], i["name"]) for i in (d or {}).get("items", [])
+                   if i.get("type") == "app" and i.get("id") is not None and i.get("name")]
             c = casar_titulo(nombres, its)
             if isinstance(c, tuple):
                 return c

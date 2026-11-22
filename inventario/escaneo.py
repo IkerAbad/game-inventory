@@ -29,7 +29,7 @@ def dias_instalado(p):
 
 
 def escanear():
-    out, vistos = [], set()
+    out, vistos, fallos = [], set(), []
     for base in BASES:
         if not os.path.isdir(base):
             continue
@@ -38,6 +38,7 @@ def escanear():
             nombres = sorted(os.listdir(base))
         except OSError as e:
             print("Aviso: no se puede leer %s (%s); se omite." % (base, e))
+            fallos.append(base)
             continue
         for n in nombres:
             p = os.path.join(base, n)
@@ -53,7 +54,7 @@ def escanear():
             out.append({"nombre": os.path.basename(p), "gb": round(tam_gb(p), 2),
                         "dias": dias_instalado(p),
                         "unidad": p[0] + ":", "ruta": p, "duplicado": False})
-    return out
+    return out, fallos
 
 
 def bloqueado(ruta):
