@@ -49,7 +49,7 @@ def historico(juegos, TH):
                         print("Aviso: fila invalida ignorada en historico.csv: %r" % (r,))
                         continue
                     filas.append(r)
-        except OSError as e:
+        except (OSError, UnicodeDecodeError) as e:
             print("Aviso: no se puede leer historico.csv (%s); se empieza de cero." % e)
     filas = [r for r in filas if r[0] != hoy]
     filas.append([str(x) for x in fila])

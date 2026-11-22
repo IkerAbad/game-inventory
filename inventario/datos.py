@@ -32,6 +32,8 @@ def leer_json(ruta, defecto):
     except json.JSONDecodeError as e:
         raise ValueError("%s no es JSON valido (linea %d, columna %d): %s"
                          % (ruta, e.lineno, e.colno, e.msg)) from e
+    except UnicodeDecodeError as e:
+        raise ValueError("%s no esta en UTF-8: %s" % (ruta, e)) from e
     except OSError as e:
         raise ValueError("no se puede leer %s: %s" % (ruta, e)) from e
 

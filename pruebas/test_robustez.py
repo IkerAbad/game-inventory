@@ -50,6 +50,15 @@ class PruebasLeerJson(unittest.TestCase):
             with self.assertRaises(ValueError):
                 leer_claves(ruta)
 
+    def test_no_utf8(self):
+        with tempfile.TemporaryDirectory() as d:
+            ruta = os.path.join(d, "x.json")
+            with open(ruta, "wb") as f:
+                f.write(b"\xff\xfe{")
+            with self.assertRaises(ValueError) as ctx:
+                leer_json(ruta, {})
+            self.assertIn("UTF-8", str(ctx.exception))
+
 
 class PruebasDepurarHoras(unittest.TestCase):
     def test_validos(self):
@@ -108,6 +117,21 @@ class PruebasEscritura(unittest.TestCase):
                 texto = f.read()
             self.assertNotIn("no-es-fecha", texto)
             self.assertNotIn("2026-01-02", texto)
+
+    def test_historico_no_utf8_se_regenera(self):
+        with tempfile.TemporaryDirectory() as d:
+            ruta = os.path.join(d, "historico.csv")
+            with open(ruta, "wb") as f:
+                f.write(b"\xff\xfe")
+            original = excel.HISTORICO_CSV
+            excel.HISTORICO_CSV = ruta
+            try:
+                with redirect_stdout(io.StringIO()):
+                    filas = excel.historico([], 0.0)
+            finally:
+                excel.HISTORICO_CSV = original
+            self.assertEqual(len(filas), 1)
+            self.assertTrue(os.path.exists(ruta))
 
     def test_libro_vacio_sin_unidades(self):
         with tempfile.TemporaryDirectory() as d:

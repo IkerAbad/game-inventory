@@ -110,6 +110,12 @@ class PruebasFormato(unittest.TestCase):
     def test_metascore_ignora_nan(self):
         self.assertEqual(mc_celda({"s": float("nan"), "p": "PC"}), (None, None))
 
+    def test_metacritic_con_campos_raros(self):
+        valor, texto = mc_celda({"s": 85, "p": 123, "n": "muchas", "nota": ["rara"]})
+        self.assertEqual(valor, 85)
+        self.assertIn("123", texto)
+        self.assertIn("rara", texto)
+
     def test_sin_dificultad(self):
         self.assertEqual(dif_celdas(None), (None, None, None, False))
 

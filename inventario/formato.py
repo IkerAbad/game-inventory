@@ -28,7 +28,7 @@ def mc_celda(e, st=None):
     la celda lleva el numero 92 (PctSteam) con formato 'S 92%' (porcentaje de resenas positivas en Steam, otra escala)."""
     if (isinstance(st, dict) and isinstance(st.get("pct"), int)
             and not (isinstance(e, dict) and isinstance(e.get("s"), (int, float)))):
-        nota_mc = (e.get("nota") or "").strip() if isinstance(e, dict) else ""
+        nota_mc = str(e.get("nota") or "").strip() if isinstance(e, dict) else ""
         txt = ("Sin Metascore en Metacritic%s.\nSteam: %d%% de resenas positivas (%s resenas, %s). Ficha: %s (app %s)."
                % ((" (" + nota_mc + ")") if nota_mc else "", st["pct"],
                   "{:,}".format(st.get("n") or 0).replace(",", "."), st.get("desc") or "?",
@@ -42,8 +42,8 @@ def mc_celda(e, st=None):
     if not isinstance(e, dict):
         return None, None
     s, n = e.get("s"), e.get("n")
-    p = (e.get("p") or "").strip()
-    nota = (e.get("nota") or "").strip()
+    p = str(e.get("p") or "").strip()
+    nota = str(e.get("nota") or "").strip()
     lin = []
     if p and p != "?":
         lin.append("Plataforma: " + p + (" (%d resenas)" % n if isinstance(n, int) else ""))
