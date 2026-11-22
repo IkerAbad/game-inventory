@@ -23,7 +23,7 @@ Una entrada por juego instalado. La clave es el nombre de carpeta normalizado.
 - `_comentario`: texto opcional.
 - `_metacritic`: `s` es el Metascore, `"s/n"` cuando Metacritic no publica ninguno, `null` cuando se desconoce. `p` es la plataforma y `n` el número de reseñas.
 - `_steam`: nota de respaldo cuando no hay Metascore numérico. `pct` es el porcentaje de reseñas positivas.
-- `_dificultad`: `h` habilidad y `c` complejidad, de 0 a 10. `ct` es `fuente`, `consenso` o `inferencia`.
+- `_dificultad`: `h` habilidad y `c` complejidad, de 0 a 10. `ct` es `source` (o `fuente`), `consenso` o `inferencia`.
 - `_notas`: fuentes y decisiones. Los bloques `_` desconocidos se conservan.
 
 ## wishlist.json
@@ -68,6 +68,26 @@ date,games,gb,hours
 ```
 
 La cabecera antigua `fecha,juegos,gb,horas` sigue aceptándose. Las filas rotas se descartan con un aviso y el original se guarda como `history.csv.corrupto`.
+
+## config.json
+
+Opcional. Sustituye los valores por defecto de `inventory/config.py`:
+
+```json
+{
+  "libraries": ["D:/Games", "E:/SteamLibrary/steamapps/common"],
+  "loose_paths": ["C:/Program Files/Game"],
+  "exclude": ["steamworks shared", "emuladores"],
+  "output": "C:/Users/me/Desktop/Games.xlsx"
+}
+```
+
+- `libraries`: carpetas cuyas subcarpetas son juegos.
+- `loose_paths`: un juego por carpeta.
+- `exclude`: nombres de carpeta que se saltan. No distingue mayúsculas ni puntuación.
+- `output`: ruta del libro; `~` se expande.
+
+Una clave ausente o inválida mantiene el valor por defecto. El fichero vive en `data/` y no se versiona.
 
 ## Escrituras y copias
 

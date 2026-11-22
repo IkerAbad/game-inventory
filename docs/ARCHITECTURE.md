@@ -16,7 +16,7 @@ The tool is a local command-line program. It reads the installed games, enriches
 
 | Module | Responsibility |
 |---|---|
-| `config.py` | Libraries, data folder, output path and network limits. |
+| `config.py` | Libraries, data folder, output path and network limits. `data/config.json` overrides them. |
 | `data.py` | JSON reading and writing, atomic writes, lock, purge and backups. |
 | `scan.py` | Folder size, days installed, duplicate detection and Excel lock check. |
 | `network.py` | Deku Deals, twoaveragegamers, Steam and Metacritic requests and matching. |

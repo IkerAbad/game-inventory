@@ -15,8 +15,9 @@ if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
 from inventory import excel
-from inventory.cli import _stale_keys, inside_data
-from inventory.config import DATA_DIR, _data_root
+from inventory.cli import _bad_metadata, _stale_keys, inside_data
+from inventory.config import (DATA_DIR, EXCLUDE, LIBRARIES, LOOSE_PATHS, OUTPUT,
+                              _apply_config, _data_root, _read_config)
 from inventory.i18n import set_lang
 from inventory.data import (_save_json, _same, clean_hours, write_atomic, write_hours,
                               write_wishlist, is_valid_hours, read_keys, read_json,
@@ -476,6 +477,33 @@ class WriteTests(unittest.TestCase):
         self.assertEqual(_stale_keys({}, []), 0)
         self.assertEqual(_stale_keys({"_notas": {"gone": "x"}}, {"kept": 1.0}), 1)
 
+    def test_bad_metadata_with_wrong_types(self):
+        self.assertEqual(_bad_metadata(None), (0, 0, 0))
+        self.assertEqual(_bad_metadata({}), (0, 0, 0))
+
+    def test_bad_metadata_counts_invalid_entries(self):
+        data = {
+            "_metacritic": {
+                "not_a_dict": 3,
+                "high_score": {"s": 200},
+                "negative_count": {"s": 90, "n": -1},
+                "ok": {"s": "s/n", "n": 5},
+            },
+            "_steam": {
+                "not_a_dict": [],
+                "high_pct": {"pct": 101},
+                "negative_count": {"pct": 90, "n": -1},
+                "ok": {"pct": 90, "n": 10},
+            },
+            "_dificultad": {
+                "not_a_dict": 3,
+                "high_skill": {"h": 11},
+                "odd_certainty": {"h": 5, "ct": "raro"},
+                "ok": {"h": None, "c": 5, "ct": "fuente"},
+            },
+        }
+        self.assertEqual(_bad_metadata(data), (3, 3, 3))
+
     def test_exclusive_lock_between_processes(self):
         import subprocess
         with tempfile.TemporaryDirectory() as d:
@@ -570,6 +598,49 @@ class ConfigTests(unittest.TestCase):
     def test_data_root_falls_back_to_cwd(self):
         with tempfile.TemporaryDirectory() as d:
             self.assertEqual(_data_root(d, "elsewhere"), "elsewhere")
+
+    def test_config_defaults(self):
+        libraries, loose, exclude, output = _apply_config({})
+        self.assertIs(libraries, LIBRARIES)
+        self.assertIs(loose, LOOSE_PATHS)
+        self.assertIs(exclude, EXCLUDE)
+        self.assertIs(output, OUTPUT)
+
+    def test_config_overrides_every_setting(self):
+        config = {"libraries": ["D:/Games"], "loose_paths": ["E:/Loose"],
+                  "exclude": ["Steam Controller Configs", "Emuladores"],
+                  "output": "~/out.xlsx"}
+        libraries, loose, exclude, output = _apply_config(config)
+        self.assertEqual(libraries, ["D:/Games"])
+        self.assertEqual(loose, ["E:/Loose"])
+        self.assertEqual(exclude, {"steam controller configs", "emuladores"})
+        self.assertEqual(output, os.path.expanduser("~/out.xlsx"))
+
+    def test_config_ignores_invalid_values(self):
+        config = {"libraries": "D:/Games", "loose_paths": ["", "E:/Loose"],
+                  "exclude": [1, 2], "output": "   "}
+        libraries, loose, exclude, output = _apply_config(config)
+        self.assertIs(libraries, LIBRARIES)
+        self.assertIs(loose, LOOSE_PATHS)
+        self.assertIs(exclude, EXCLUDE)
+        self.assertIs(output, OUTPUT)
+
+    def test_config_ignores_non_dict(self):
+        self.assertEqual(_apply_config([])[0], LIBRARIES)
+
+    def test_read_config(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "config.json")
+            self.assertEqual(_read_config(path), {})
+            with open(path, "w", encoding="utf-8") as f:
+                f.write("{broken")
+            self.assertEqual(_read_config(path), {})
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump([], f)
+            self.assertEqual(_read_config(path), {})
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump({"libraries": ["D:/Games"]}, f)
+            self.assertEqual(_read_config(path), {"libraries": ["D:/Games"]})
 
 
 class ScanTests(unittest.TestCase):

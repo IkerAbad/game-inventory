@@ -23,7 +23,7 @@ One entry per installed game. The key is the normalized folder name.
 - `_comentario`: optional text.
 - `_metacritic`: `s` is the Metascore, `"s/n"` when Metacritic publishes none, `null` when unknown. `p` is the platform, `n` the review count.
 - `_steam`: fallback score when there is no numeric Metascore. `pct` is the share of positive reviews.
-- `_dificultad`: `h` skill and `c` complexity, both 0-10. `ct` is `fuente`, `consenso` or `inferencia`.
+- `_dificultad`: `h` skill and `c` complexity, both 0-10. `ct` is `source` (or `fuente`), `consenso` or `inferencia`.
 - `_notas`: source and decision notes. Unknown `_` blocks are preserved.
 
 ## wishlist.json
@@ -68,6 +68,26 @@ date,games,gb,hours
 ```
 
 The old header `fecha,juegos,gb,horas` is still accepted. Broken rows are skipped with a warning and the original file is kept as `history.csv.corrupto`.
+
+## config.json
+
+Optional. It overrides the defaults written in `inventory/config.py`:
+
+```json
+{
+  "libraries": ["D:/Games", "E:/SteamLibrary/steamapps/common"],
+  "loose_paths": ["C:/Program Files/Game"],
+  "exclude": ["steamworks shared", "emuladores"],
+  "output": "C:/Users/me/Desktop/Games.xlsx"
+}
+```
+
+- `libraries`: folders whose subfolders are games.
+- `loose_paths`: one game per folder.
+- `exclude`: folder names to skip. Case and punctuation are ignored.
+- `output`: workbook path; `~` is expanded.
+
+A missing or invalid key keeps the default. The file lives in `data/` and is not versioned.
 
 ## Writes and backups
 

@@ -14,7 +14,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-from tools import check_dist, check_links
+from tools import check_dist, check_i18n, check_links
 
 
 def make_wheel(path, names):
@@ -121,6 +121,41 @@ class CheckDistTests(unittest.TestCase):
             os.chdir(old)
         self.assertIn("OK wheel", out.getvalue())
         self.assertIn("OK sdist", out.getvalue())
+
+
+class CheckI18nTests(unittest.TestCase):
+    def test_placeholders(self):
+        self.assertEqual(check_i18n.placeholders("Hi {name}, {n:.2f}"), {"name", "n"})
+        self.assertEqual(check_i18n.placeholders("{{literal}} and {x}"), {"x"})
+        self.assertEqual(check_i18n.placeholders("no fields"), set())
+
+    def test_compare_equal(self):
+        self.assertEqual(check_i18n.compare({"a": "{n}"}, {"a": "{n}"}), [])
+
+    def test_compare_missing_and_extra(self):
+        problems = check_i18n.compare({"a": "x"}, {"b": "y"})
+        self.assertIn("missing in es: a", problems)
+        self.assertIn("missing in en: b", problems)
+
+    def test_compare_placeholder_mismatch(self):
+        problems = check_i18n.compare({"a": "{n}"}, {"a": "{m}"})
+        self.assertEqual(len(problems), 1)
+        self.assertIn("placeholders", problems[0])
+
+    def test_duplicate_keys(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "texts.py")
+            with open(path, "w", encoding="utf-8") as f:
+                f.write("TEXT = {'a': '1', 'a': '2'}\n")
+            problems = check_i18n.duplicate_keys(path)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("duplicate key 'a'", problems[0])
+
+    def test_main_is_clean(self):
+        with redirect_stdout(io.StringIO()) as out:
+            self.assertEqual(check_i18n.main(), 0)
+        self.assertIn("OK i18n", out.getvalue())
+        self.assertIn("%d keys" % len(check_i18n.TEXT["en"]), out.getvalue())
 
 
 class CheckLinksTests(unittest.TestCase):

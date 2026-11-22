@@ -61,7 +61,8 @@ Opciones:
 | `--keep`, `--conservar` | No purga las claves de juegos desinstalados. |
 | `--force-purge`, `--forzar-purga` | Permite purgar más de la mitad de las claves de una vez. |
 | `--dry-run`, `--simular` | Escanea y muestra el resumen sin escribir nada. |
-| `--check-data`, `--validar` | Valida los ficheros JSON, las claves de metadatos huérfanas, los títulos repetidos de la wishlist y el histórico, y sale. |
+| `--open` | Abre el libro guardado con la aplicación predeterminada. |
+| `--check-data`, `--validar` | Valida los ficheros JSON, las claves de metadatos huérfanas, los valores de metadatos inválidos, los títulos repetidos de la wishlist y el histórico, y sale. |
 | `--output RUTA`, `--salida RUTA` | Escribe el Excel en otra ruta. |
 | `--version` | Muestra la versión instalada. |
 
@@ -78,6 +79,7 @@ Todo lo personal vive en `data/`, que no se versiona. El script crea la carpeta 
 | `data/playing.json` | Claves de lo que estás jugando ahora. |
 | `data/completed.json` | Claves de lo que ya has terminado y sigue instalado. |
 | `data/history.csv` | Una fila por día de ejecución. Alimenta la hoja History. |
+| `data/config.json` | Opcional. Sustituye bibliotecas, rutas sueltas, exclusiones y ruta de salida. |
 
 Las notas de fuentes dentro de los JSON conservan el idioma en que se escribieron.
 
@@ -93,6 +95,17 @@ Las notas de fuentes dentro de los JSON conservan el idioma en que se escribiero
 - Acepta JSON con BOM y descarta filas corruptas del histórico con un aviso.
 
 - `--dry-run` escanea y muestra el resumen, pero no escribe libro, histórico ni JSON.
+
+## Problemas frecuentes
+
+| Síntoma | Qué hacer |
+|---|---|
+| `ABORTADO: el Excel está abierto` | Cierra el libro y vuelve a ejecutar. No se ha escaneado nada. |
+| `ABORTADO: hay otra ejecución en curso` | Espera a la otra ejecución. El bloqueo vive en `data/`. |
+| `no es JSON válido (línea ..., columna ...)` | Corrige esa línea o restaura una copia del fichero. |
+| `Aviso: no se puede leer history.csv` | El original queda como `history.csv.corrupto` y la ejecución escribe uno limpio. |
+| Falta un juego | Añade su carpeta a `libraries` o `loose_paths` en `data/config.json`. |
+| Todos los juegos salen SIN DATOS | Falta `hours.json` o sus claves no coinciden con las carpetas. Ejecuta `--check-data`. |
 
 ## Estructura
 

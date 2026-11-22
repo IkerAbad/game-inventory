@@ -16,7 +16,7 @@ if ROOT not in sys.path:
 
 import openpyxl
 
-from inventory.cli import _preselect_lang, main
+from inventory.cli import _preselect_lang, main, open_file
 from inventory.data import read_json
 from inventory.i18n import set_lang
 
@@ -347,6 +347,66 @@ class BranchTests(unittest.TestCase):
         self.assertEqual(rc, 0)
         self.assertIn("KEYS WITHOUT A FOLDER", console)
 
+    def test_progress_messages(self):
+        with tempfile.TemporaryDirectory() as d:
+            rc, console, _, _ = self._run(
+                d, hours={"installed": 10.0}, games=[fake_game("Installed", 1.0)])
+        self.assertEqual(rc, 0)
+        self.assertIn("Scanning game folders", console)
+        self.assertNotIn("Completing data from the network", console)
+
+    def test_network_progress_message(self):
+        with tempfile.TemporaryDirectory() as d:
+            rc, console, _, _ = self._run(
+                d, hours={"installed": 10.0}, games=[fake_game("Installed", 1.0)],
+                args=["--keep", "--output", os.path.join(d, "out.xlsx")],
+                extra=[mock.patch("inventory.cli.autocomplete")])
+        self.assertEqual(rc, 0)
+        self.assertIn("Completing data from the network", console)
+
+    def test_open_option_without_error(self):
+        with tempfile.TemporaryDirectory() as d:
+            out = os.path.join(d, "out.xlsx")
+            with mock.patch("inventory.cli.open_file", return_value=None) as opener:
+                rc, console, _, _ = self._run(
+                    d, hours={"installed": 10.0},
+                    games=[fake_game("Installed", 1.0)],
+                    args=["--offline", "--keep", "--open", "--output", out])
+        self.assertEqual(rc, 0)
+        opener.assert_called_once_with(out)
+        self.assertIn("Opened", console)
+
+    def test_open_option_with_error(self):
+        with tempfile.TemporaryDirectory() as d:
+            out = os.path.join(d, "out.xlsx")
+            with mock.patch("inventory.cli.open_file",
+                            return_value=OSError("no app")):
+                rc, console, _, _ = self._run(
+                    d, hours={"installed": 10.0},
+                    games=[fake_game("Installed", 1.0)],
+                    args=["--offline", "--keep", "--open", "--output", out])
+        self.assertEqual(rc, 0)
+        self.assertIn("could not open", console)
+
+    def test_open_file_without_error(self):
+        if hasattr(os, "startfile"):
+            patch = mock.patch("inventory.cli.os.startfile", create=True)
+        else:
+            patch = mock.patch("inventory.cli.subprocess.Popen")
+        with patch:
+            self.assertIsNone(open_file("out.xlsx"))
+
+    def test_open_file_returns_oserror(self):
+        if hasattr(os, "startfile"):
+            patch = mock.patch("inventory.cli.os.startfile",
+                               side_effect=OSError("no app"), create=True)
+        else:
+            patch = mock.patch("inventory.cli.subprocess.Popen",
+                               side_effect=OSError("no app"))
+        with patch:
+            error = open_file("out.xlsx")
+        self.assertIsInstance(error, OSError)
+
     def test_dry_run_writes_nothing(self):
         with tempfile.TemporaryDirectory() as d:
             out = os.path.join(d, "output.xlsx")
@@ -375,6 +435,7 @@ class BranchTests(unittest.TestCase):
                 d,
                 hours={"game": 10.0,
                        "_notas": {"game": "source", "gone": "old"},
+                       "_dificultad": {"game": {"h": 99}},
                        "_steam": {"game": {"pct": 90}}},
                 completed=[], playing=[],
                 wishlist={"juegos": {"Game": 10.0, "game": "?", "Other": 5.0},
@@ -384,6 +445,7 @@ class BranchTests(unittest.TestCase):
                 args=["--check-data"])
         self.assertEqual(rc, 0)
         self.assertIn("hours 1 | wishlist 1", console)
+        self.assertIn("metacritic 0 | steam 0 | difficulty 1", console)
         self.assertIn("repeated after normalization: 1", console)
         self.assertIn("2 days, last 2026-11-02 (1 bad rows)", console)
 

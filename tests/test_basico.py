@@ -142,6 +142,7 @@ class FormatTests(unittest.TestCase):
         self.assertEqual(h, 5)
         self.assertIsNone(c)
         self.assertFalse(inference)
+        self.assertIn("respaldada por la fuente citada", text)
 
     def test_i18n_fallback(self):
         with self.assertRaises(ValueError):

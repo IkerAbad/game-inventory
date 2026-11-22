@@ -2,9 +2,11 @@
 """Entry point: options, orchestration and console summary."""
 
 import argparse
+import math
 import os
 import shutil
 import statistics
+import subprocess
 import sys
 
 from .cell_format import dif_cells
@@ -38,6 +40,20 @@ def _preselect_lang(argv):
     return "en"
 
 
+def open_file(path):
+    """Open the workbook with the default application. Return an error or None."""
+    try:
+        if hasattr(os, "startfile"):
+            os.startfile(path)
+        elif sys.platform == "darwin":
+            subprocess.Popen(["open", path])
+        else:
+            subprocess.Popen(["xdg-open", path])
+    except OSError as e:
+        return e
+    return None
+
+
 def check_data():
     """Validate the JSON data files without scanning or writing. Return 0 or 1."""
     print(t("check.title"))
@@ -65,6 +81,12 @@ def check_data():
         print(t("check.wishlist", n=len(wishlist), warnings=bad))
         print(t("check.stale", hours=_stale_keys(hours, hours),
                 wishlist=_stale_keys(meta, wishlist)))
+        mc_bad, steam_bad, dif_bad = _bad_metadata(hours)
+        mc_w, steam_w, dif_w = _bad_metadata(meta)
+        print(t("check.metadata",
+                metacritic=mc_bad + mc_w,
+                steam=steam_bad + steam_w,
+                difficulty=dif_bad + dif_w))
         groups = {}
         for title in wishlist:
             groups.setdefault(normalize(title), []).append(title)
@@ -96,6 +118,55 @@ def _stale_keys(container, games):
     return total
 
 
+def _number_in(value, low, high):
+    return (isinstance(value, (int, float)) and not isinstance(value, bool)
+            and math.isfinite(value) and low <= value <= high)
+
+
+def _count_int(value):
+    return isinstance(value, int) and not isinstance(value, bool) and value >= 0
+
+
+def _bad_metadata(data):
+    """Count invalid entries in _metacritic, _steam and _dificultad."""
+    if not isinstance(data, dict):
+        return 0, 0, 0
+    bad_mc = bad_steam = bad_dif = 0
+    mc = data.get("_metacritic")
+    if isinstance(mc, dict):
+        for value in mc.values():
+            if not isinstance(value, dict):
+                bad_mc += 1
+            elif not (value.get("s") is None or value.get("s") == "s/n"
+                      or _number_in(value.get("s"), 0, 100)):
+                bad_mc += 1
+            elif not (value.get("n") is None or _count_int(value.get("n"))):
+                bad_mc += 1
+    steam = data.get("_steam")
+    if isinstance(steam, dict):
+        for value in steam.values():
+            if not isinstance(value, dict):
+                bad_steam += 1
+            elif not (value.get("pct") is None or _count_int(value.get("pct"))
+                      and value.get("pct") <= 100):
+                bad_steam += 1
+            elif not (value.get("n") is None or _count_int(value.get("n"))):
+                bad_steam += 1
+    dif = data.get("_dificultad")
+    if isinstance(dif, dict):
+        for value in dif.values():
+            if not isinstance(value, dict):
+                bad_dif += 1
+                continue
+            axes = [value.get(axis) for axis in ("h", "c")]
+            if any(axis is not None and not _number_in(axis, 0, 10) for axis in axes):
+                bad_dif += 1
+            elif value.get("ct") is not None and value.get("ct") not in (
+                    "source", "fuente", "consenso", "inferencia"):
+                bad_dif += 1
+    return bad_mc, bad_steam, bad_dif
+
+
 def main(argv=None):
     lang = _preselect_lang(argv)
     if lang in ("en", "es"):
@@ -116,6 +187,8 @@ def main(argv=None):
                         action="store_true", help=t("help.force_purge"))
     parser.add_argument("--dry-run", "--simular", dest="dry_run",
                         action="store_true", help=t("help.dry_run"))
+    parser.add_argument("--open", dest="open_file", action="store_true",
+                        help=t("help.open"))
     parser.add_argument("--check-data", "--validar", dest="check_data",
                         action="store_true", help=t("help.check_data"))
     parser.add_argument("--output", "--salida", dest="output", default=None,
@@ -183,8 +256,10 @@ def main(argv=None):
             print("   " + warning)
         if len(hour_warnings) > 10:
             print(t("cli.more", n=len(hour_warnings) - 10))
+    print(t("cli.scanning"))
     games, failed_bases = scan_games()
     if not args.offline and not args.dry_run:
+        print(t("cli.fetching"))
         try:
             autocomplete(games, hours, wl_meta)
         except Exception as e:
@@ -370,4 +445,10 @@ def main(argv=None):
         print("\n" + t("cli.duplicates", names=", ".join(duplicates)))
     print("\n" + t("cli.ok", path=output))
     lock.close()
+    if args.open_file:
+        error = open_file(output)
+        if error is None:
+            print(t("cli.opened", path=output))
+        else:
+            print(t("cli.open_failed", error=error))
     return 0

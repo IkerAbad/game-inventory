@@ -111,6 +111,7 @@ def mc_format(ws, cell_range, first_cell):
 
 DIF_CERTAINTY = {
     "source": "comment.backed",
+    "fuente": "comment.backed",
     "consenso": "comment.consensus",
     "inferencia": "comment.inference",
 }

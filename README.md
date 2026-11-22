@@ -61,7 +61,8 @@ Options:
 | `--keep`, `--conservar` | Do not purge uninstalled game keys. |
 | `--force-purge`, `--forzar-purga` | Allow purging more than half of the keys at once. |
 | `--dry-run`, `--simular` | Scan and show the summary without writing anything. |
-| `--check-data`, `--validar` | Validate the JSON data files, stale metadata keys, repeated wishlist titles and the history, then exit. |
+| `--open` | Open the saved workbook with the default application. |
+| `--check-data`, `--validar` | Validate the JSON data files, stale metadata keys, invalid metadata values, repeated wishlist titles and the history, then exit. |
 | `--output PATH`, `--salida PATH` | Write the Excel workbook to another path. |
 | `--version` | Show the installed version. |
 
@@ -78,6 +79,7 @@ All personal data lives in `data/`, which is not versioned. The script creates t
 | `data/playing.json` | Keys of the games you are playing now. |
 | `data/completed.json` | Keys of the games you finished but still have installed. |
 | `data/history.csv` | One row per run day. It feeds the History sheet. |
+| `data/config.json` | Optional. Overrides the libraries, loose paths, exclusions and output path. |
 
 The source notes inside the JSON files keep the language they were written in.
 
@@ -93,6 +95,17 @@ The source notes inside the JSON files keep the language they were written in.
 - BOM-prefixed JSON is accepted and broken history rows are skipped with a warning.
 
 - `--dry-run` scans and prints the summary but writes no workbook, history or JSON.
+
+## Troubleshooting
+
+| Symptom | What to do |
+|---|---|
+| `ABORTED: the Excel file is open` | Close the workbook and run again. Nothing has been scanned. |
+| `ABORTED: another inventory run is in progress` | Wait for the other run. The lock lives in `data/`. |
+| `is not valid JSON (line ..., column ...)` | Fix that line or restore a backup of the file. |
+| `Warning: cannot read history.csv` | The original is kept as `history.csv.corrupto` and the run writes a clean one. |
+| A game is missing | Add its folder to `libraries` or `loose_paths` in `data/config.json`. |
+| Every game shows NO DATA | `hours.json` is missing or its keys do not match the folder names. Run `--check-data`. |
 
 ## Structure
 
