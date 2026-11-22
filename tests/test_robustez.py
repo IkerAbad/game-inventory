@@ -127,6 +127,21 @@ class WriteTests(unittest.TestCase):
 
             self.assertTrue(_save_json(path, escritor, {"a": float("nan")}))
 
+    def test_save_json_restores_on_mismatch(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "x.json")
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump({"a": 1}, f)
+
+            def bad_writer(obj):
+                with open(path, "w", encoding="utf-8") as f:
+                    json.dump({"b": 2}, f)
+
+            with redirect_stdout(io.StringIO()):
+                ok = _save_json(path, bad_writer, {"a": 1})
+            self.assertFalse(ok)
+            self.assertEqual(read_json(path, {}), {"a": 1})
+
     def test_hours_keeps_unknown_blocks(self):
         with tempfile.TemporaryDirectory() as d:
             path = os.path.join(d, "hours.json")
@@ -387,6 +402,19 @@ class ScanTests(unittest.TestCase):
             self.assertEqual(games[0]["unit"], d[0] + ":")
             self.assertEqual(games[0]["path"], game_dir)
             self.assertFalse(games[0]["duplicate"])
+
+    def test_scan_marks_duplicates_and_loose_paths(self):
+        with tempfile.TemporaryDirectory() as d:
+            first = os.path.join(d, "Same Game")
+            second = os.path.join(d, "Same_Game")
+            os.makedirs(first)
+            os.makedirs(second)
+            with mock.patch("inventory.scan.LIBRARIES", [d]), \
+                 mock.patch("inventory.scan.LOOSE_PATHS", [first]):
+                games, failed = scan_games()
+            self.assertEqual(failed, [])
+            self.assertTrue(any(g["duplicate"] for g in games))
+            self.assertTrue(any(g["path"] == first for g in games))
 
 
 if __name__ == "__main__":

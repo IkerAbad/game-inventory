@@ -104,7 +104,8 @@ start.cmd                  Windows launcher
 
 ```
 py -m pip install -r requirements-dev.txt
-py -m unittest discover -s tests -v
+py -m coverage run --source=inventory -m unittest discover -s tests -v
+py -m coverage report -m
 py -m pyflakes inventory generate_inventory.py tests
 ```
 

@@ -109,6 +109,37 @@ class IntegrationTests(unittest.TestCase):
             self.assertEqual(wb["Juegos"]["A5"].value, "Juego A")
             self.assertIn("EN CURSO", wb["Juegos"]["F5"].value)
 
+    def test_main_uses_wishlist_hours(self):
+        with tempfile.TemporaryDirectory() as d:
+            data_dir = os.path.join(d, "data")
+            os.makedirs(data_dir)
+            paths = {
+                "HOURS_JSON": os.path.join(data_dir, "hours.json"),
+                "WISHLIST_JSON": os.path.join(data_dir, "wishlist.json"),
+                "COMPLETED_JSON": os.path.join(data_dir, "completed.json"),
+                "PLAYING_JSON": os.path.join(data_dir, "playing.json"),
+            }
+            with open(paths["HOURS_JSON"], "w", encoding="utf-8") as f:
+                json.dump({"wanted game": "?"}, f)
+            with open(paths["WISHLIST_JSON"], "w", encoding="utf-8") as f:
+                json.dump({"juegos": {"Wanted Game": 7.0}}, f)
+            with open(paths["COMPLETED_JSON"], "w", encoding="utf-8") as f:
+                json.dump([], f)
+            with open(paths["PLAYING_JSON"], "w", encoding="utf-8") as f:
+                json.dump([], f)
+            output = os.path.join(d, "output.xlsx")
+            games = [fake_game("Wanted Game", 1.0)]
+            with mock.patch.multiple("inventory.cli", DATA_DIR=data_dir, **paths), \
+                 mock.patch("inventory.cli.scan_games", return_value=(games, [])), \
+                 mock.patch("inventory.excel.HISTORY_CSV",
+                            os.path.join(data_dir, "history.csv")):
+                with redirect_stdout(io.StringIO()) as console:
+                    rc = main(["--offline", "--keep", "--output", output])
+            self.assertEqual(rc, 0, console.getvalue())
+            wb = openpyxl.load_workbook(output)
+            self.assertEqual(wb["Games"]["C5"].value, 7.0)
+            self.assertIn("HOURS TAKEN", console.getvalue())
+
     def test_main_purges_orphans(self):
         with tempfile.TemporaryDirectory() as d:
             data_dir = os.path.join(d, "data")

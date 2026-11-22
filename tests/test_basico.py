@@ -11,7 +11,7 @@ if ROOT not in sys.path:
 
 from inventory.data import normalize
 from inventory.cell_format import PctSteam, dif_cells, mc_cell
-from inventory.i18n import set_lang
+from inventory.i18n import set_lang, t
 from inventory.network import _fmt_h, _hours_text, _slugs, _tokens, match_title
 
 
@@ -123,6 +123,31 @@ class FormatTests(unittest.TestCase):
         self.assertIn("Skill 5/10", text)
         _, comment = mc_cell({"s": 85, "p": "PS4", "n": 10})
         self.assertIn("Platform: PS4", comment)
+
+    def test_metascore_without_data(self):
+        value, text = mc_cell({"s": "s/n", "p": "PC", "n": 5})
+        self.assertIsNone(value)
+        self.assertIn("Sin Metascore", text)
+
+    def test_steam_text_and_prefix(self):
+        value, text = mc_cell(None, {"pct": 92, "n": 100, "desc": "d",
+                                     "name": "G", "id": 1, "pref": "R",
+                                     "txt": "nota"})
+        self.assertIsInstance(value, PctSteam)
+        self.assertEqual(value.fmt, '"R "0')
+        self.assertEqual(text, "Sin Metascore en Metacritic.\nnota")
+
+    def test_difficulty_partial(self):
+        h, c, text, inference = dif_cells({"h": 5, "ct": "fuente"})
+        self.assertEqual(h, 5)
+        self.assertIsNone(c)
+        self.assertFalse(inference)
+
+    def test_i18n_fallback(self):
+        with self.assertRaises(ValueError):
+            set_lang("fr")
+        set_lang("en")
+        self.assertEqual(t("missing.key"), "missing.key")
 
     def test_metacritic_with_odd_fields(self):
         value, texto = mc_cell({"s": 85, "p": 123, "n": "muchas", "nota": ["rara"]})

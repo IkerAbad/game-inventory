@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Network layer tests with simulated responses (no real requests)."""
 
+import datetime
 import io
 import os
 import sys
@@ -16,7 +17,8 @@ if ROOT not in sys.path:
 from inventory.i18n import set_lang
 from inventory.network import (autocomplete, deku_item, deku_search, mc_search,
                                resolve_hours, steam_estimate, steam_manifests,
-                               steam_reviews, steam_search, tag_hours)
+                               steam_reviews, steam_search, steam_store_name,
+                               tag_hours, _should_retry)
 
 
 class NetworkTests(unittest.TestCase):
@@ -156,6 +158,31 @@ class NetworkTests(unittest.TestCase):
                  mock.patch("inventory.network.glob.glob", return_value=[acf]):
                 manifests = steam_manifests()
             self.assertEqual(manifests.get("hades"), (123, "Hades"))
+
+    def test_steam_store_name(self):
+        with mock.patch("inventory.network._json_get",
+                        return_value={"1": {"data": {"name": "Hades"}}}):
+            self.assertEqual(steam_store_name(1), "Hades")
+        with mock.patch("inventory.network._json_get", return_value=None):
+            self.assertIsNone(steam_store_name(1))
+
+    def test_should_retry(self):
+        today = datetime.date(2026, 11, 22)
+        self.assertTrue(_should_retry({"s": "s/n", "f": "2026-10-01"}, today))
+        self.assertFalse(_should_retry({"s": "s/n", "f": "2026-11-20"}, today))
+        self.assertFalse(_should_retry({"s": 90, "f": "2026-01-01"}, today))
+
+    def test_deku_search_404(self):
+        with mock.patch("inventory.network.http_get", return_value=(404, "")):
+            self.assertEqual(deku_search("Hades"), [])
+
+    def test_resolve_hours_without_source(self):
+        with mock.patch("inventory.network.deku_search", return_value=[]), \
+             mock.patch("inventory.network.tag_hours", return_value=None), \
+             mock.patch("inventory.network.steam_estimate", return_value=None):
+            result = resolve_hours(["Hades"], lambda: (1, "Hades"), "22/11/2026", False)
+        self.assertIsNone(result["value"])
+        self.assertIsNone(result["source"])
 
 
 if __name__ == "__main__":
