@@ -619,7 +619,7 @@ def hojas_extra(wb, juegos):
         wp.cell(r, 5, round(ha, 1))
         wp.cell(r, 6, j["gb"])
         wp.cell(r, 7, round(gb, 2))
-        wp.cell(r, 8, round(gb / GBF, 4)).number_format = "0.0%"
+        wp.cell(r, 8, round(gb / GBF, 4) if GBF else 0).number_format = "0.0%"
         c = wp.cell(r, 9, "=TODAY()+ROUND(E%d/Resumen!$B$14,0)" % r)
         c.number_format = "DD/MM/YYYY"
         v_mc, t_mc = mc_celda(j.get("mc"), j.get("steam"))
@@ -934,7 +934,7 @@ def construir(juegos, q1, q2, q3, wl=None, fuente="origen no indicado",
         try:
             t, us, li = shutil.disk_usage(u + "\\")
             w2.append([u, round(li / 1024**3, 1), round(t / 1024**3, 1),
-                       round(li / t * 100, 1), round(tot.get(u, 0), 2)])
+                       round(li / t * 100, 1) if t else 0, round(tot.get(u, 0), 2)])
         except Exception:
             pass
     for i, a in enumerate([10, 12, 12, 10, 12], 1):

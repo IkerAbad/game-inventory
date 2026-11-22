@@ -138,6 +138,26 @@ class PruebasEscritura(unittest.TestCase):
             self.assertEqual(wb2.active.cell(1, 1).value, "=1+1")
             self.assertEqual(wb2.active.cell(1, 2).value, "juego normal")
 
+    def test_juego_de_cero_gb(self):
+        juego = {"nombre": "Vacio", "gb": 0.0, "dias": 1, "unidad": "C:",
+                 "ruta": "C:\\Vacio", "duplicado": False, "horas": 10.0,
+                 "mc": None, "steam": None, "dif": None, "nota_h": "",
+                 "completado": False, "jugando": False, "ratio": 0.0,
+                 "veredicto": "Ratio medio"}
+        with tempfile.TemporaryDirectory() as d:
+            original = excel.HISTORICO_CSV
+            excel.HISTORICO_CSV = os.path.join(d, "historico.csv")
+            try:
+                with mock.patch("inventario.excel.shutil.disk_usage",
+                                side_effect=OSError("sin unidad")):
+                    wb, TH, filas = excel.construir([juego], 1.0, 2.0, 4.0)
+                self.assertEqual(TH, 10.0)
+                ruta = os.path.join(d, "x.xlsx")
+                wb.save(ruta)
+                self.assertTrue(os.path.exists(ruta))
+            finally:
+                excel.HISTORICO_CSV = original
+
 
 if __name__ == "__main__":
     unittest.main()
