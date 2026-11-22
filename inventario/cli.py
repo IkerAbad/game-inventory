@@ -25,11 +25,15 @@ def main(argv=None):
     p.add_argument("--salida", default=None,
                    help="ruta del Excel (por defecto, la de config.py)")
     args = p.parse_args(argv)
-    salida = args.salida or SALIDA
+    salida = os.path.expanduser(args.salida) if args.salida else SALIDA
     try:
         sys.stdout.reconfigure(errors="replace")
     except Exception:
         pass
+    if os.path.isdir(salida):
+        print("ABORTADO: la ruta de salida es una carpeta, no un fichero.")
+        print("   " + salida)
+        return 1
     if bloqueado(salida):
         print("ABORTADO: el Excel esta abierto en otro programa.")
         print("   " + salida)

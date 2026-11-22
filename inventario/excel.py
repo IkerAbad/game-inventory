@@ -7,12 +7,14 @@ import shutil
 
 from .config import HISTORICO_CSV
 from .datos import escribir_atomico, es_hora_valida, normaliza
-from .formato import (PctSteam, dif_escribir, dif_formato, mc_celda, mc_comentario,
-                      mc_formato, nota_comentario)
+from .formato import (PctSteam, dif_escribir, dif_formato, limpia_texto, mc_celda,
+                      mc_comentario, mc_formato, nota_comentario)
 
 
 def celda_texto(ws, fila, col, valor, formato=None):
     """Escribe un texto y evita que Excel lo trate como formula si empieza por '='."""
+    if isinstance(valor, str):
+        valor = limpia_texto(valor)
     cel = ws.cell(fila, col, valor)
     if isinstance(valor, str) and valor.startswith("="):
         cel.data_type = "s"
@@ -371,13 +373,22 @@ def pulir(wb, juegos):
         ws.row_dimensions[r].height = 16
     tr = n + 5
     ws.cell(tr, 1, "TOTAL VISIBLE (respeta el filtro)")
-    ws.cell(tr, 2, "=SUBTOTAL(109,B5:B%d)" % (n + 4)).number_format = "#,##0.00"
-    ws.cell(tr, 4, "=SUBTOTAL(101,D5:D%d)" % (n + 4)).number_format = "0.00"
-    ws.cell(tr, 6, '=SUBTOTAL(103,A5:A%d)&" juegos"' % (n + 4))
-    ws.cell(tr, 7, "=SUBTOTAL(101,G5:G%d)" % (n + 4)).number_format = "0"
-    ws.cell(tr, 8, '=IFERROR(SUBTOTAL(101,H5:H%d),"")' % (n + 4)).number_format = "0"
-    ws.cell(tr, 9, '=IFERROR(SUBTOTAL(101,I5:I%d),"")' % (n + 4)).number_format = "0.0"
-    ws.cell(tr, 10, '=IFERROR(SUBTOTAL(101,J5:J%d),"")' % (n + 4)).number_format = "0.0"
+    if n:
+        ws.cell(tr, 2, "=SUBTOTAL(109,B5:B%d)" % (n + 4)).number_format = "#,##0.00"
+        ws.cell(tr, 4, "=SUBTOTAL(101,D5:D%d)" % (n + 4)).number_format = "0.00"
+        ws.cell(tr, 6, '=SUBTOTAL(103,A5:A%d)&" juegos"' % (n + 4))
+        ws.cell(tr, 7, "=SUBTOTAL(101,G5:G%d)" % (n + 4)).number_format = "0"
+        ws.cell(tr, 8, '=IFERROR(SUBTOTAL(101,H5:H%d),"")' % (n + 4)).number_format = "0"
+        ws.cell(tr, 9, '=IFERROR(SUBTOTAL(101,I5:I%d),"")' % (n + 4)).number_format = "0.0"
+        ws.cell(tr, 10, '=IFERROR(SUBTOTAL(101,J5:J%d),"")' % (n + 4)).number_format = "0.0"
+    else:
+        ws.cell(tr, 2, 0).number_format = "#,##0.00"
+        ws.cell(tr, 4, 0).number_format = "0.00"
+        ws.cell(tr, 6, "0 juegos")
+        ws.cell(tr, 7, 0).number_format = "0"
+        ws.cell(tr, 8, 0).number_format = "0"
+        ws.cell(tr, 9, 0).number_format = "0.0"
+        ws.cell(tr, 10, 0).number_format = "0.0"
     for c in range(1, 12):
         cel = ws.cell(tr, c)
         cel.fill = PatternFill("solid", fgColor="374151")

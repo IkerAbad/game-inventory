@@ -2,10 +2,17 @@
 """Formato de celdas: Metacritic, Steam y dificultad."""
 
 import math
+import re
 
 # Prefijo de la celda cuando la nota es el % de resenas positivas de Steam.
 
 MC_FMT_STEAM = '"S "0"%"'
+_ILEGALES = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f]")
+
+
+def limpia_texto(t, limite=32767):
+    """Quita los caracteres de control que Excel rechaza y recorta al maximo de una celda."""
+    return _ILEGALES.sub("", str(t))[:limite]
 
 
 class PctSteam(int):
@@ -60,6 +67,7 @@ def mc_celda(e, st=None):
 
 def mc_comentario(txt):
     from openpyxl.comments import Comment
+    txt = limpia_texto(txt)
     c = Comment("Metacritic\n" + txt, "Inventario")
     c.width = 270
     c.height = 60 + 15 * (txt.count("\n") + len(txt) // 38)
@@ -68,6 +76,7 @@ def mc_comentario(txt):
 
 def nota_comentario(txt):
     from openpyxl.comments import Comment
+    txt = limpia_texto(txt)
     c = Comment("Horas\n" + txt, "Inventario")
     c.width = 330
     c.height = 70 + 15 * (txt.count("\n") + len(txt) // 48)
@@ -120,6 +129,7 @@ def dif_celdas(e):
 
 def dif_comentario(txt):
     from openpyxl.comments import Comment
+    txt = limpia_texto(txt)
     c = Comment("Dificultad\n" + txt, "Inventario")
     c.width = 330
     c.height = 70 + 15 * (txt.count("\n") + len(txt) // 48)

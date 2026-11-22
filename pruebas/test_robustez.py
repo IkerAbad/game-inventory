@@ -16,6 +16,7 @@ if RAIZ not in sys.path:
 
 from inventario import excel
 from inventario.datos import depurar_horas, escribir_atomico, es_hora_valida, leer_claves, leer_json
+from inventario.formato import limpia_texto
 
 
 class PruebasLeerJson(unittest.TestCase):
@@ -118,6 +119,8 @@ class PruebasEscritura(unittest.TestCase):
                 self.assertEqual(TH, 0.0)
                 self.assertEqual(wb.sheetnames,
                                  ["Juegos", "Espacio", "Resumen", "Plan", "Historico"])
+                self.assertEqual(wb["Juegos"]["B5"].value, 0)
+                self.assertEqual(wb["Juegos"]["F5"].value, "0 juegos")
                 ruta = os.path.join(d, "x.xlsx")
                 wb.save(ruta)
                 self.assertTrue(os.path.exists(ruta))
@@ -131,12 +134,20 @@ class PruebasEscritura(unittest.TestCase):
             c = excel.celda_texto(wb.active, 1, 1, "=1+1")
             self.assertEqual(c.data_type, "s")
             excel.celda_texto(wb.active, 1, 2, "juego normal")
+            excel.celda_texto(wb.active, 1, 3, "\x01=2+2")
             ruta = os.path.join(d, "x.xlsx")
             wb.save(ruta)
             wb2 = openpyxl.load_workbook(ruta)
             self.assertEqual(wb2.active.cell(1, 1).data_type, "s")
             self.assertEqual(wb2.active.cell(1, 1).value, "=1+1")
             self.assertEqual(wb2.active.cell(1, 2).value, "juego normal")
+            self.assertEqual(wb2.active.cell(1, 3).value, "=2+2")
+            self.assertEqual(wb2.active.cell(1, 3).data_type, "s")
+
+    def test_limpia_texto(self):
+        self.assertEqual(limpia_texto("a\x01b\x1fc"), "abc")
+        self.assertEqual(limpia_texto("linea\nnormal"), "linea\nnormal")
+        self.assertEqual(len(limpia_texto("x" * 40000)), 32767)
 
     def test_juego_de_cero_gb(self):
         juego = {"nombre": "Vacio", "gb": 0.0, "dias": 1, "unidad": "C:",
