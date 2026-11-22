@@ -8,7 +8,8 @@ import statistics
 import sys
 
 from .config import COMPLETADOS_JSON, DATOS, HORAS_JSON, JUGANDO_JSON, SALIDA, WISHLIST_JSON
-from .datos import depurar_horas, es_hora_valida, leer_claves, leer_json, normaliza, purgar_horas, tomar_bloqueo
+from .datos import (depurar_horas, es_hora_valida, leer_claves, leer_json,
+                    limpiar_temporales, normaliza, purgar_horas, tomar_bloqueo)
 from .escaneo import bloqueado, escanear
 from .excel import construir
 from .formato import dif_celdas
@@ -67,6 +68,7 @@ def main(argv=None):
         print("ABORTADO: ya hay otra ejecucion del inventario en marcha.")
         print("   Espera a que termine y vuelve a intentarlo.")
         return 1
+    limpiar_temporales(DATOS)
     if not os.path.exists(HORAS_JSON):
         print("Aviso: no hay horas.json en datos/. Todos los juegos saldran como SIN DATOS.")
     try:

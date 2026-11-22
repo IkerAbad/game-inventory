@@ -16,9 +16,9 @@ def normaliza(n):
 
 
 def es_hora_valida(v):
-    """True para una duracion util: numero finito y mayor que cero (no vale bool)."""
+    """True para una duracion util: numero finito entre 0 y 1.000.000 de horas (no vale bool)."""
     return (isinstance(v, (int, float)) and not isinstance(v, bool)
-            and math.isfinite(v) and v > 0)
+            and math.isfinite(v) and 0 < v <= 1000000)
 
 
 def leer_json(ruta, defecto):
@@ -82,6 +82,20 @@ def tomar_bloqueo(carpeta):
         f.close()
         return None
     return f
+
+
+def limpiar_temporales(carpeta):
+    """Borra restos .tmp_* de escrituras interrumpidas. Llamar solo con el bloqueo tomado."""
+    try:
+        nombres = os.listdir(carpeta)
+    except OSError:
+        return
+    for n in nombres:
+        if n.startswith(".tmp_"):
+            try:
+                os.remove(os.path.join(carpeta, n))
+            except OSError:
+                pass
 
 
 def escribir_atomico(ruta, texto):

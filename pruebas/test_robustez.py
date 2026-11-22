@@ -18,7 +18,7 @@ from inventario import excel
 from inventario.cli import dentro_de_datos
 from inventario.config import DATOS
 from inventario.datos import (depurar_horas, escribir_atomico, es_hora_valida, leer_claves,
-                              leer_json, purgar_horas, tomar_bloqueo)
+                              leer_json, limpiar_temporales, purgar_horas, tomar_bloqueo)
 from inventario.escaneo import escanear
 from inventario.formato import limpia_texto
 from inventario.red import steam_buscar
@@ -79,10 +79,15 @@ class PruebasDepurarHoras(unittest.TestCase):
         for k in "abcde":
             self.assertEqual(limpio[k], "?")
         self.assertEqual(len(avisos), 5)
+        limpio, avisos = depurar_horas({"f": 1000001})
+        self.assertEqual(limpio["f"], "?")
+        self.assertEqual(len(avisos), 1)
 
     def test_es_hora_valida(self):
         self.assertTrue(es_hora_valida(12.5))
         self.assertTrue(es_hora_valida(1))
+        self.assertTrue(es_hora_valida(1000000))
+        self.assertFalse(es_hora_valida(1000001))
         self.assertFalse(es_hora_valida(0))
         self.assertFalse(es_hora_valida(-1))
         self.assertFalse(es_hora_valida(float("nan")))
@@ -177,6 +182,17 @@ class PruebasEscritura(unittest.TestCase):
         self.assertEqual(limpia_texto("a\x01b\x1fc"), "abc")
         self.assertEqual(limpia_texto("linea\nnormal"), "linea\nnormal")
         self.assertEqual(len(limpia_texto("x" * 40000)), 32767)
+
+    def test_limpiar_temporales(self):
+        with tempfile.TemporaryDirectory() as d:
+            viejo = os.path.join(d, ".tmp_resto.tmp")
+            with open(viejo, "w", encoding="utf-8") as f:
+                f.write("x")
+            with open(os.path.join(d, "horas.json"), "w", encoding="utf-8") as f:
+                f.write("{}")
+            limpiar_temporales(d)
+            self.assertFalse(os.path.exists(viejo))
+            self.assertTrue(os.path.exists(os.path.join(d, "horas.json")))
 
     def test_purga_se_niega_si_falla_una_base(self):
         with tempfile.TemporaryDirectory() as d:
