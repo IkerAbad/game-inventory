@@ -16,7 +16,7 @@ if RAIZ not in sys.path:
 
 import openpyxl
 
-from inventario.cli import main
+from inventory.cli import main
 
 
 def juego(nombre, gb):
@@ -30,12 +30,12 @@ class PruebasIntegracion(unittest.TestCase):
             datos = os.path.join(d, "datos")
             os.makedirs(datos)
             rutas = {
-                "HORAS_JSON": os.path.join(datos, "horas.json"),
+                "HOURS_JSON": os.path.join(datos, "hours.json"),
                 "WISHLIST_JSON": os.path.join(datos, "wishlist.json"),
-                "COMPLETADOS_JSON": os.path.join(datos, "completados.json"),
-                "JUGANDO_JSON": os.path.join(datos, "jugando.json"),
+                "COMPLETED_JSON": os.path.join(datos, "completed.json"),
+                "PLAYING_JSON": os.path.join(datos, "playing.json"),
             }
-            with open(rutas["HORAS_JSON"], "w", encoding="utf-8") as f:
+            with open(rutas["HOURS_JSON"], "w", encoding="utf-8") as f:
                 json.dump({
                     "juego a": 10.0,
                     "juego b": None,
@@ -49,39 +49,39 @@ class PruebasIntegracion(unittest.TestCase):
                     "_notas": {"Juego C": "PRENSA (prueba)"},
                     "_metacritic": {}, "_steam": {}, "_dificultad": {},
                 }, f)
-            with open(rutas["COMPLETADOS_JSON"], "w", encoding="utf-8") as f:
+            with open(rutas["COMPLETED_JSON"], "w", encoding="utf-8") as f:
                 json.dump([], f)
-            with open(rutas["JUGANDO_JSON"], "w", encoding="utf-8") as f:
+            with open(rutas["PLAYING_JSON"], "w", encoding="utf-8") as f:
                 json.dump(["Juego A"], f)
 
             salida = os.path.join(d, "salida.xlsx")
             juegos = [juego("Juego A", 2.0), juego("Juego B", 1.0)]
-            with mock.patch.multiple("inventario.cli", DATOS=datos, **rutas), \
-                 mock.patch("inventario.cli.escanear", return_value=(juegos, [])), \
-                 mock.patch("inventario.excel.HISTORICO_CSV",
-                            os.path.join(datos, "historico.csv")):
+            with mock.patch.multiple("inventory.cli", DATA_DIR=datos, **rutas), \
+                 mock.patch("inventory.cli.scan_games", return_value=(juegos, [])), \
+                 mock.patch("inventory.excel.HISTORY_CSV",
+                            os.path.join(datos, "history.csv")):
                 with redirect_stdout(io.StringIO()) as consola:
                     rc = main(["--sin-red", "--conservar", "--salida", salida])
 
             self.assertEqual(rc, 0, consola.getvalue())
             self.assertTrue(os.path.exists(salida))
-            self.assertTrue(os.path.exists(os.path.join(datos, "historico.csv")))
+            self.assertTrue(os.path.exists(os.path.join(datos, "history.csv")))
             wb = openpyxl.load_workbook(salida)
             self.assertEqual(wb.sheetnames,
-                             ["Juegos", "Espacio", "Resumen", "Plan", "Historico", "Wishlist"])
-            self.assertEqual(wb["Juegos"].max_row, 7)
-            self.assertEqual(wb["Juegos"]["A5"].value, "Juego A")
-            self.assertIn("EN CURSO", wb["Juegos"]["F5"].value)
-            self.assertEqual(wb["Juegos"]["H5"].value, 85)
-            self.assertEqual(wb["Juegos"]["A6"].value, "Juego B")
-            self.assertIn("SIN FINAL", wb["Juegos"]["F6"].value)
+                             ["Games", "Space", "Summary", "Plan", "History", "Wishlist"])
+            self.assertEqual(wb["Games"].max_row, 7)
+            self.assertEqual(wb["Games"]["A5"].value, "Juego A")
+            self.assertIn("PLAYING", wb["Games"]["F5"].value)
+            self.assertEqual(wb["Games"]["H5"].value, 85)
+            self.assertEqual(wb["Games"]["A6"].value, "Juego B")
+            self.assertIn("NO END", wb["Games"]["F6"].value)
 
 
 class PruebasAbortos(unittest.TestCase):
     def test_aborta_si_la_salida_es_una_carpeta(self):
         with tempfile.TemporaryDirectory() as d:
             datos = os.path.join(d, "datos")
-            with mock.patch("inventario.cli.DATOS", datos):
+            with mock.patch("inventory.cli.DATA_DIR", datos):
                 with redirect_stdout(io.StringIO()):
                     rc = main(["--sin-red", "--salida", d])
             self.assertEqual(rc, 1)
@@ -90,7 +90,7 @@ class PruebasAbortos(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             datos = os.path.join(d, "datos")
             os.makedirs(datos)
-            with mock.patch("inventario.cli.DATOS", datos):
+            with mock.patch("inventory.cli.DATA_DIR", datos):
                 with redirect_stdout(io.StringIO()):
                     rc = main(["--sin-red", "--salida",
                                os.path.join(datos, "x.xlsx")])
@@ -100,8 +100,8 @@ class PruebasAbortos(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             datos = os.path.join(d, "datos")
             os.makedirs(datos)
-            with mock.patch("inventario.cli.DATOS", datos), \
-                 mock.patch("inventario.cli.tomar_bloqueo", return_value=None):
+            with mock.patch("inventory.cli.DATA_DIR", datos), \
+                 mock.patch("inventory.cli.acquire_lock", return_value=None):
                 with redirect_stdout(io.StringIO()):
                     rc = main(["--sin-red", "--salida",
                                os.path.join(d, "x.xlsx")])
@@ -112,16 +112,16 @@ class PruebasAbortos(unittest.TestCase):
             datos = os.path.join(d, "datos")
             os.makedirs(datos)
             rutas = {
-                "HORAS_JSON": os.path.join(datos, "horas.json"),
+                "HOURS_JSON": os.path.join(datos, "hours.json"),
                 "WISHLIST_JSON": os.path.join(datos, "wishlist.json"),
-                "COMPLETADOS_JSON": os.path.join(datos, "completados.json"),
-                "JUGANDO_JSON": os.path.join(datos, "jugando.json"),
+                "COMPLETED_JSON": os.path.join(datos, "completed.json"),
+                "PLAYING_JSON": os.path.join(datos, "playing.json"),
             }
-            with open(rutas["HORAS_JSON"], "w", encoding="utf-8") as f:
+            with open(rutas["HOURS_JSON"], "w", encoding="utf-8") as f:
                 f.write("{ mal")
             salida = os.path.join(d, "x.xlsx")
-            with mock.patch.multiple("inventario.cli", DATOS=datos, **rutas), \
-                 mock.patch("inventario.cli.tomar_bloqueo",
+            with mock.patch.multiple("inventory.cli", DATA_DIR=datos, **rutas), \
+                 mock.patch("inventory.cli.acquire_lock",
                             return_value=mock.MagicMock()):
                 with redirect_stdout(io.StringIO()):
                     rc = main(["--sin-red", "--salida", salida])

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Permite ejecutar el inventario con 'py -m inventario'."""
+"""Run the inventory with 'py -m inventory'."""
 
 from .cli import main
 

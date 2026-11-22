@@ -1,99 +1,104 @@
-# Inventario de juegos
+# Game inventory
 
-[![CI](https://github.com/IkerAbad/inventario-juegos/actions/workflows/ci.yml/badge.svg)](https://github.com/IkerAbad/inventario-juegos/actions/workflows/ci.yml)
-[![Licencia MIT](https://img.shields.io/badge/licencia-MIT-blue.svg)](LICENSE)
+[![CI](https://github.com/IkerAbad/game-inventory/actions/workflows/ci.yml/badge.svg)](https://github.com/IkerAbad/game-inventory/actions/workflows/ci.yml)
+[![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-Escanea las carpetas donde tienes juegos instalados, cruza el tamaño en disco con las horas de la historia principal y genera un Excel con el ratio GB por hora, un plan de borrado, el histórico y la wishlist.
+English | [Español](README.es.md)
 
-## Qué hace
+Scan the folders where your games are installed, cross the disk size with the main-story hours and build an Excel workbook with the GB per hour ratio, a deletion plan, the history and the wishlist. The console and the workbook are available in English and Spanish.
 
-- Escanea las unidades y carpetas configuradas en `inventario/config.py` y mide cada juego en disco.
-- Completa por red las horas que falten (Deku Deals, twoaveragegamers y una estimación con reseñas de Steam), el Metascore y, si no hay Metascore, el porcentaje de reseñas positivas de Steam.
-- Purga de `horas.json` las claves de juegos que ya no están instalados, solo si están todas las unidades.
-- Genera el Excel con las hojas Juegos, Espacio, Resumen, Plan, Historico y, si hay wishlist, Wishlist.
+## What it does
 
-## Requisitos
+- Scans the drives and folders configured in `inventory/config.py` and measures every game on disk.
+- Fills missing hours from the network (Deku Deals, twoaveragegamers and an estimate from Steam reviews), the Metascore and, when there is no Metascore, the share of positive Steam reviews.
+- Purges from `hours.json` the keys of games that are no longer installed, only when every drive is present.
+- Builds the Excel workbook with up to six sheets: Games, Space, Summary, Plan, History and Wishlist.
 
-- Python 3.12 o superior.
-- `openpyxl` (está en `requirements.txt`).
+## Requirements
 
-## Uso
+- Python 3.12 or newer.
+- `openpyxl` (see `requirements.txt`).
+
+## Usage
 
 ```
-cd C:\Dev\inventario-juegos
+cd C:\Dev\game-inventory
 py -m pip install -r requirements.txt
-py generar_inventario.py
+py generate_inventory.py
 ```
 
-También funciona como módulo, desde la misma carpeta:
+Or as a module, from the same folder:
 
 ```
-py -m inventario
+py -m inventory
 ```
 
-O con doble clic en `iniciar.cmd`. Guarda la salida en `datos/ultima_ejecucion.log` y deja la ventana abierta si hay un error.
+Or double-click `start.cmd`. It saves the output to `data/last_run.log` and keeps the window open when there is an error.
 
-Opciones:
+Options:
 
-| Opción | Qué hace |
+| Option | What it does |
 |---|---|
-| `--sin-red` | No consulta internet. |
-| `--conservar` | No purga las claves de juegos desinstalados. |
-| `--forzar-purga` | Permite purgar más de la mitad de las claves de una vez. |
-| `--salida RUTA` | Escribe el Excel en otra ruta. |
+| `--lang en\|es` | Output language for the console and the workbook. Default: `en`. |
+| `--offline`, `--sin-red` | Do not use the network. |
+| `--keep`, `--conservar` | Do not purge uninstalled game keys. |
+| `--force-purge`, `--forzar-purga` | Allow purging more than half of the keys at once. |
+| `--output PATH`, `--salida PATH` | Write the Excel workbook to another path. |
 
-El Excel sale por defecto a `%USERPROFILE%\Desktop\Juegos\Inventario juegos GB por hora.xlsx` y deja una copia `.bak.xlsx` de la ejecución anterior. Ciérralo antes de ejecutar: si está abierto, el script aborta sin escanear nada.
+The workbook is written by default to `%USERPROFILE%\Desktop\Juegos\Inventario juegos GB por hora.xlsx` and keeps a `.bak.xlsx` copy of the previous run. The Spanish file name is kept so the existing workbook is updated in place. Close the workbook before running, otherwise the script stops before scanning anything.
 
-## Datos
+## Data
 
-Todo lo personal vive en `datos/`, que no se versiona. El script crea la carpeta si no existe y lee de ahí.
+All personal data lives in `data/`, which is not versioned. The script creates the folder when it does not exist.
 
-| Fichero | Contenido |
+| File | Content |
 |---|---|
-| `datos/horas.json` | Horas de historia principal por clave normalizada. `null` = sin final. Sus bloques `_metacritic`, `_steam`, `_dificultad` y `_notas` guardan las notas. |
-| `datos/wishlist.json` | Títulos de la wishlist con horas, notas, Metacritic, Steam y dificultad. |
-| `datos/jugando.json` | Claves de lo que estás jugando ahora. |
-| `datos/completados.json` | Claves de lo que ya has terminado y sigue instalado. |
-| `datos/historico.csv` | Una fila por día de ejecución. Alimenta la hoja Historico. |
+| `data/hours.json` | Main-story hours by normalized key. `null` = no end. The `_metacritic`, `_steam`, `_dificultad` and `_notas` blocks keep the notes. |
+| `data/wishlist.json` | Wishlist titles with hours, notes, Metacritic, Steam and difficulty. |
+| `data/playing.json` | Keys of the games you are playing now. |
+| `data/completed.json` | Keys of the games you finished but still have installed. |
+| `data/history.csv` | One row per run day. It feeds the History sheet. |
 
-## Robustez
+The source notes inside the JSON files keep the language they were written in.
 
-- Si un JSON tiene un error de sintaxis, el script aborta, indica la línea y la columna, y no escribe nada.
-- Los valores de horas que no sean números positivos, `null` o `"?"` se tratan como sin datos y se avisan.
-- Antes de purgar, `horas.json` se copia a `horas.json.bak`.
-- La purga se niega si borraría más de la mitad de las claves. Para hacerlo igual, `--forzar-purga`.
-- Si el histórico no se puede leer o tiene filas rotas, el original se guarda como `historico.csv.corrupto`.
-- Los JSON, el histórico y el Excel se escriben en un temporal y se renombran: un fallo a mitad no deja ficheros corruptos.
-- Si el Excel está abierto, aborta antes de escanear.
-- Solo puede haber una ejecución a la vez: un bloqueo en `datos/` impide dos procesos simultáneos.
-- Acepta JSON con BOM y descarta filas corruptas del histórico con un aviso.
+## Robustness
 
-## Estructura
+- A syntax error in a JSON file aborts the run, shows the line and column, and writes nothing.
+- Hours that are not positive numbers, `null` or `"?"` are treated as no data and reported.
+- JSON, history and the workbook are written to a temporary file and renamed, so a mid-write failure leaves no corrupt file.
+- The purge keeps `hours.json.bak` and refuses to remove more than half of the keys without `--force-purge`.
+- If the history cannot be read or has broken rows, the original is kept as `history.csv.corrupto`.
+- If the workbook is open, the script stops before scanning.
+- Only one run can be active at a time, enforced by a lock in `data/`.
+- BOM-prefixed JSON is accepted and broken history rows are skipped with a warning.
 
-```
-generar_inventario.py      punto de entrada
-inventario/
-  config.py                unidades, rutas y ajustes de red
-  datos.py                 JSON: carga, formato y escritura segura
-  escaneo.py               tamaño, días instalado y bloqueo del Excel
-  formato.py               celdas: Metacritic, Steam y dificultad
-  excel.py                 hojas, estilos, gráficos y comparativas
-  red.py                   autocompletado por red
-  cli.py                   opciones, orquestación y resumen por consola
-pruebas/                   pruebas unitarias
-datos/                     JSON, CSV y LEEME (no versionado)
-```
-
-## Pruebas
+## Structure
 
 ```
-py -m unittest discover -s pruebas -v
+generate_inventory.py      entry point
+inventory/
+  config.py                drives, paths and network settings
+  data.py                  JSON: loading, formatting and safe writing
+  scan.py                  size, days installed and workbook lock
+  cell_format.py           cells: Metacritic, Steam and difficulty
+  excel.py                 sheets, styles, charts and comparisons
+  network.py               network autocomplete
+  i18n.py                  English and Spanish strings
+  cli.py                   options, orchestration and console summary
+tests/                     unit and end-to-end tests
+start.cmd                  Windows launcher
 ```
 
-## Documentación
+## Tests
 
-El `LEEME.md` de la carpeta `datos/` explica el método, las fuentes, los valores dudosos y el historial de decisiones. No se versiona.
+```
+py -m unittest discover -s tests -v
+```
 
-## Licencia
+## Documentation
 
-MIT. Ver `LICENSE`.
+`README.es.md` is the Spanish version. The personal notes with sources and decisions live in `data/NOTES.md`, which is not versioned.
+
+## License
+
+MIT. See `LICENSE`.
