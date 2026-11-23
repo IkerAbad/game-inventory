@@ -60,7 +60,9 @@ def duplicate_keys(path):
 
 def main():
     problems = compare(TEXT["en"], TEXT["es"])
-    problems += duplicate_keys("inventory/i18n.py")
+    source = os.path.join(ROOT, "inventory", "i18n.py")
+    if os.path.exists(source):
+        problems += duplicate_keys(source)
     if problems:
         for problem in problems:
             print("FAIL: " + problem)

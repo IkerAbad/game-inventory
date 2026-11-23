@@ -236,6 +236,13 @@ class CheckI18nTests(unittest.TestCase):
         self.assertIn("OK i18n", out.getvalue())
         self.assertIn("%d keys" % len(check_i18n.TEXT["en"]), out.getvalue())
 
+    def test_main_without_source_file(self):
+        with tempfile.TemporaryDirectory() as d:
+            with mock.patch("tools.check_i18n.ROOT", d):
+                with redirect_stdout(io.StringIO()) as out:
+                    self.assertEqual(check_i18n.main(), 0)
+        self.assertIn("OK i18n", out.getvalue())
+
 
 class CheckLinksTests(unittest.TestCase):
     def test_reports_only_broken_relative_links(self):

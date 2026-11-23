@@ -2,10 +2,20 @@
 
 All notable changes to this project. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses semantic versioning.
 
-## [Unreleased]
+## [1.0.0] - 2026-11-23
 
 ### Added
 
+- Scan of every configured game library, with size in GB and days installed.
+- Hours from Deku Deals, twoaveragegamers, Steam review estimates, Metascore and Steam review percentage.
+- Excel workbook with Games, Space, Summary, Plan, History and Wishlist sheets.
+- English and Spanish output with `--lang en|es`.
+- Atomic writes for JSON, history and the workbook.
+- Exclusive lock so two runs cannot overlap.
+- Backup before purging and `.corrupto` copy of a broken history.
+- Purge guard that refuses to remove more than half of the keys without `--force-purge`.
+- Installable package with the `game-inventory` console script.
+- Full test suite, coverage gate and lint in CI.
 - `--dry-run` / `--simular`: scan and print the summary without writing the workbook, history, JSON or purging.
 - `--check-data` / `--validar`: validate the JSON data files, `config.json`, stale metadata keys, invalid metadata values, repeated wishlist titles and the history, then exit without scanning or writing.
 - `--strict` / `--estricto`: with `--check-data`, exit with code 1 when there are warnings.
@@ -43,6 +53,8 @@ All notable changes to this project. The format follows [Keep a Changelog](https
 - `docs/DATA.md` and `docs/ARCHITECTURE.md`, and `SECURITY.md`.
 - `docs/EXAMPLES.md`: console, workbook and data folder examples.
 - `docs/FAQ.md`: common questions about privacy, hours, libraries and errors.
+- `docs/BENCHMARKS.md`: scan and workbook times for 100, 500 and 1000 games, plus the real library.
+- `tests/test_offline.py`: blocks `socket.socket` and `socket.create_connection` and proves that `--offline` never opens a socket.
 - Issue forms, pull request template and EditorConfig.
 - CodeQL analysis on every push and pull request, and weekly.
 - Release workflow: a `v*` tag builds the wheel and sdist, checks them and publishes a GitHub release.
@@ -64,21 +76,7 @@ All notable changes to this project. The format follows [Keep a Changelog](https
 - Coverage gate raised from 97% to 98%; Windows and Ubuntu currently report 99%.
 - Coverage source and the 98% gate live in `pyproject.toml`.
 - The installed `game-inventory` command reads `data/` from the source checkout or the current folder. `GAME_INVENTORY_DATA` overrides it.
-
-## [1.0.0] - 2026-11-22
-
-### Added
-
-- Scan of every configured game library, with size in GB and days installed.
-- Hours from Deku Deals, twoaveragegamers, Steam review estimates, Metascore and Steam review percentage.
-- Excel workbook with Games, Space, Summary, Plan, History and Wishlist sheets.
-- English and Spanish output with `--lang en|es`.
-- Atomic writes for JSON, history and the workbook.
-- Exclusive lock so two runs cannot overlap.
-- Backup before purging and `.corrupto` copy of a broken history.
-- Purge guard that refuses to remove more than half of the keys without `--force-purge`.
-- Installable package with the `game-inventory` console script.
-- 154 tests, coverage gate and lint in CI.
+- README: limitations, test setup, PyPI install and benchmark links.
 
 ### Security
 

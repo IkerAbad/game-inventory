@@ -23,6 +23,30 @@ Scan the folders where your games are installed, cross the disk size with the ma
 - Network access is optional: `--offline` skips every request.
 - The default libraries are Windows paths; `data/config.json` adapts them to any system.
 
+## Limitations
+
+- Hours are main-story estimates from third-party pages (Deku Deals, twoaveragegamers and Steam reviews). Those pages can change, rate-limit or block requests, and title matching can miss a game or pick another edition.
+- With `--offline` there are no requests at all, so missing hours, Metascores and Steam percentages stay empty. The rest of the workbook is still built.
+- Metascore and the Steam percentage use different scales and are never mixed into one number.
+- It does not measure real playtime, achievements, save files, DLC owned separately, cloud libraries that are not installed, or games outside the configured folders.
+- Folder size is the size on disk, not the download size. Compression, sparse files and hard links can make them differ.
+- The verdicts are a suggestion based on GB per hour and the quartiles of the current list, not a recommendation.
+- The default libraries are Windows paths; other systems need `data/config.json`.
+- Some workbook dates are formulas, so Excel or LibreOffice has to recalculate after opening.
+- Network access is best effort: there is a request budget and stored data, but no guarantee that a source answers.
+- It never uninstalls or deletes a game. The purge only removes stale keys from `hours.json`, after a backup.
+
+## Tests
+
+```
+py -m venv .venv
+.venv\Scripts\activate
+py -m pip install -e ".[dev]"
+py -m unittest discover -s tests
+```
+
+Run from the repository root. Without `openpyxl`, three test modules fail at import with `ModuleNotFoundError: No module named 'openpyxl'`; that is a missing dependency, not a failing test. `pip install -e .` or `pip install -r requirements.txt` installs it. Reproduced on 2026-11-23: a clean venv collected 106 tests with 3 import errors, and after installing `requirements.txt` the same command ran 258 tests with `OK`.
+
 ## Install as a package
 
 ```
@@ -30,12 +54,18 @@ py -m pip install .
 game-inventory --lang es
 ```
 
+From PyPI:
+
+```
+py -m pip install game-inventory
+```
+
 The direct script and module commands below also work without installing. When installed, `data/` is read from the current folder unless `GAME_INVENTORY_DATA` points to another one.
 
 Or as an isolated command with [pipx](https://pipx.pypa.io):
 
 ```
-pipx install .
+pipx install game-inventory
 game-inventory --version
 ```
 
@@ -130,6 +160,7 @@ docs/
   ARCHITECTURE.md          flow, modules and guarantees
   EXAMPLES.md              console, workbook and data folder examples
   FAQ.md                   common questions
+  BENCHMARKS.md            measured scan and workbook times
 tools/
   check_all.py             runs pyflakes, link and translation checks
   check_dist.py            checks the wheel and sdist contents
@@ -148,17 +179,6 @@ tests/                     unit and end-to-end tests
 start.cmd                  Windows launcher
 ```
 
-## Tests
-
-```
-py -m pip install -r requirements-dev.txt
-py -m coverage run --source=inventory -m unittest discover -s tests -v
-py -m coverage report -m
-py -m pyflakes inventory generate_inventory.py tests
-```
-
-The CI fails below 98% coverage.
-
 ## Documentation
 
 `README.es.md` is the Spanish version. The personal notes with sources and decisions live in `data/NOTES.md`, which is not versioned.
@@ -169,6 +189,7 @@ The CI fails below 98% coverage.
 - [Architecture](docs/ARCHITECTURE.md) / [Arquitectura](docs/ARCHITECTURE.es.md)
 - [Examples](docs/EXAMPLES.md) / [Ejemplos](docs/EXAMPLES.es.md)
 - [FAQ](docs/FAQ.md) / [Preguntas frecuentes](docs/FAQ.es.md)
+- [Benchmarks](docs/BENCHMARKS.md) / [Rendimiento](docs/BENCHMARKS.es.md)
 - [Security](SECURITY.md) / [Seguridad](SECURITY.es.md)
 
 ## License

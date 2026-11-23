@@ -2,10 +2,20 @@
 
 Cambios destacados del proyecto. El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto usa versionado semántico.
 
-## [Sin publicar]
+## [1.0.0] - 2026-11-23
 
 ### Añadido
 
+- Escaneo de todas las bibliotecas configuradas, con tamaño en GB y días instalado.
+- Horas de Deku Deals, twoaveragegamers, estimación con reseñas de Steam, Metascore y porcentaje de reseñas de Steam.
+- Excel con las hojas Games, Space, Summary, Plan, History y Wishlist.
+- Salida en inglés y español con `--lang en|es`.
+- Escritura atómica de JSON, histórico y libro.
+- Bloqueo exclusivo para que no se solapen dos ejecuciones.
+- Copia antes de purgar y copia `.corrupto` del histórico roto.
+- Freno de purga que se niega a borrar más de la mitad de las claves sin `--force-purge`.
+- Paquete instalable con el comando `game-inventory`.
+- Suite completa de pruebas, umbral de cobertura y lint en CI.
 - `--dry-run` / `--simular`: escanea y muestra el resumen sin escribir el libro, el histórico, los JSON ni purgar.
 - `--check-data` / `--validar`: valida los ficheros JSON, `config.json`, las claves de metadatos huérfanas, los valores de metadatos inválidos, los títulos repetidos de la wishlist y el histórico, y sale sin escanear ni escribir.
 - `--strict` / `--estricto`: con `--check-data`, sale con código 1 si hay avisos.
@@ -43,6 +53,8 @@ Cambios destacados del proyecto. El formato sigue [Keep a Changelog](https://kee
 - `docs/DATA.es.md`, `docs/ARCHITECTURE.es.md` y `SECURITY.es.md`.
 - `docs/EXAMPLES.es.md`: ejemplos de consola, libro y carpeta de datos.
 - `docs/FAQ.es.md`: dudas sobre privacidad, horas, bibliotecas y errores.
+- `docs/BENCHMARKS.es.md`: tiempos de escaneo y libro para 100, 500 y 1000 juegos, y la biblioteca real.
+- `tests/test_offline.py`: bloquea `socket.socket` y `socket.create_connection` y demuestra que `--offline` no abre ningún socket.
 - Plantillas de incidencia y de pull request, y EditorConfig.
 - Análisis CodeQL en cada push, en cada pull request y semanal.
 - Flujo de release: una etiqueta `v*` construye el wheel y el sdist, los revisa y publica una release de GitHub.
@@ -64,21 +76,7 @@ Cambios destacados del proyecto. El formato sigue [Keep a Changelog](https://kee
 - Umbral de cobertura subido del 97% al 98%; Windows y Ubuntu dan ahora un 99%.
 - La fuente de cobertura y el umbral del 98% viven en `pyproject.toml`.
 - El comando instalado `game-inventory` lee `data/` del checkout o de la carpeta actual. `GAME_INVENTORY_DATA` lo cambia.
-
-## [1.0.0] - 2026-11-22
-
-### Añadido
-
-- Escaneo de todas las bibliotecas configuradas, con tamaño en GB y días instalado.
-- Horas de Deku Deals, twoaveragegamers, estimación con reseñas de Steam, Metascore y porcentaje de reseñas de Steam.
-- Excel con las hojas Games, Space, Summary, Plan, History y Wishlist.
-- Salida en inglés y español con `--lang en|es`.
-- Escritura atómica de JSON, histórico y libro.
-- Bloqueo exclusivo para que no se solapen dos ejecuciones.
-- Copia antes de purgar y copia `.corrupto` del histórico roto.
-- Freno de purga que se niega a borrar más de la mitad de las claves sin `--force-purge`.
-- Paquete instalable con el comando `game-inventory`.
-- 154 pruebas, umbral de cobertura y lint en CI.
+- README: limitaciones, preparación de pruebas, instalación desde PyPI y enlaces a benchmarks.
 
 ### Seguridad
 

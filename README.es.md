@@ -23,6 +23,30 @@ Escanea las carpetas donde tienes juegos instalados, cruza el tamaño en disco c
 - La red es opcional: `--offline` no hace ninguna petición.
 - Las bibliotecas por defecto son rutas de Windows; `data/config.json` las adapta a cualquier sistema.
 
+## Limitaciones
+
+- Las horas son estimaciones de historia principal de páginas de terceros (Deku Deals, twoaveragegamers y reseñas de Steam). Esas páginas pueden cambiar, limitar o bloquear peticiones, y el casado por título puede fallar o elegir otra edición.
+- Con `--offline` no hay ninguna petición, así que las horas, los Metascores y los porcentajes de Steam que falten quedan vacíos. El resto del libro se construye igual.
+- El Metascore y el porcentaje de Steam usan escalas distintas y nunca se mezclan en un solo número.
+- No mide tiempo real de juego, logros, partidas guardadas, DLC comprado aparte, bibliotecas en la nube que no estén instaladas ni juegos fuera de las carpetas configuradas.
+- El tamaño de carpeta es lo que ocupa en disco, no lo que se descarga. La compresión, los ficheros dispersos y los enlaces duros pueden hacer que no coincidan.
+- Los veredictos son una sugerencia según GB por hora y los cuartiles de la lista actual, no una recomendación.
+- Las bibliotecas por defecto son rutas de Windows; otros sistemas necesitan `data/config.json`.
+- Algunas fechas del libro son fórmulas, así que Excel o LibreOffice tienen que recalcular al abrirlo.
+- La red es un extra: hay un presupuesto de peticiones y datos guardados, pero no hay garantía de que una fuente responda.
+- Nunca desinstala ni borra un juego. La purga solo quita claves viejas de `hours.json`, después de una copia.
+
+## Pruebas
+
+```
+py -m venv .venv
+.venv\Scripts\activate
+py -m pip install -e ".[dev]"
+py -m unittest discover -s tests
+```
+
+Ejecuta desde la raíz del repositorio. Sin `openpyxl`, tres módulos de pruebas fallan al importar con `ModuleNotFoundError: No module named 'openpyxl'`; es una dependencia que falta, no un fallo de las pruebas. `pip install -e .` o `pip install -r requirements.txt` lo instala. Reproducido el 2026-11-23: un venv limpio recogió 106 pruebas con 3 errores de importación, y tras instalar `requirements.txt` el mismo comando ejecutó 258 pruebas con `OK`.
+
 ## Instalar como paquete
 
 ```
@@ -30,12 +54,18 @@ py -m pip install .
 game-inventory --lang es
 ```
 
+Desde PyPI:
+
+```
+py -m pip install game-inventory
+```
+
 Los comandos directos de abajo también funcionan sin instalar. Instalado, `data/` se lee de la carpeta actual salvo que `GAME_INVENTORY_DATA` apunte a otra.
 
 O como comando aislado con [pipx](https://pipx.pypa.io):
 
 ```
-pipx install .
+pipx install game-inventory
 game-inventory --version
 ```
 
@@ -130,6 +160,7 @@ docs/
   ARCHITECTURE.es.md       flujo, módulos y garantías
   EXAMPLES.es.md           ejemplos de consola, libro y carpeta de datos
   FAQ.es.md                preguntas frecuentes
+  BENCHMARKS.es.md         tiempos medidos de escaneo y libro
 tools/
   check_all.py             ejecuta pyflakes, enlaces y traducciones
   check_dist.py            comprueba el contenido del wheel y del sdist
@@ -148,17 +179,6 @@ tests/                     pruebas unitarias y de extremo a extremo
 start.cmd                  lanzador de Windows
 ```
 
-## Pruebas
-
-```
-py -m pip install -r requirements-dev.txt
-py -m coverage run --source=inventory -m unittest discover -s tests -v
-py -m coverage report -m
-py -m pyflakes inventory generate_inventory.py tests
-```
-
-El CI falla por debajo del 98% de cobertura.
-
 ## Documentación
 
 `README.md` es la versión inglesa. Las notas personales con fuentes y decisiones viven en `data/NOTES.md`, que no se versiona.
@@ -169,6 +189,7 @@ El CI falla por debajo del 98% de cobertura.
 - [Architecture](docs/ARCHITECTURE.md) / [Arquitectura](docs/ARCHITECTURE.es.md)
 - [Examples](docs/EXAMPLES.md) / [Ejemplos](docs/EXAMPLES.es.md)
 - [FAQ](docs/FAQ.md) / [Preguntas frecuentes](docs/FAQ.es.md)
+- [Benchmarks](docs/BENCHMARKS.md) / [Rendimiento](docs/BENCHMARKS.es.md)
 - [Security](SECURITY.md) / [Seguridad](SECURITY.es.md)
 
 ## Licencia
