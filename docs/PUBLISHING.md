@@ -20,7 +20,7 @@ The build produces `dist/game_inventory-1.0.0-py3-none-any.whl` and `dist/game_i
 - Workflow name: `pypi.yml`
 - Environment: `pypi`
 
-Then publish a GitHub release or run the workflow manually. Without the pending publisher the action fails with `invalid-publisher`; it does not fall back to a token.
+Then run the `PyPI` workflow manually from the Actions tab after the pending publisher is saved. Without the pending publisher the action fails with `invalid-publisher`; it does not fall back to a token.
 
 ## Token alternative
 

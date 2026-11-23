@@ -20,7 +20,7 @@ La construcción genera `dist/game_inventory-1.0.0-py3-none-any.whl` y `dist/gam
 - Nombre del workflow: `pypi.yml`
 - Entorno: `pypi`
 
-Después publica una release de GitHub o lanza el workflow a mano. Sin el publicador pendiente, la acción falla con `invalid-publisher`; no usa un token como respaldo.
+Después lanza el workflow `PyPI` a mano desde la pestaña Actions cuando el publicador pendiente esté guardado. Sin el publicador pendiente, la acción falla con `invalid-publisher`; no usa un token como respaldo.
 
 ## Alternativa con token
 
