@@ -54,18 +54,12 @@ py -m pip install .
 game-inventory --lang es
 ```
 
-Desde PyPI:
-
-```
-py -m pip install game-inventory
-```
-
 Los comandos directos de abajo también funcionan sin instalar. Instalado, `data/` se lee de la carpeta actual salvo que `GAME_INVENTORY_DATA` apunte a otra.
 
 O como comando aislado con [pipx](https://pipx.pypa.io):
 
 ```
-pipx install game-inventory
+pipx install .
 game-inventory --version
 ```
 
@@ -161,6 +155,7 @@ docs/
   EXAMPLES.es.md           ejemplos de consola, libro y carpeta de datos
   FAQ.es.md                preguntas frecuentes
   BENCHMARKS.es.md         tiempos medidos de escaneo y libro
+  PUBLISHING.es.md         construcción, PyPI y trusted publishing
 tools/
   check_all.py             ejecuta pyflakes, enlaces y traducciones
   check_dist.py            comprueba el contenido del wheel y del sdist
@@ -190,6 +185,7 @@ start.cmd                  lanzador de Windows
 - [Examples](docs/EXAMPLES.md) / [Ejemplos](docs/EXAMPLES.es.md)
 - [FAQ](docs/FAQ.md) / [Preguntas frecuentes](docs/FAQ.es.md)
 - [Benchmarks](docs/BENCHMARKS.md) / [Rendimiento](docs/BENCHMARKS.es.md)
+- [Publishing](docs/PUBLISHING.md) / [Publicación](docs/PUBLISHING.es.md)
 - [Security](SECURITY.md) / [Seguridad](SECURITY.es.md)
 
 ## Licencia

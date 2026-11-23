@@ -54,18 +54,12 @@ py -m pip install .
 game-inventory --lang es
 ```
 
-From PyPI:
-
-```
-py -m pip install game-inventory
-```
-
 The direct script and module commands below also work without installing. When installed, `data/` is read from the current folder unless `GAME_INVENTORY_DATA` points to another one.
 
 Or as an isolated command with [pipx](https://pipx.pypa.io):
 
 ```
-pipx install game-inventory
+pipx install .
 game-inventory --version
 ```
 
@@ -161,6 +155,7 @@ docs/
   EXAMPLES.md              console, workbook and data folder examples
   FAQ.md                   common questions
   BENCHMARKS.md            measured scan and workbook times
+  PUBLISHING.md            build, PyPI and trusted publishing
 tools/
   check_all.py             runs pyflakes, link and translation checks
   check_dist.py            checks the wheel and sdist contents
@@ -190,6 +185,7 @@ start.cmd                  Windows launcher
 - [Examples](docs/EXAMPLES.md) / [Ejemplos](docs/EXAMPLES.es.md)
 - [FAQ](docs/FAQ.md) / [Preguntas frecuentes](docs/FAQ.es.md)
 - [Benchmarks](docs/BENCHMARKS.md) / [Rendimiento](docs/BENCHMARKS.es.md)
+- [Publishing](docs/PUBLISHING.md) / [Publicación](docs/PUBLISHING.es.md)
 - [Security](SECURITY.md) / [Seguridad](SECURITY.es.md)
 
 ## License

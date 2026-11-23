@@ -48,6 +48,6 @@ Run the checks above and keep the change focused. Mention behaviour changes, new
 
 1. Set the new version in `inventory/__init__.py` and move the changelog entries from `Unreleased` to that version, in both languages.
 2. Commit, then create and push the tag: `git tag v1.0.1` and `git push --tags`.
-3. The Release workflow checks that the tag matches the version and that both changelogs have a section for it, builds the wheel and the sdist, checks them and opens a GitHub release with the notes.
+3. The Release workflow checks that the tag matches the version and that both changelogs have a section for it, builds the wheel and the sdist, checks them and opens a GitHub release with the notes. PyPI uses Trusted Publishing; see [docs/PUBLISHING.md](docs/PUBLISHING.md).
 
 CodeQL runs on every push and pull request, and once a week.

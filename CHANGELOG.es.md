@@ -54,6 +54,7 @@ Cambios destacados del proyecto. El formato sigue [Keep a Changelog](https://kee
 - `docs/EXAMPLES.es.md`: ejemplos de consola, libro y carpeta de datos.
 - `docs/FAQ.es.md`: dudas sobre privacidad, horas, bibliotecas y errores.
 - `docs/BENCHMARKS.es.md`: tiempos de escaneo y libro para 100, 500 y 1000 juegos, y la biblioteca real.
+- `docs/PUBLISHING.es.md`: construcción, PyPI Trusted Publishing y la alternativa con token.
 - `tests/test_offline.py`: bloquea `socket.socket` y `socket.create_connection` y demuestra que `--offline` no abre ningún socket.
 - Plantillas de incidencia y de pull request, y EditorConfig.
 - Análisis CodeQL en cada push, en cada pull request y semanal.
@@ -76,7 +77,7 @@ Cambios destacados del proyecto. El formato sigue [Keep a Changelog](https://kee
 - Umbral de cobertura subido del 97% al 98%; Windows y Ubuntu dan ahora un 99%.
 - La fuente de cobertura y el umbral del 98% viven en `pyproject.toml`.
 - El comando instalado `game-inventory` lee `data/` del checkout o de la carpeta actual. `GAME_INVENTORY_DATA` lo cambia.
-- README: limitaciones, preparación de pruebas, instalación desde PyPI y enlaces a benchmarks.
+- README: limitaciones, preparación de pruebas y enlaces a benchmarks.
 
 ### Seguridad
 

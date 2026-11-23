@@ -54,6 +54,7 @@ All notable changes to this project. The format follows [Keep a Changelog](https
 - `docs/EXAMPLES.md`: console, workbook and data folder examples.
 - `docs/FAQ.md`: common questions about privacy, hours, libraries and errors.
 - `docs/BENCHMARKS.md`: scan and workbook times for 100, 500 and 1000 games, plus the real library.
+- `docs/PUBLISHING.md`: build, PyPI Trusted Publishing and the token alternative.
 - `tests/test_offline.py`: blocks `socket.socket` and `socket.create_connection` and proves that `--offline` never opens a socket.
 - Issue forms, pull request template and EditorConfig.
 - CodeQL analysis on every push and pull request, and weekly.
@@ -76,7 +77,7 @@ All notable changes to this project. The format follows [Keep a Changelog](https
 - Coverage gate raised from 97% to 98%; Windows and Ubuntu currently report 99%.
 - Coverage source and the 98% gate live in `pyproject.toml`.
 - The installed `game-inventory` command reads `data/` from the source checkout or the current folder. `GAME_INVENTORY_DATA` overrides it.
-- README: limitations, test setup, PyPI install and benchmark links.
+- README: limitations, test setup and benchmark links.
 
 ### Security
 
