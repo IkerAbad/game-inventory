@@ -18,8 +18,8 @@ py -m pip install -e ".[dev]"
 
 ```
 py tools/check_all.py
-py -m coverage run --source=inventory -m unittest discover -s tests -v
-py -m coverage report -m
+py -m coverage run -m unittest discover -s tests -v
+py -m coverage report
 ```
 
 `check_all.py` runs pyflakes, the documentation link check and the translation check.

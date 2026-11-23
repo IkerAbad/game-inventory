@@ -64,6 +64,7 @@ Opciones:
 | `--force-purge`, `--forzar-purga` | Permite purgar más de la mitad de las claves de una vez. |
 | `--dry-run`, `--simular` | Escanea y muestra el resumen sin escribir nada. |
 | `--top N` | Muestra los N mejores GB/h que no estén completados ni en curso (0 lo desactiva). |
+| `--report RUTA`, `--informe RUTA` | Escribe un resumen Markdown al terminar. |
 | `--open`, `--abrir` | Abre el libro guardado con la aplicación predeterminada. |
 | `--check-data`, `--validar` | Valida los ficheros JSON, las claves de metadatos huérfanas, los valores de metadatos inválidos, los títulos repetidos de la wishlist y el histórico, y sale. |
 | `--strict`, `--estricto` | Con `--check-data`, sale con código 1 si encuentra avisos. |
@@ -127,6 +128,7 @@ docs/
   DATA.es.md               formatos de datos y copias
   ARCHITECTURE.es.md       flujo, módulos y garantías
   EXAMPLES.es.md           ejemplos de consola, libro y carpeta de datos
+  FAQ.es.md                preguntas frecuentes
 tools/
   check_all.py             ejecuta pyflakes, enlaces y traducciones
   check_dist.py            comprueba el contenido del wheel y del sdist
@@ -164,6 +166,7 @@ El CI falla por debajo del 98% de cobertura.
 - [Data formats](docs/DATA.md) / [Formatos de datos](docs/DATA.es.md)
 - [Architecture](docs/ARCHITECTURE.md) / [Arquitectura](docs/ARCHITECTURE.es.md)
 - [Examples](docs/EXAMPLES.md) / [Ejemplos](docs/EXAMPLES.es.md)
+- [FAQ](docs/FAQ.md) / [Preguntas frecuentes](docs/FAQ.es.md)
 - [Security](SECURITY.md) / [Seguridad](SECURITY.es.md)
 
 ## Licencia

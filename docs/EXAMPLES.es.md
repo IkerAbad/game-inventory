@@ -38,6 +38,27 @@ Historico: 8 dias, ultimo 2026-11-22 (0 filas malas)
 
 Añade `--strict` para que devuelva código 1 si alguno de esos contadores no es cero.
 
+## Informe Markdown
+
+`--report informe.md` escribe un resumen al terminar:
+
+```
+# Inventario de juegos - 2026-11-23
+
+- Juegos: 42
+- Instalado: 380.12 GB
+- Horas pendientes: 512.4 (128 dias a 4 h/dia)
+- Cuartiles GB/h: Malo < 0.25 | Medio < 0.60 | Bueno < 1.40 | JUGAR YA >= 1.40
+
+## Mejores elecciones
+
+1. **Example Game** - 2.10 GB/h, 12 h, 25.2 GB
+
+Libro: `C:\Users\me\Desktop\Juegos\Inventario juegos GB por hora.xlsx`
+```
+
+`--dry-run` no escribe informe, porque no escribe nada.
+
 ## Libro
 
 | Hoja | Contenido |

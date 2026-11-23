@@ -38,6 +38,27 @@ History: 8 days, last 2026-11-22 (0 bad rows)
 
 Add `--strict` to return exit code 1 when any of those warning counters is not zero.
 
+## Markdown report
+
+`--report report.md` writes a summary after the run:
+
+```
+# Game inventory - 2026-11-23
+
+- Games: 42
+- Installed: 380.12 GB
+- Pending hours: 512.4 (128 days at 4 h/day)
+- GB/h quartiles: Bad < 0.25 | Medium < 0.60 | Good < 1.40 | PLAY NOW >= 1.40
+
+## Top picks
+
+1. **Example Game** - 2.10 GB/h, 12 h, 25.2 GB
+
+Workbook: `C:\Users\me\Desktop\Juegos\Inventario juegos GB por hora.xlsx`
+```
+
+`--dry-run` writes no report, because it writes nothing at all.
+
 ## Workbook
 
 | Sheet | Content |

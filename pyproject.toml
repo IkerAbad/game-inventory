@@ -41,3 +41,10 @@ packages = ["inventory"]
 
 [tool.setuptools.dynamic]
 version = {attr = "inventory.__version__"}
+
+[tool.coverage.run]
+source = ["inventory"]
+
+[tool.coverage.report]
+fail_under = 98
+show_missing = true

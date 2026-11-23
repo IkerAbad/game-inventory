@@ -15,7 +15,7 @@ from .config import (COMPLETED_JSON, CONFIG_JSON, DATA_DIR, HOURS_JSON, LIBRARIE
                      LOOSE_PATHS, OUTPUT, PLAYING_JSON, WISHLIST_JSON)
 from . import __version__
 from .data import (acquire_lock, clean_hours, clean_temp_files, is_valid_hours,
-                   normalize, purge_hours, read_json, read_keys)
+                   normalize, purge_hours, read_json, read_keys, write_atomic)
 from .excel import build_workbook, read_history
 from .i18n import set_lang, t
 from .network import autocomplete
@@ -78,6 +78,52 @@ def print_top(games, limit):
     for i, j in enumerate(picks, 1):
         print(t("cli.top_line", i=i, name=j["name"], ratio=j["ratio"],
                 hours=j["hours"], gb=j["gb"]))
+
+
+def build_report(games, total_hours, q1, q2, q3, wishlist, history_rows,
+                 output, limit=5):
+    """Markdown summary of one run. Return the text, write nothing."""
+    lines = [t("report.title", date=datetime.date.today().isoformat()), ""]
+    lines.append(t("report.totals", games=len(games),
+                   gb=sum(j["gb"] for j in games), hours=total_hours,
+                   days=round(total_hours / 4)))
+    lines.append(t("report.quartiles", q1=q1, q2=q2, q3=q3))
+    picks = top_picks(games, limit)
+    lines += ["", t("report.top"), ""]
+    if picks:
+        for i, j in enumerate(picks, 1):
+            lines.append(t("report.top_line", i=i, name=j["name"],
+                           ratio=j["ratio"], hours=j["hours"], gb=j["gb"]))
+    else:
+        lines.append(t("report.none"))
+    completed = [j for j in games if j["completed"]]
+    if completed:
+        lines += ["", t("report.completed"), ""]
+        for j in completed:
+            lines.append(t("report.completed_line", name=j["name"], gb=j["gb"]))
+    playing = [j for j in games if j["playing"]]
+    if playing:
+        lines += ["", t("report.playing"), ""]
+        for j in playing:
+            lines.append(t("report.playing_line", name=j["name"]))
+    if len(history_rows) > 1:
+        a, b = history_rows[-2], history_rows[-1]
+        lines += ["", t("report.history", date=a[0]), "",
+                  t("report.history_line", gb=float(b[2]) - float(a[2]),
+                    hours=float(b[3]) - float(a[3]),
+                    games=int(b[1]) - int(a[1]))]
+    if wishlist:
+        with_hours = sum(1 for value in wishlist.values() if is_valid_hours(value))
+        no_data = sum(1 for value in wishlist.values() if value == "?")
+        lines += ["", t("report.wishlist"), "",
+                  t("report.wishlist_line", n=len(wishlist), hours=with_hours,
+                    no_data=no_data)]
+    lines += ["", t("report.workbook", path=output), ""]
+    return "\n".join(lines)
+
+
+def write_report(path, text):
+    write_atomic(os.path.expanduser(path), text)
 
 
 def check_data(strict=False):
@@ -156,6 +202,10 @@ def check_data(strict=False):
                 metacritic=mc_bad + mc_w,
                 steam=steam_bad + steam_w,
                 difficulty=dif_bad + dif_w))
+        text_bad = _bad_text_fields(hours) + _bad_text_fields(meta)
+        if text_bad:
+            warnings += text_bad
+            print(t("check.text_fields", n=text_bad))
         groups = {}
         for title in wishlist:
             groups.setdefault(normalize(title), []).append(title)
@@ -275,6 +325,19 @@ def _count_int(value):
     return isinstance(value, int) and not isinstance(value, bool) and value >= 0
 
 
+def _bad_text_fields(data):
+    """Count text fields and notes whose value is not a string."""
+    if not isinstance(data, dict):
+        return 0
+    bad = sum(1 for key in ("_comentario", "_usuario", "_fuente_horas",
+                            "_actualizado")
+              if key in data and not isinstance(data[key], str))
+    notes = data.get("_notas")
+    if isinstance(notes, dict):
+        bad += sum(1 for value in notes.values() if not isinstance(value, str))
+    return bad
+
+
 def _bad_metadata(data):
     """Count invalid entries in _metacritic, _steam and _dificultad."""
     if not isinstance(data, dict):
@@ -339,6 +402,8 @@ def main(argv=None):
                         action="store_true", help=t("help.dry_run"))
     parser.add_argument("--top", dest="top", type=int, default=0, metavar="N",
                         help=t("help.top"))
+    parser.add_argument("--report", "--informe", dest="report", default=None,
+                        metavar="PATH", help=t("help.report"))
     parser.add_argument("--open", "--abrir", dest="open_file", action="store_true",
                         help=t("help.open"))
     parser.add_argument("--check-data", "--validar", dest="check_data",
@@ -604,6 +669,14 @@ def main(argv=None):
     if duplicates:
         print("\n" + t("cli.duplicates", names=", ".join(duplicates)))
     print("\n" + t("cli.ok", path=output))
+    if args.report:
+        try:
+            report_path = os.path.expanduser(args.report)
+            write_report(report_path, build_report(
+                games, total_hours, q1, q2, q3, wishlist, history_rows, output))
+            print(t("cli.report_ok", path=report_path))
+        except OSError as e:
+            print(t("cli.report_error", error=e))
     lock.close()
     if args.open_file:
         error = open_file(output)

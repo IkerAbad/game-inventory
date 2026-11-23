@@ -16,6 +16,7 @@ Cambios destacados del proyecto. El formato sigue [Keep a Changelog](https://kee
 - `--open` / `--abrir`: abre el libro con la aplicación predeterminada al guardarlo.
 - Ayuda con ejemplos de uso.
 - `--top N`: muestra los mejores GB/h que no estén completados ni en curso.
+- `--report` / `--informe`: escribe un resumen Markdown de la ejecución.
 - `GAME_INVENTORY_LANG` fija el idioma por defecto; `--lang` tiene prioridad.
 - Ctrl+C se captura: el comando muestra `Cancelado.` y sale con código 130.
 - Metadatos del libro (título, autor, asunto, descripción y palabras clave) y configuración de impresión horizontal ajustada al ancho.
@@ -28,6 +29,7 @@ Cambios destacados del proyecto. El formato sigue [Keep a Changelog](https://kee
 - Textos de ayuda traducidos, así que `--help` sigue a `--lang`.
 - `docs/DATA.es.md`, `docs/ARCHITECTURE.es.md` y `SECURITY.es.md`.
 - `docs/EXAMPLES.es.md`: ejemplos de consola, libro y carpeta de datos.
+- `docs/FAQ.es.md`: dudas sobre privacidad, horas, bibliotecas y errores.
 - Plantillas de incidencia y de pull request, y EditorConfig.
 - Análisis CodeQL en cada push, en cada pull request y semanal.
 - Flujo de release: una etiqueta `v*` construye el wheel y el sdist, los revisa y publica una release de GitHub.
@@ -47,6 +49,7 @@ Cambios destacados del proyecto. El formato sigue [Keep a Changelog](https://kee
 - La comprobación del paquete rechaza las herramientas de desarrollo en el wheel y las exige en el sdist.
 - El CI también instala el sdist y ejecuta el comando instalado.
 - Umbral de cobertura subido del 97% al 98%; Windows y Ubuntu dan ahora un 99%.
+- La fuente de cobertura y el umbral del 98% viven en `pyproject.toml`.
 - El comando instalado `game-inventory` lee `data/` del checkout o de la carpeta actual. `GAME_INVENTORY_DATA` lo cambia.
 
 ## [1.0.0] - 2026-11-22

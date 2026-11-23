@@ -20,6 +20,7 @@ All notable changes to this project. The format follows [Keep a Changelog](https
 - `--top` rejects negative values.
 - Help output with usage examples.
 - `--top N`: print the best GB/h picks that are not completed or playing.
+- `--report` / `--informe`: write a Markdown summary of the run.
 - `GAME_INVENTORY_LANG` sets the default language; `--lang` overrides it.
 - Ctrl+C is caught: the command prints `Cancelled.` and exits with code 130.
 - `data/config.json` can override the libraries, loose paths, exclusions and output path. `~` is expanded in every path.
@@ -28,6 +29,7 @@ All notable changes to this project. The format follows [Keep a Changelog](https
 - Help texts translated, so `--help` follows `--lang`.
 - `docs/DATA.md` and `docs/ARCHITECTURE.md`, and `SECURITY.md`.
 - `docs/EXAMPLES.md`: console, workbook and data folder examples.
+- `docs/FAQ.md`: common questions about privacy, hours, libraries and errors.
 - Issue forms, pull request template and EditorConfig.
 - CodeQL analysis on every push and pull request, and weekly.
 - Release workflow: a `v*` tag builds the wheel and sdist, checks them and publishes a GitHub release.
@@ -47,6 +49,7 @@ All notable changes to this project. The format follows [Keep a Changelog](https
 - The package check rejects development tools in the wheel and requires them in the sdist.
 - CI also installs the sdist and runs the installed command.
 - Coverage gate raised from 97% to 98%; Windows and Ubuntu currently report 99%.
+- Coverage source and the 98% gate live in `pyproject.toml`.
 - The installed `game-inventory` command reads `data/` from the source checkout or the current folder. `GAME_INVENTORY_DATA` overrides it.
 
 ## [1.0.0] - 2026-11-22

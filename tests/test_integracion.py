@@ -16,7 +16,7 @@ if ROOT not in sys.path:
 
 import openpyxl
 
-from inventory.cli import _preselect_lang, main, open_file, run
+from inventory.cli import _preselect_lang, build_report, main, open_file, run
 from inventory.data import read_json
 from inventory.i18n import set_lang
 
@@ -431,6 +431,100 @@ class BranchTests(unittest.TestCase):
         self.assertEqual(rc, 0)
         self.assertNotIn("TOP PICKS", console)
 
+    def test_report_written(self):
+        games = [fake_game("A", 1.0), fake_game("B", 1.0),
+                 fake_game("C", 1.0), fake_game("D", 1.0)]
+        with tempfile.TemporaryDirectory() as d:
+            out = os.path.join(d, "out.xlsx")
+            report = os.path.join(d, "report.md")
+            rc, console, _, _ = self._run(
+                d, hours={"a": 1.0, "b": 2.0, "c": 3.0, "d": 4.0}, games=games,
+                args=["--offline", "--keep", "--report", report,
+                      "--output", out])
+            self.assertEqual(rc, 0)
+            self.assertIn("Report:", console)
+            with open(report, encoding="utf-8") as f:
+                text = f.read()
+        self.assertIn("# Game inventory -", text)
+        self.assertIn("## Top picks", text)
+        self.assertIn("1. **A**", text)
+        self.assertIn("Workbook: `%s`" % out, text)
+
+    def test_report_in_spanish(self):
+        with tempfile.TemporaryDirectory() as d:
+            out = os.path.join(d, "out.xlsx")
+            report = os.path.join(d, "report.md")
+            try:
+                rc, _, _, _ = self._run(
+                    d, hours={"only": 1.0}, games=[fake_game("Only", 1.0)],
+                    args=["--lang", "es", "--offline", "--keep",
+                          "--report", report, "--output", out])
+            finally:
+                set_lang("en")
+            with open(report, encoding="utf-8") as f:
+                text = f.read()
+        self.assertEqual(rc, 0)
+        self.assertIn("# Inventario de juegos -", text)
+        self.assertIn("## Mejores elecciones", text)
+        self.assertIn("Libro: `%s`" % out, text)
+
+    def test_report_error_is_reported(self):
+        with tempfile.TemporaryDirectory() as d:
+            out = os.path.join(d, "out.xlsx")
+            with mock.patch("inventory.cli.write_report",
+                            side_effect=OSError("denied")):
+                rc, console, _, _ = self._run(
+                    d, hours={"only": 1.0}, games=[fake_game("Only", 1.0)],
+                    args=["--offline", "--keep", "--report",
+                          os.path.join(d, "r.md"), "--output", out])
+        self.assertEqual(rc, 0)
+        self.assertIn("could not write the report", console)
+
+    def test_report_not_written_in_dry_run(self):
+        with tempfile.TemporaryDirectory() as d:
+            report = os.path.join(d, "report.md")
+            rc, _, _, _ = self._run(
+                d, hours={"only": 1.0}, games=[fake_game("Only", 1.0)],
+                args=["--offline", "--keep", "--report", report, "--dry-run"])
+            self.assertEqual(rc, 0)
+            self.assertFalse(os.path.exists(report))
+
+    def test_build_report_sections(self):
+        games = [
+            {"name": "A", "gb": 10.0, "hours": 5.0, "ratio": 2.0,
+             "completed": False, "playing": False, "duplicate": False,
+             "verdict": "great"},
+            {"name": "Done", "gb": 20.0, "hours": 10.0, "ratio": 2.0,
+             "completed": True, "playing": False, "duplicate": False,
+             "verdict": "completed"},
+            {"name": "Now", "gb": 5.0, "hours": 5.0, "ratio": 1.0,
+             "completed": False, "playing": True, "duplicate": False,
+             "verdict": "playing"},
+        ]
+        history = [["2026-11-01", "3", "30.0", "10.0"],
+                   ["2026-11-02", "4", "35.5", "12.5"]]
+        text = build_report(games, 15.0, 1.0, 2.0, 3.0,
+                            {"X": 10.0, "Y": "?"}, history, "out.xlsx")
+        self.assertIn("## Top picks", text)
+        self.assertIn("**A**", text)
+        self.assertIn("## Completed but installed", text)
+        self.assertIn("Done", text)
+        self.assertIn("## Playing", text)
+        self.assertIn("Now", text)
+        self.assertIn("## Since 2026-11-01", text)
+        self.assertIn("+5.50 GB", text)
+        self.assertIn("## Wishlist", text)
+        self.assertIn("2 titles", text)
+        self.assertIn("Workbook: `out.xlsx`", text)
+
+    def test_build_report_without_picks(self):
+        games = [{"name": "Bad", "gb": 10.0, "hours": 5.0, "ratio": 2.0,
+                  "completed": False, "playing": False, "duplicate": False,
+                  "verdict": "bad"}]
+        text = build_report(games, 5.0, 1.0, 2.0, 4.0, {}, [], "out.xlsx")
+        self.assertIn("## Top picks", text)
+        self.assertIn("- none", text)
+
     def test_network_progress_message(self):
         with tempfile.TemporaryDirectory() as d:
             rc, console, _, _ = self._run(
@@ -622,6 +716,17 @@ class BranchTests(unittest.TestCase):
                 args=["--check-data", "--strict"])
         self.assertEqual(rc, 1)
         self.assertIn("History dates: 1 repeated | 1 in the future", console)
+
+    def test_check_data_reports_wrong_text_fields(self):
+        with tempfile.TemporaryDirectory() as d:
+            rc, console, _, _ = self._run(
+                d, hours={"game": 10.0, "_comentario": 3,
+                          "_notas": {"game": 5}},
+                completed=[], playing=[],
+                wishlist={"juegos": {}, "_usuario": 7},
+                args=["--check-data", "--strict"])
+        self.assertEqual(rc, 1)
+        self.assertIn("Text fields with the wrong type: 3", console)
 
     def test_check_data_reports_bad_blocks_and_unsorted_history(self):
         history = ("date,games,gb,hours\n"
