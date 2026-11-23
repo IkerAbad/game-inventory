@@ -47,7 +47,9 @@ jobs:
         run: game-inventory --check-data
 
       - name: Installed command with empty data
-        run: game-inventory --offline --keep --output consola_prueba.xlsx
+        run: |
+          game-inventory --offline --keep --output consola_prueba.xlsx --report consola_prueba.md
+          python -c "import io; text = io.open('consola_prueba.md', encoding='utf-8').read(); assert '## Top picks' in text and 'Workbook:' in text; print('report OK')"
 
       - name: Windows launcher
         if: runner.os == 'Windows'

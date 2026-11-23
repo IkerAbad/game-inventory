@@ -11,12 +11,14 @@ The tool is a local command-line program. It reads the installed games, enriches
 5. `cli` joins both sides, computes GB/hour, quartiles and verdicts.
 6. `excel` builds the workbook, updates `history.csv` and saves the file atomically.
 7. `data.purge_hours` removes keys without a folder, unless `--keep` is used or the guard refuses.
+8. `cli` optionally writes a Markdown summary with `--report`.
 
 ## Modules
 
 | Module | Responsibility |
 |---|---|
 | `config.py` | Libraries, data folder, output path and network limits. `data/config.json` overrides them. |
+| `text.py` | Shared name normalization. |
 | `data.py` | JSON reading and writing, atomic writes, lock, purge and backups. |
 | `scan.py` | Folder size, days installed, duplicate detection and Excel lock check. |
 | `network.py` | Deku Deals, twoaveragegamers, Steam and Metacritic requests and matching. |

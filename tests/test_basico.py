@@ -13,11 +13,15 @@ from inventory.data import normalize
 from inventory.cell_format import PctSteam, dif_cells, dif_write, mc_cell, mc_comment
 from inventory.i18n import get_lang, set_lang, t
 from inventory.network import _fmt_h, _hours_text, _slugs, _tokens, match_title
+from inventory.text import normalize as shared_normalize
 
 
 class NormalizeTests(unittest.TestCase):
     def test_symbols_and_case(self):
         self.assertEqual(normalize("Divinity: Original Sin 2"), "divinity original sin 2")
+
+    def test_shared_text_module(self):
+        self.assertEqual(shared_normalize("  A   B!  "), "a b")
         self.assertEqual(normalize("  BALL x PIT  "), "ball x pit")
         self.assertEqual(normalize("Chicken Police - Paint it RED!"), "chicken police paint it red")
 

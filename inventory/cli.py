@@ -207,10 +207,15 @@ def check_data(strict=False):
                 metacritic=mc_bad + mc_w,
                 steam=steam_bad + steam_w,
                 difficulty=dif_bad + dif_w))
-        text_bad = _bad_text_fields(hours) + _bad_text_fields(meta)
+        text_bad = (_bad_text_fields(hours) + _bad_text_fields(meta)
+                    + _bad_metadata_text(hours) + _bad_metadata_text(meta))
         if text_bad:
             warnings += text_bad
             print(t("check.text_fields", n=text_bad))
+        bad_dates = _bad_date_fields(meta)
+        if bad_dates:
+            warnings += bad_dates
+            print(t("check.date_fields", n=bad_dates))
         groups = {}
         for title in wishlist:
             groups.setdefault(normalize(title), []).append(title)
@@ -345,6 +350,39 @@ def _bad_config(config):
             isinstance(config["output"], str) and config["output"].strip()):
         bad.append("output")
     return bad
+
+
+def _bad_metadata_text(data):
+    """Count text fields inside metadata entries whose value is not a string."""
+    if not isinstance(data, dict):
+        return 0
+    bad = 0
+    for block, fields in (("_metacritic", ("p", "nota")),
+                          ("_steam", ("name", "desc", "pref", "txt")),
+                          ("_dificultad", ("src", "nota"))):
+        entries = data.get(block)
+        if not isinstance(entries, dict):
+            continue
+        for entry in entries.values():
+            if not isinstance(entry, dict):
+                continue
+            bad += sum(1 for field in fields
+                       if field in entry and not isinstance(entry[field], str))
+    return bad
+
+
+def _bad_date_fields(data):
+    """Count date fields with the wrong format."""
+    if not isinstance(data, dict):
+        return 0
+    value = data.get("_actualizado")
+    if not isinstance(value, str):
+        return 0
+    try:
+        datetime.date.fromisoformat(value)
+    except ValueError:
+        return 1
+    return 0
 
 
 def _bad_text_fields(data):

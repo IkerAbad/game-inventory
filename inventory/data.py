@@ -4,17 +4,12 @@
 import json
 import math
 import os
-import re
 import shutil
 import tempfile
 
 from .config import HOURS_JSON, LIBRARIES, WISHLIST_JSON
 from .i18n import t
-
-
-def normalize(name):
-    name = re.sub(r"[^a-z0-9]+", " ", str(name).lower().strip())
-    return re.sub(r"\s+", " ", name).strip()
+from .text import normalize
 
 
 def is_valid_hours(value):

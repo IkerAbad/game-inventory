@@ -3,9 +3,9 @@
 
 import json
 import os
-import re
 
 from . import __version__
+from .text import normalize
 
 # Folders scanned for games (one entry per game library).
 LIBRARIES = [
@@ -80,12 +80,6 @@ def _string_list(value):
             and all(isinstance(item, str) and item.strip() for item in value))
 
 
-def _normalize_exclude(name):
-    """Same normalization as data.normalize, without importing it (cycle)."""
-    name = re.sub(r"[^a-z0-9]+", " ", str(name).lower().strip())
-    return re.sub(r"\s+", " ", name).strip()
-
-
 def _apply_config(config):
     """Return (libraries, loose, exclude, output) with the valid overrides applied."""
     libraries, loose, exclude, output = LIBRARIES, LOOSE_PATHS, EXCLUDE, OUTPUT
@@ -96,7 +90,7 @@ def _apply_config(config):
     if _string_list(config.get("loose_paths")):
         loose = [os.path.expanduser(item) for item in config["loose_paths"]]
     if _string_list(config.get("exclude")):
-        exclude = {_normalize_exclude(item) for item in config["exclude"]}
+        exclude = {normalize(item) for item in config["exclude"]}
     if isinstance(config.get("output"), str) and config["output"].strip():
         output = os.path.expanduser(config["output"])
     return libraries, loose, exclude, output

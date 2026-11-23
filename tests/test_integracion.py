@@ -752,6 +752,21 @@ class BranchTests(unittest.TestCase):
         self.assertIn("Config keys with a wrong value type (2): libraries, output",
                       console)
 
+    def test_check_data_reports_metadata_text_and_date_types(self):
+        with tempfile.TemporaryDirectory() as d:
+            rc, console, _, _ = self._run(
+                d,
+                hours={"game": 10.0,
+                       "_metacritic": {"game": {"s": 90, "p": 5, "nota": 7}},
+                       "_steam": {"game": {"pct": 90, "name": 3, "desc": 4}},
+                       "_dificultad": {"game": {"h": 5, "src": 6, "nota": 8}}},
+                completed=[], playing=[],
+                wishlist={"juegos": {}, "_actualizado": "ayer"},
+                args=["--check-data", "--strict"])
+        self.assertEqual(rc, 1)
+        self.assertIn("Text fields with the wrong type: 6", console)
+        self.assertIn("Date fields with the wrong format: 1", console)
+
     def test_check_data_reports_bad_blocks_and_unsorted_history(self):
         history = ("date,games,gb,hours\n"
                    "2026-11-02,1,1.0,10.0\n"

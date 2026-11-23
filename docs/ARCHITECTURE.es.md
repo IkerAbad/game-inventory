@@ -11,12 +11,14 @@ La herramienta es un programa local de consola. Lee los juegos instalados, compl
 5. `cli` cruza ambos lados y calcula GB/hora, cuartiles y veredictos.
 6. `excel` construye el libro, actualiza `history.csv` y guarda de forma atómica.
 7. `data.purge_hours` quita claves sin carpeta, salvo `--keep` o que el freno lo impida.
+8. `cli` escribe opcionalmente un resumen Markdown con `--report`.
 
 ## Módulos
 
 | Módulo | Responsabilidad |
 |---|---|
 | `config.py` | Bibliotecas, carpeta de datos, ruta de salida y límites de red. `data/config.json` los sustituye. |
+| `text.py` | Normalización de nombres compartida. |
 | `data.py` | Lectura y escritura de JSON, escritura atómica, bloqueo, purga y copias. |
 | `scan.py` | Tamaño de carpeta, días instalado, duplicados y comprobación del Excel. |
 | `network.py` | Peticiones y casado de Deku Deals, twoaveragegamers, Steam y Metacritic. |
