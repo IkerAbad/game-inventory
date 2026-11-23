@@ -721,6 +721,7 @@ class WorkbookCoverageTests(unittest.TestCase):
         self.assertTrue(ws.sheet_properties.pageSetUpPr.fitToPage)
         self.assertEqual(wb["Plan"].freeze_panes, "A5")
         self.assertTrue(wb["Plan"].auto_filter.ref.startswith("A4:L"))
+        self.assertTrue(wb["History"].auto_filter.ref.startswith("A4:F"))
 
 
 class ConfigTests(unittest.TestCase):

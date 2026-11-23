@@ -301,7 +301,7 @@ class BranchTests(unittest.TestCase):
 
     def _run(self, d, hours=None, completed=None, playing=None, wishlist=None,
              games=None, args=None, extra=None, create_output=False, output=None,
-             history=None, config=None):
+             history=None, config=None, raw_hours=None):
         data_dir = os.path.join(d, "data")
         os.makedirs(data_dir)
         paths = {
@@ -322,6 +322,9 @@ class BranchTests(unittest.TestCase):
                     f.write(config)
                 else:
                     json.dump(config, f)
+        if raw_hours is not None:
+            with open(paths["HOURS_JSON"], "w", encoding="utf-8") as f:
+                f.write(raw_hours)
         out = output or os.path.join(d, "output.xlsx")
         if create_output:
             with open(out, "wb") as f:
@@ -436,7 +439,7 @@ class BranchTests(unittest.TestCase):
                  fake_game("C", 1.0), fake_game("D", 1.0)]
         with tempfile.TemporaryDirectory() as d:
             out = os.path.join(d, "out.xlsx")
-            report = os.path.join(d, "report.md")
+            report = os.path.join(d, "sub", "report.md")
             rc, console, _, _ = self._run(
                 d, hours={"a": 1.0, "b": 2.0, "c": 3.0, "d": 4.0}, games=games,
                 args=["--offline", "--keep", "--report", report,
@@ -750,6 +753,25 @@ class BranchTests(unittest.TestCase):
                 args=["--check-data", "--strict"])
         self.assertEqual(rc, 1)
         self.assertIn("Config keys with a wrong value type (2): libraries, output",
+                      console)
+
+    def test_check_data_reports_duplicate_json_keys(self):
+        with tempfile.TemporaryDirectory() as d:
+            rc, console, _, _ = self._run(
+                d, raw_hours='{"game": 10.0, "game": 20.0}',
+                completed=[], playing=[], wishlist={"juegos": {}},
+                args=["--check-data", "--strict"])
+        self.assertEqual(rc, 1)
+        self.assertIn("Duplicate JSON keys (1): game", console)
+
+    def test_check_data_reports_empty_keys(self):
+        with tempfile.TemporaryDirectory() as d:
+            rc, console, _, _ = self._run(
+                d, hours={"!!!": 10.0, "game": 10.0}, completed=[],
+                playing=[], wishlist={"juegos": {"???": 5.0}},
+                args=["--check-data", "--strict"])
+        self.assertEqual(rc, 1)
+        self.assertIn("Keys that normalize to an empty name (2): !!!, ???",
                       console)
 
     def test_check_data_reports_metadata_text_and_date_types(self):

@@ -3,6 +3,7 @@
 
 import argparse
 import datetime
+import json
 import math
 import os
 import shutil
@@ -123,7 +124,29 @@ def build_report(games, total_hours, q1, q2, q3, wishlist, history_rows,
 
 
 def write_report(path, text):
-    write_atomic(os.path.expanduser(path), text)
+    path = os.path.expanduser(path)
+    os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+    write_atomic(path, text)
+
+
+def _duplicate_json_keys(path):
+    """Duplicate keys inside the same JSON object of a file."""
+    duplicates = []
+
+    def hook(pairs):
+        seen = set()
+        for key, _ in pairs:
+            if key in seen:
+                duplicates.append(key)
+            seen.add(key)
+        return dict(pairs)
+
+    try:
+        with open(path, encoding="utf-8-sig") as f:
+            json.load(f, object_pairs_hook=hook)
+    except (OSError, ValueError):
+        return []
+    return duplicates
 
 
 def check_data(strict=False):
@@ -216,6 +239,18 @@ def check_data(strict=False):
         if bad_dates:
             warnings += bad_dates
             print(t("check.date_fields", n=bad_dates))
+        duplicate_keys = (_duplicate_json_keys(HOURS_JSON)
+                          + _duplicate_json_keys(WISHLIST_JSON))
+        if duplicate_keys:
+            warnings += len(duplicate_keys)
+            print(t("check.duplicate_keys", n=len(duplicate_keys),
+                    names=_names(duplicate_keys)))
+        empty_hours = _empty_keys(hours)
+        empty_wish = _empty_keys(wishlist)
+        if empty_hours or empty_wish:
+            warnings += len(empty_hours) + len(empty_wish)
+            print(t("check.empty_keys", n=len(empty_hours) + len(empty_wish),
+                    names=_names(empty_hours + empty_wish)))
         groups = {}
         for title in wishlist:
             groups.setdefault(normalize(title), []).append(title)
@@ -350,6 +385,13 @@ def _bad_config(config):
             isinstance(config["output"], str) and config["output"].strip()):
         bad.append("output")
     return bad
+
+
+def _empty_keys(data):
+    """Game keys that normalize to an empty name."""
+    if not isinstance(data, dict):
+        return []
+    return sorted(key for key in _game_keys(data) if not normalize(key))
 
 
 def _bad_metadata_text(data):

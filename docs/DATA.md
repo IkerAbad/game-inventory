@@ -46,6 +46,7 @@ One entry per installed game. The key is the normalized folder name.
 ```
 
 - `juegos`: title to hours. Same number, `null` and `"?"` rules as `hours.json`.
+- `_actualizado`: date in `YYYY-MM-DD`. The data check rejects other formats.
 - `_notas` prefixes used by the code: `PRENSA`, `ESTIMACION`, `EDICION DUPLICADA`, `YA JUGADO`, `SIN DATO`, `DECISION`.
 
 ## completed.json and playing.json
@@ -95,6 +96,8 @@ A missing or invalid key keeps the default. `~` is expanded in every path. The f
 - A purge keeps `hours.json.bak`.
 - A broken history keeps `history.csv.corrupto`.
 - `data/` is ignored by git. Do not commit it.
+
+`--check-data` reports duplicate keys inside the same JSON object, because the last one wins when the file is read. It also reports keys that normalize to an empty name.
 
 ## Language
 

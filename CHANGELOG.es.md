@@ -13,6 +13,7 @@ Cambios destacados del proyecto. El formato sigue [Keep a Changelog](https://kee
 - La comprobación de datos también informa de bibliotecas accesibles, una salida dentro de `data/` y fechas del histórico repetidas o futuras.
 - La comprobación de datos informa de bloques de metadatos que no son objetos, títulos que no son texto en `completed.json` o `playing.json` y filas del histórico sin ordenar, y muestra el total de avisos.
 - La comprobación de datos informa de claves de configuración con tipo incorrecto.
+- La comprobación de datos informa de claves JSON repetidas y de claves que quedan vacías al normalizar.
 - La comprobación de datos informa de campos que no son texto dentro de los metadatos y de una fecha `_actualizado` mal formada.
 - El user agent de red usa la versión instalada del paquete.
 - `--open` / `--abrir`: abre el libro con la aplicación predeterminada al guardarlo.
@@ -24,6 +25,8 @@ Cambios destacados del proyecto. El formato sigue [Keep a Changelog](https://kee
 - Metadatos del libro (título, autor, asunto, descripción y palabras clave) y configuración de impresión horizontal ajustada al ancho.
 - La hoja Plan mantiene la cabecera visible al desplazarse.
 - La hoja Plan tiene filtro automático en la cabecera.
+- `--report` crea las carpetas necesarias para la ruta del informe.
+- La hoja Historico tiene filtro automático en la cabecera.
 - La normalización de nombres vive en `inventory/text.py` y la comparten `data.py` y `config.py`.
 - La hoja Resumen muestra la fecha de generación.
 - `--top` rechaza valores negativos.

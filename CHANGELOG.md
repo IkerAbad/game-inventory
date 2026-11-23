@@ -13,12 +13,15 @@ All notable changes to this project. The format follows [Keep a Changelog](https
 - The data check also reports reachable libraries, an output path inside `data/`, and repeated or future history dates.
 - The data check reports metadata blocks that are not objects, non-string titles in `completed.json` or `playing.json`, and unsorted history rows, and prints the total warnings.
 - The data check reports config keys with a wrong value type.
+- The data check reports duplicate JSON keys and keys that normalize to an empty name.
 - The data check reports non-text fields inside metadata entries and a malformed `_actualizado` date.
 - The network user agent uses the installed package version.
 - `--open` / `--abrir`: open the workbook with the default application after saving it.
 - Workbook metadata (title, creator, subject, description, keywords) and landscape print setup with fit-to-width.
 - The Plan sheet keeps its header visible when scrolling.
+- `--report` creates the parent folders of the report path.
 - The Plan sheet has an auto-filter on its header.
+- The History sheet has an auto-filter on its header.
 - Name normalization lives in `inventory/text.py` and is shared by `data.py` and `config.py`.
 - The Summary sheet shows the generation date.
 - `--top` rejects negative values.

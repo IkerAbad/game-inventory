@@ -46,6 +46,7 @@ Una entrada por juego instalado. La clave es el nombre de carpeta normalizado.
 ```
 
 - `juegos`: título a horas. Las mismas reglas de número, `null` y `"?"` que en `hours.json`.
+- `_actualizado`: fecha en `YYYY-MM-DD`. La comprobación de datos rechaza otros formatos.
 - Prefijos de `_notas` que usa el código: `PRENSA`, `ESTIMACION`, `EDICION DUPLICADA`, `YA JUGADO`, `SIN DATO`, `DECISION`.
 
 ## completed.json y playing.json
@@ -95,6 +96,8 @@ Una clave ausente o inválida mantiene el valor por defecto. `~` se expande en t
 - Una purga guarda `hours.json.bak`.
 - Un histórico roto guarda `history.csv.corrupto`.
 - `data/` está ignorado por git. No lo subas.
+
+`--check-data` informa de claves repetidas dentro del mismo objeto JSON, porque al leer el fichero gana la última. También informa de claves que quedan vacías al normalizar.
 
 ## Idioma
 

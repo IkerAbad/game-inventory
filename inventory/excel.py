@@ -127,6 +127,7 @@ def history_sheet(wb, rows):
     for i, a in enumerate([14, 10, 13, 17, 12, 13], 1):
         ws.column_dimensions[get_column_letter(i)].width = a
     ws.freeze_panes = "A5"
+    ws.auto_filter.ref = "A4:F%d" % max(4 + len(rows), 4)
 
     n = len(rows)
     chart = LineChart()
