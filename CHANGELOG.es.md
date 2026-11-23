@@ -11,6 +11,7 @@ Cambios destacados del proyecto. El formato sigue [Keep a Changelog](https://kee
 - `--strict` / `--estricto`: con `--check-data`, sale con código 1 si hay avisos.
 - La comprobación de datos nombra las claves huérfanas e informa de claves desconocidas en la configuración, claves sin normalizar en `hours.json`, choques al normalizar, títulos de completados/jugando que no están en `hours.json` y juegos marcados como completados y jugando a la vez.
 - La comprobación de datos también informa de bibliotecas accesibles, una salida dentro de `data/` y fechas del histórico repetidas o futuras.
+- La comprobación de datos informa de bloques de metadatos que no son objetos, títulos que no son texto en `completed.json` o `playing.json` y filas del histórico sin ordenar, y muestra el total de avisos.
 - El user agent de red usa la versión instalada del paquete.
 - `--open` / `--abrir`: abre el libro con la aplicación predeterminada al guardarlo.
 - Ayuda con ejemplos de uso.
@@ -19,6 +20,8 @@ Cambios destacados del proyecto. El formato sigue [Keep a Changelog](https://kee
 - Ctrl+C se captura: el comando muestra `Cancelado.` y sale con código 130.
 - Metadatos del libro (título, autor, asunto, descripción y palabras clave) y configuración de impresión horizontal ajustada al ancho.
 - La hoja Plan mantiene la cabecera visible al desplazarse.
+- La hoja Resumen muestra la fecha de generación.
+- `--top` rechaza valores negativos.
 - `data/config.json` puede sustituir bibliotecas, rutas sueltas, exclusiones y ruta de salida. `~` se expande en todas las rutas.
 - Avisos de progreso para el escaneo de carpetas y el paso de red.
 - `tools/check_i18n.py`: falla si las claves o los marcadores de inglés y español difieren, o si una clave de traducción está repetida.

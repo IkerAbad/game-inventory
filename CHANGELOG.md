@@ -11,10 +11,13 @@ All notable changes to this project. The format follows [Keep a Changelog](https
 - `--strict` / `--estricto`: with `--check-data`, exit with code 1 when there are warnings.
 - The data check names the stale keys and reports unknown config keys, unnormalized `hours.json` keys, normalization collisions, completed/playing titles missing from `hours.json` and games marked as completed and playing at the same time.
 - The data check also reports reachable libraries, an output path inside `data/`, and repeated or future history dates.
+- The data check reports metadata blocks that are not objects, non-string titles in `completed.json` or `playing.json`, and unsorted history rows, and prints the total warnings.
 - The network user agent uses the installed package version.
 - `--open` / `--abrir`: open the workbook with the default application after saving it.
 - Workbook metadata (title, creator, subject, description, keywords) and landscape print setup with fit-to-width.
 - The Plan sheet keeps its header visible when scrolling.
+- The Summary sheet shows the generation date.
+- `--top` rejects negative values.
 - Help output with usage examples.
 - `--top N`: print the best GB/h picks that are not completed or playing.
 - `GAME_INVENTORY_LANG` sets the default language; `--lang` overrides it.

@@ -115,6 +115,10 @@ def check_data(strict=False):
                 warnings=len(hour_warnings)))
         for warning in hour_warnings[:10]:
             print("   " + warning)
+        bad_blocks = _bad_blocks(hours)
+        if bad_blocks:
+            warnings += len(bad_blocks)
+            print(t("check.blocks", n=len(bad_blocks), names=_names(bad_blocks)))
         completed = read_keys(COMPLETED_JSON)
         playing = read_keys(PLAYING_JSON)
         print(t("check.keys", completed=len(completed), playing=len(playing)))
@@ -132,6 +136,11 @@ def check_data(strict=False):
                   if not (value is None or value == "?" or is_valid_hours(value)))
         warnings += bad
         print(t("check.wishlist", n=len(wishlist), warnings=bad))
+        bad_wish_blocks = _bad_blocks(meta)
+        if bad_wish_blocks:
+            warnings += len(bad_wish_blocks)
+            print(t("check.blocks", n=len(bad_wish_blocks),
+                    names=_names(bad_wish_blocks)))
         stale_hours = _stale_keys(hours, hours)
         stale_wish = _stale_keys(meta, wishlist)
         warnings += len(stale_hours) + len(stale_wish)
@@ -178,10 +187,14 @@ def check_data(strict=False):
             if repeated or future:
                 warnings += repeated + future
                 print(t("check.history_dates", repeated=repeated, future=future))
+            if dates != sorted(dates):
+                warnings += 1
+                print(t("check.history_order"))
             print(t("check.history", n=len(rows), last=max(r[0] for r in rows),
                     warnings=len(problems)))
         else:
             print(t("check.history_empty", warnings=len(problems)))
+        print(t("check.warnings", n=warnings))
         if strict and warnings:
             print(t("check.strict", n=warnings))
             return 1
@@ -203,6 +216,15 @@ def _names(items, limit=5):
 
 def _game_keys(data):
     return {str(key) for key in data if not str(key).startswith("_")}
+
+
+def _bad_blocks(data):
+    """Metadata blocks that exist but are not JSON objects."""
+    if not isinstance(data, dict):
+        return []
+    blocks = ("_metacritic", "_steam", "_dificultad", "_notas")
+    return [block for block in blocks
+            if block in data and not isinstance(data[block], dict)]
 
 
 def _path_list(config, key, default):
@@ -326,6 +348,8 @@ def main(argv=None):
     parser.add_argument("--output", "--salida", dest="output", default=None,
                         help=t("help.output"))
     args = parser.parse_args(argv)
+    if args.top < 0:
+        parser.error(t("cli.top_negative"))
     set_lang(args.lang)
     try:
         sys.stdout.reconfigure(errors="replace")

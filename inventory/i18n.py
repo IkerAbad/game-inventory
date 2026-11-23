@@ -78,7 +78,9 @@ TEXT = {
         "row.games": "games",
 
         "sum.games": "Total games",
-        "sum.category": "Category",        "sum.with_end": "Pending with an end",
+        "sum.generated": "Generated: {date}",
+        "sum.category": "Category",
+        "sum.with_end": "Pending with an end",
         "sum.no_end": "No end (endless)",
         "sum.hours": "PENDING HOURS (only with an end)",
         "sum.gb": "Total GB installed",
@@ -227,6 +229,7 @@ TEXT = {
         "check.output_in_data": "Output points inside data/: the workbook would be refused.",
         "check.stale": "Metadata keys without a game: hours {hours} | wishlist {wishlist}",
         "check.stale_names": "Stale in hours: {hours} | wishlist: {wishlist}",
+        "check.blocks": "Metadata blocks that are not objects ({n}): {names}",
         "check.unnormalized": "Unnormalized keys in hours.json ({n}): {names}",
         "check.collisions": "Keys that collide after normalization ({n}): {names}",
         "check.missing": "Completed/playing titles not in hours.json: completed {completed} | playing {playing}",
@@ -234,11 +237,14 @@ TEXT = {
         "check.duplicates": "Wishlist titles repeated after normalization: {n}",
         "check.history": "History: {n} days, last {last} ({warnings} bad rows)",
         "check.history_dates": "History dates: {repeated} repeated | {future} in the future",
+        "check.history_order": "History rows are not sorted by date.",
+        "check.warnings": "Warnings: {n}",
         "check.history_empty": "History: no rows yet ({warnings} bad rows)",
         "check.strict": "STRICT: {n} warnings, exit code 1.",
 
         "cli.top": "TOP PICKS (best GB per hour):",
         "cli.top_line": "   {i}. {name}  |  {ratio:.2f} GB/h  |  {hours:g} h  |  {gb:.1f} GB",
+        "cli.top_negative": "--top cannot be negative",
 
         "scan.read_error": "Warning: cannot read {path} ({error}); skipped.",
 
@@ -367,6 +373,7 @@ TEXT = {
         "row.games": "juegos",
 
         "sum.games": "Juegos totales",
+        "sum.generated": "Generado: {date}",
         "sum.category": "Categoria",
         "sum.with_end": "Pendientes con final",
         "sum.no_end": "Sin final (infinitos)",
@@ -517,6 +524,7 @@ TEXT = {
         "check.output_in_data": "La salida apunta dentro de data/: el libro se rechazaria.",
         "check.stale": "Claves de metadatos sin juego: horas {hours} | wishlist {wishlist}",
         "check.stale_names": "Huerfanas en horas: {hours} | wishlist: {wishlist}",
+        "check.blocks": "Bloques de metadatos que no son objetos ({n}): {names}",
         "check.unnormalized": "Claves sin normalizar en hours.json ({n}): {names}",
         "check.collisions": "Claves que chocan al normalizar ({n}): {names}",
         "check.missing": "Titulos de completados/jugando que no estan en hours.json: completados {completed} | jugando {playing}",
@@ -524,11 +532,14 @@ TEXT = {
         "check.duplicates": "Titulos de wishlist repetidos tras normalizar: {n}",
         "check.history": "Historico: {n} dias, ultimo {last} ({warnings} filas malas)",
         "check.history_dates": "Fechas del historico: {repeated} repetidas | {future} en el futuro",
+        "check.history_order": "Las filas del historico no estan ordenadas por fecha.",
+        "check.warnings": "Avisos: {n}",
         "check.history_empty": "Historico: sin filas todavia ({warnings} filas malas)",
         "check.strict": "ESTRICTO: {n} avisos, codigo de salida 1.",
 
         "cli.top": "MEJORES ELECCIONES (mas GB por hora):",
         "cli.top_line": "   {i}. {name}  |  {ratio:.2f} GB/h  |  {hours:g} h  |  {gb:.1f} GB",
+        "cli.top_negative": "--top no puede ser negativo",
 
         "scan.read_error": "Aviso: no se puede leer {path} ({error}); se omite.",
 

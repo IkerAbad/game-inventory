@@ -45,6 +45,9 @@ def read_keys(path):
     data = read_json(path, [])
     if not isinstance(data, list):
         raise ValueError("%s must be a list of titles" % path)
+    for item in data:
+        if not isinstance(item, str) and not str(item).startswith("_"):
+            raise ValueError("%s must be a list of titles" % path)
     return {normalize(item) for item in data if not str(item).startswith("_")}
 
 

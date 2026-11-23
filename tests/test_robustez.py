@@ -65,8 +65,16 @@ class ReadJsonTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             path = os.path.join(d, "x.json")
             with open(path, "w", encoding="utf-8") as f:
-                json.dump(["Game A", 123, "_meta"], f)
+                json.dump(["Game A", "123", "_meta"], f)
             self.assertEqual(read_keys(path), {"game a", "123"})
+
+    def test_keys_reject_non_strings(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "x.json")
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(["Game A", 123], f)
+            with self.assertRaises(ValueError):
+                read_keys(path)
 
     def test_no_utf8(self):
         with tempfile.TemporaryDirectory() as d:
@@ -708,6 +716,7 @@ class WorkbookCoverageTests(unittest.TestCase):
         self.assertTrue(any(isinstance(value, excel.PctSteam) for value in values))
         self.assertEqual(wb.properties.creator, "game-inventory")
         self.assertEqual(wb.properties.title, "Game inventory")
+        self.assertTrue(wb["Summary"]["A2"].value.startswith("Generated:"))
         self.assertEqual(ws.page_setup.orientation, "landscape")
         self.assertTrue(ws.sheet_properties.pageSetUpPr.fitToPage)
         self.assertEqual(wb["Plan"].freeze_panes, "A5")

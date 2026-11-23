@@ -7,7 +7,7 @@ import os
 import sys
 import tempfile
 import unittest
-from contextlib import ExitStack, redirect_stdout
+from contextlib import ExitStack, redirect_stderr, redirect_stdout
 from unittest import mock
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -204,6 +204,13 @@ class IntegrationTests(unittest.TestCase):
             with redirect_stdout(io.StringIO()) as output:
                 self.assertEqual(run([]), 130)
         self.assertIn("Cancelled", output.getvalue())
+
+    def test_negative_top_is_rejected(self):
+        with redirect_stderr(io.StringIO()) as error:
+            with self.assertRaises(SystemExit) as ctx:
+                main(["--top", "-1"])
+        self.assertEqual(ctx.exception.code, 2)
+        self.assertIn("--top", error.getvalue())
 
     def test_module_entry_point(self):
         import runpy
@@ -615,6 +622,20 @@ class BranchTests(unittest.TestCase):
                 args=["--check-data", "--strict"])
         self.assertEqual(rc, 1)
         self.assertIn("History dates: 1 repeated | 1 in the future", console)
+
+    def test_check_data_reports_bad_blocks_and_unsorted_history(self):
+        history = ("date,games,gb,hours\n"
+                   "2026-11-02,1,1.0,10.0\n"
+                   "2026-11-01,1,1.0,10.0\n")
+        with tempfile.TemporaryDirectory() as d:
+            rc, console, _, _ = self._run(
+                d, hours={"game": 10.0, "_notas": []}, completed=[],
+                playing=[], wishlist={"juegos": {}}, history=history,
+                args=["--check-data", "--strict"])
+        self.assertEqual(rc, 1)
+        self.assertIn("Metadata blocks that are not objects (1): _notas", console)
+        self.assertIn("History rows are not sorted by date", console)
+        self.assertIn("Warnings: 2", console)
 
     def test_check_data_strict_with_warnings(self):
         with tempfile.TemporaryDirectory() as d:

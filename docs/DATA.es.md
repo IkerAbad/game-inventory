@@ -56,7 +56,7 @@ Listas JSON de títulos:
 ["Hades", "A Short Hike"]
 ```
 
-Las entradas que empiezan por `_` se ignoran. Un juego en las dos listas se trata como completado.
+Las entradas que empiezan por `_` se ignoran. Un juego en las dos listas se trata como completado. Cualquier entrada que no sea texto se rechaza.
 
 ## history.csv
 

@@ -532,6 +532,8 @@ def extra_sheets(wb, games):
     ws = wb.create_sheet(sheet("summary"))
     ws["A1"] = t("title.summary")
     ws["A1"].font = Font(bold=True, size=14)
+    ws["A2"] = t("sum.generated", date=today.isoformat())
+    ws["A2"].font = Font(italic=True, size=9, color="6B7280")
 
     data = [
         (t("sum.games"), len(games), None),
