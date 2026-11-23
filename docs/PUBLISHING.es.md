@@ -1,5 +1,9 @@
 # Publicación
 
+## Nombre del proyecto
+
+PyPI no acepta `game-inventory`: la subida devuelve `400 The name 'game-inventory' is too similar to an existing project`. El proyecto existente es `gameinventory` (0.1.1). Hace falta otro nombre de distribución antes de la primera subida. El paquete que se importa (`inventory`) y el comando de consola (`game-inventory`) pueden seguir igual.
+
 ## Construir y comprobar
 
 ```

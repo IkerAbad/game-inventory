@@ -16,6 +16,10 @@ Scan the folders where your games are installed, cross the disk size with the ma
 - Purges from `hours.json` the keys of games that are no longer installed, only when every drive is present.
 - Builds the Excel workbook with up to six sheets: Games, Space, Summary, Plan, History and Wishlist.
 
+![Example workbook with fictional games](https://raw.githubusercontent.com/IkerAbad/game-inventory/main/docs/workbook.png)
+
+Example workbook with fictional games. The personal paths column is not shown.
+
 ## Requirements
 
 - Python 3.12 or newer.

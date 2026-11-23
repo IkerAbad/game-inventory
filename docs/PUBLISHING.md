@@ -1,5 +1,9 @@
 # Publishing
 
+## Project name
+
+`game-inventory` is not accepted by PyPI: the upload returns `400 The name 'game-inventory' is too similar to an existing project`. The existing project is `gameinventory` (0.1.1). A different distribution name is required before the first upload. The import package (`inventory`) and the console command (`game-inventory`) can stay the same.
+
 ## Build and check
 
 ```

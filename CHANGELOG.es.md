@@ -55,6 +55,7 @@ Cambios destacados del proyecto. El formato sigue [Keep a Changelog](https://kee
 - `docs/FAQ.es.md`: dudas sobre privacidad, horas, bibliotecas y errores.
 - `docs/BENCHMARKS.es.md`: tiempos de escaneo y libro para 100, 500 y 1000 juegos, y la biblioteca real.
 - `docs/PUBLISHING.es.md`: construcción, PyPI Trusted Publishing y la alternativa con token.
+- `docs/PUBLISHING.es.md` recoge el conflicto de nombre con `gameinventory` en PyPI.
 - `tests/test_offline.py`: bloquea `socket.socket` y `socket.create_connection` y demuestra que `--offline` no abre ningún socket.
 - Plantillas de incidencia y de pull request, y EditorConfig.
 - Análisis CodeQL en cada push, en cada pull request y semanal.
@@ -78,6 +79,7 @@ Cambios destacados del proyecto. El formato sigue [Keep a Changelog](https://kee
 - La fuente de cobertura y el umbral del 98% viven en `pyproject.toml`.
 - El comando instalado `game-inventory` lee `data/` del checkout o de la carpeta actual. `GAME_INVENTORY_DATA` lo cambia.
 - README: limitaciones, preparación de pruebas y enlaces a benchmarks.
+- README: captura del libro de ejemplo con juegos ficticios y sin rutas personales.
 
 ### Seguridad
 

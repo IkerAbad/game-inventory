@@ -16,6 +16,10 @@ Escanea las carpetas donde tienes juegos instalados, cruza el tamaño en disco c
 - Purga de `hours.json` las claves de juegos que ya no están instalados, solo si están todas las unidades.
 - Genera el Excel con hasta seis hojas: Juegos, Espacio, Resumen, Plan, Historico y Wishlist.
 
+![Ejemplo de libro con juegos ficticios](https://raw.githubusercontent.com/IkerAbad/game-inventory/main/docs/workbook.png)
+
+Ejemplo de libro con juegos ficticios. La columna de rutas personales no se muestra.
+
 ## Requisitos
 
 - Python 3.12 o superior.
