@@ -715,6 +715,7 @@ class WorkbookCoverageTests(unittest.TestCase):
         self.assertIn(90, values)
         self.assertTrue(any(isinstance(value, excel.PctSteam) for value in values))
         self.assertEqual(wb.properties.creator, "game-inventory")
+        self.assertEqual(wb.properties.lastModifiedBy, "game-inventory")
         self.assertEqual(wb.properties.title, "Game inventory")
         self.assertTrue(wb["Summary"]["A2"].value.startswith("Generated:"))
         self.assertEqual(ws.page_setup.orientation, "landscape")

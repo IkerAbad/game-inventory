@@ -133,6 +133,7 @@ docs/
 tools/
   check_all.py             ejecuta pyflakes, enlaces y traducciones
   check_dist.py            comprueba el contenido del wheel y del sdist
+  check_release.py         comprueba una etiqueta contra los changelogs
   check_links.py           comprueba los enlaces relativos de la documentación
 inventory/
   config.py                unidades, rutas y ajustes de red

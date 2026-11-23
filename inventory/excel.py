@@ -948,6 +948,7 @@ def build_workbook(games, q1, q2, q3, wl=None, source="source not given",
     wb.properties.title = t("app.title")
     wb.properties.subject = t("app.subject")
     wb.properties.creator = "game-inventory"
+    wb.properties.lastModifiedBy = "game-inventory"
     wb.properties.description = t("app.description")
     wb.properties.keywords = "games, backlog, GB per hour, Excel"
     ws = wb.active

@@ -48,6 +48,6 @@ Ejecuta las comprobaciones y mantén el cambio acotado. Indica en el changelog l
 
 1. Fija la versión nueva en `inventory/__init__.py` y mueve las entradas del changelog de `Sin publicar` a esa versión, en los dos idiomas.
 2. Haz commit, crea la etiqueta y súbela: `git tag v1.0.1` y `git push --tags`.
-3. El flujo de Release comprueba que la etiqueta coincide con la versión, construye el wheel y el sdist, los revisa y abre una release de GitHub con las notas.
+3. El flujo de Release comprueba que la etiqueta coincide con la versión y que los dos changelogs tienen una sección para ella, construye el wheel y el sdist, los revisa y abre una release de GitHub con las notas.
 
 CodeQL se ejecuta en cada push, en cada pull request y una vez a la semana.

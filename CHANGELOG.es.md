@@ -15,6 +15,7 @@ Cambios destacados del proyecto. El formato sigue [Keep a Changelog](https://kee
 - La comprobación de datos informa de claves de configuración con tipo incorrecto.
 - La comprobación de datos informa de claves JSON repetidas y de claves que quedan vacías al normalizar.
 - La comprobación de datos informa de una misma ruta de biblioteca configurada dos veces.
+- La comprobación de datos nombra las carpetas de biblioteca que no existen y valida las fechas de origen dentro de los metadatos.
 - La comprobación de datos informa de campos que no son texto dentro de los metadatos y de una fecha `_actualizado` mal formada.
 - El user agent de red usa la versión instalada del paquete.
 - `--open` / `--abrir`: abre el libro con la aplicación predeterminada al guardarlo.
@@ -22,9 +23,12 @@ Cambios destacados del proyecto. El formato sigue [Keep a Changelog](https://kee
 - `--top N`: muestra los mejores GB/h que no estén completados ni en curso.
 - `--report` / `--informe`: escribe un resumen Markdown de la ejecución. El número de elecciones sigue a `--top`. El informe no puede estar dentro de `data/` ni sobrescribir el libro.
 - Los totales del informe incluyen los GB completados, los juegos en curso y los que no tienen datos.
+- La ruta del informe se rechaza antes de escanear si es una carpeta.
 - `GAME_INVENTORY_LANG` fija el idioma por defecto; `--lang` tiene prioridad.
 - Ctrl+C se captura: el comando muestra `Cancelado.` y sale con código 130.
 - Metadatos del libro (título, autor, asunto, descripción y palabras clave) y configuración de impresión horizontal ajustada al ancho.
+- El libro marca `game-inventory` también como último modificador.
+- `tools/check_release.py`: el flujo de release comprueba la etiqueta, la versión y los dos changelogs.
 - La hoja Plan mantiene la cabecera visible al desplazarse.
 - La hoja Plan tiene filtro automático en la cabecera.
 - `--report` crea las carpetas necesarias para la ruta del informe.

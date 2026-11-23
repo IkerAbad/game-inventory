@@ -15,10 +15,13 @@ All notable changes to this project. The format follows [Keep a Changelog](https
 - The data check reports config keys with a wrong value type.
 - The data check reports duplicate JSON keys and keys that normalize to an empty name.
 - The data check reports the same library path configured twice.
+- The data check names the library folders that do not exist and validates the source dates inside metadata entries.
 - The data check reports non-text fields inside metadata entries and a malformed `_actualizado` date.
 - The network user agent uses the installed package version.
 - `--open` / `--abrir`: open the workbook with the default application after saving it.
 - Workbook metadata (title, creator, subject, description, keywords) and landscape print setup with fit-to-width.
+- The workbook marks `game-inventory` as the last modifier too.
+- `tools/check_release.py`: the release workflow checks the tag, the version and both changelogs.
 - The Plan sheet keeps its header visible when scrolling.
 - `--report` creates the parent folders of the report path.
 - The Plan sheet has an auto-filter on its header.
@@ -30,6 +33,7 @@ All notable changes to this project. The format follows [Keep a Changelog](https
 - `--top N`: print the best GB/h picks that are not completed or playing.
 - `--report` / `--informe`: write a Markdown summary of the run. The number of picks follows `--top`. The report cannot be inside `data/` or overwrite the workbook.
 - The report totals include completed GB, playing and games without data.
+- The report path is rejected before scanning when it is a folder.
 - `GAME_INVENTORY_LANG` sets the default language; `--lang` overrides it.
 - Ctrl+C is caught: the command prints `Cancelled.` and exits with code 130.
 - `data/config.json` can override the libraries, loose paths, exclusions and output path. `~` is expanded in every path.

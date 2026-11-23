@@ -133,6 +133,7 @@ docs/
 tools/
   check_all.py             runs pyflakes, link and translation checks
   check_dist.py            checks the wheel and sdist contents
+  check_release.py         checks a release tag against the changelogs
   check_links.py           checks relative links in the docs
 inventory/
   config.py                drives, paths and network settings

@@ -24,8 +24,7 @@ jobs:
             requirements-dev.txt
 
       - name: Check the tag matches the package version
-        run: |
-          python -c "import os, inventory; tag = os.environ['GITHUB_REF_NAME']; assert tag == 'v' + inventory.__version__, (tag, inventory.__version__); print('version', tag)"
+        run: python tools/check_release.py "$GITHUB_REF_NAME"
 
       - name: Build
         run: |

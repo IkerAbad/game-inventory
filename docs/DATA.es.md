@@ -21,8 +21,8 @@ Una entrada por juego instalado. La clave es el nombre de carpeta normalizado.
 
 - Número: horas de historia principal. `null`: sin final (sandbox, servicio, roguelike). `"?"`: sin dato todavía.
 - `_comentario`: texto opcional.
-- `_metacritic`: `s` es el Metascore, `"s/n"` cuando Metacritic no publica ninguno, `null` cuando se desconoce. `p` es la plataforma y `n` el número de reseñas.
-- `_steam`: nota de respaldo cuando no hay Metascore numérico. `pct` es el porcentaje de reseñas positivas.
+- `_metacritic`: `s` es el Metascore, `"s/n"` cuando Metacritic no publica ninguno, `null` cuando se desconoce. `p` es la plataforma, `n` el número de reseñas y `f` la fecha de consulta (`YYYY-MM-DD`).
+- `_steam`: nota de respaldo cuando no hay Metascore numérico. `pct` es el porcentaje de reseñas positivas y `f` la fecha de consulta (`YYYY-MM-DD`).
 - `_dificultad`: `h` habilidad y `c` complejidad, de 0 a 10. `ct` es `source` (o `fuente`), `consenso` o `inferencia`.
 - `_notas`: fuentes y decisiones. Los bloques `_` desconocidos se conservan.
 

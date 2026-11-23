@@ -493,6 +493,17 @@ class BranchTests(unittest.TestCase):
             self.assertFalse(os.path.exists(report))
             self.assertIn("Report not written: dry run", console)
 
+    def test_report_path_is_a_folder(self):
+        with tempfile.TemporaryDirectory() as d:
+            folder = os.path.join(d, "reports")
+            os.makedirs(folder)
+            rc, console, _, _ = self._run(
+                d, hours={"only": 1.0}, games=[fake_game("Only", 1.0)],
+                args=["--offline", "--keep", "--report", folder,
+                      "--output", os.path.join(d, "out.xlsx")])
+        self.assertEqual(rc, 1)
+        self.assertIn("report path is a folder", console)
+
     def test_report_inside_data_is_rejected(self):
         with tempfile.TemporaryDirectory() as d:
             rc, console, _, _ = self._run(
@@ -733,6 +744,7 @@ class BranchTests(unittest.TestCase):
                 args=["--check-data"])
         self.assertEqual(rc, 0)
         self.assertIn("Libraries: 2 of 3 folders reachable", console)
+        self.assertIn("Missing library folders (1):", console)
 
     def test_check_data_rejects_output_inside_data(self):
         with tempfile.TemporaryDirectory() as d:
@@ -814,14 +826,15 @@ class BranchTests(unittest.TestCase):
                 d,
                 hours={"game": 10.0,
                        "_metacritic": {"game": {"s": 90, "p": 5, "nota": 7}},
-                       "_steam": {"game": {"pct": 90, "name": 3, "desc": 4}},
+                       "_steam": {"game": {"pct": 90, "name": 3, "desc": 4,
+                                          "f": "ayer"}},
                        "_dificultad": {"game": {"h": 5, "src": 6, "nota": 8}}},
                 completed=[], playing=[],
                 wishlist={"juegos": {}, "_actualizado": "ayer"},
                 args=["--check-data", "--strict"])
         self.assertEqual(rc, 1)
         self.assertIn("Text fields with the wrong type: 6", console)
-        self.assertIn("Date fields with the wrong format: 1", console)
+        self.assertIn("Date fields with the wrong format: 2", console)
 
     def test_check_data_reports_bad_blocks_and_unsorted_history(self):
         history = ("date,games,gb,hours\n"

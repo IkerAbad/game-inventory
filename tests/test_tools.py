@@ -15,7 +15,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-from tools import check_all, check_dist, check_i18n, check_links
+from tools import check_all, check_dist, check_i18n, check_links, check_release
 
 
 def make_wheel(path, names):
@@ -133,6 +133,38 @@ class CheckDistTests(unittest.TestCase):
             os.chdir(old)
         self.assertIn("OK wheel", out.getvalue())
         self.assertIn("OK sdist", out.getvalue())
+
+
+class CheckReleaseTests(unittest.TestCase):
+    def test_tag_matches_version(self):
+        self.assertTrue(check_release.check_tag("v1.2.3", "1.2.3"))
+        self.assertFalse(check_release.check_tag("1.2.3", "1.2.3"))
+        self.assertFalse(check_release.check_tag("v1.2.4", "1.2.3"))
+
+    def test_changelog_section(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "CHANGELOG.md")
+            with open(path, "w", encoding="utf-8") as f:
+                f.write("# Changelog\n\n## [1.2.3] - 2026-11-23\n")
+            self.assertTrue(check_release.changelog_has_version(path, "1.2.3"))
+            self.assertFalse(check_release.changelog_has_version(path, "1.2.4"))
+            self.assertFalse(check_release.changelog_has_version(
+                os.path.join(d, "missing.md"), "1.2.3"))
+
+    def test_main_with_real_changelogs(self):
+        with redirect_stdout(io.StringIO()) as out:
+            self.assertEqual(check_release.main(["v" + check_release.__version__]), 0)
+        self.assertIn("OK release", out.getvalue())
+
+    def test_main_with_wrong_tag(self):
+        with redirect_stdout(io.StringIO()) as out:
+            self.assertEqual(check_release.main(["v9.9.9"]), 1)
+        self.assertIn("does not match", out.getvalue())
+
+    def test_main_without_arguments(self):
+        with redirect_stdout(io.StringIO()) as out:
+            self.assertEqual(check_release.main([]), 2)
+        self.assertIn("usage", out.getvalue())
 
 
 class CheckAllTests(unittest.TestCase):

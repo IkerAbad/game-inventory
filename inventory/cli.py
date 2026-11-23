@@ -178,6 +178,10 @@ def check_data(strict=False):
         paths = libraries + loose
         print(t("check.libraries",
                 n=sum(1 for path in paths if os.path.isdir(path)), total=len(paths)))
+        missing = [path for path in paths if not os.path.isdir(path)]
+        if missing:
+            print(t("check.missing_libraries", n=len(missing),
+                    names=_names(missing)))
         duplicate_paths = _duplicate_paths(paths)
         if duplicate_paths:
             warnings += len(duplicate_paths)
@@ -244,7 +248,7 @@ def check_data(strict=False):
         if text_bad:
             warnings += text_bad
             print(t("check.text_fields", n=text_bad))
-        bad_dates = _bad_date_fields(meta)
+        bad_dates = _bad_date_fields(hours) + _bad_date_fields(meta)
         if bad_dates:
             warnings += bad_dates
             print(t("check.date_fields", n=bad_dates))
@@ -438,14 +442,29 @@ def _bad_date_fields(data):
     """Count date fields with the wrong format."""
     if not isinstance(data, dict):
         return 0
+    bad = 0
     value = data.get("_actualizado")
-    if not isinstance(value, str):
-        return 0
-    try:
-        datetime.date.fromisoformat(value)
-    except ValueError:
-        return 1
-    return 0
+    if isinstance(value, str):
+        try:
+            datetime.date.fromisoformat(value)
+        except ValueError:
+            bad += 1
+    for block in ("_metacritic", "_steam"):
+        entries = data.get(block)
+        if not isinstance(entries, dict):
+            continue
+        for entry in entries.values():
+            if not isinstance(entry, dict) or "f" not in entry:
+                continue
+            date = entry["f"]
+            if not isinstance(date, str):
+                bad += 1
+                continue
+            try:
+                datetime.date.fromisoformat(date)
+            except ValueError:
+                bad += 1
+    return bad
 
 
 def _bad_text_fields(data):
@@ -556,6 +575,10 @@ def main(argv=None):
         return 1
     report = os.path.expanduser(args.report) if args.report else None
     if report:
+        if os.path.isdir(report):
+            print(t("cli.report_is_dir"))
+            print("   " + report)
+            return 1
         if inside_data(report):
             print(t("cli.report_in_data"))
             print("   " + report)

@@ -21,8 +21,8 @@ One entry per installed game. The key is the normalized folder name.
 
 - Number: main-story hours. `null`: no end (sandbox, service, roguelike). `"?"`: no data yet.
 - `_comentario`: optional text.
-- `_metacritic`: `s` is the Metascore, `"s/n"` when Metacritic publishes none, `null` when unknown. `p` is the platform, `n` the review count.
-- `_steam`: fallback score when there is no numeric Metascore. `pct` is the share of positive reviews.
+- `_metacritic`: `s` is the Metascore, `"s/n"` when Metacritic publishes none, `null` when unknown. `p` is the platform, `n` the review count and `f` the fetch date (`YYYY-MM-DD`).
+- `_steam`: fallback score when there is no numeric Metascore. `pct` is the share of positive reviews and `f` the fetch date (`YYYY-MM-DD`).
 - `_dificultad`: `h` skill and `c` complexity, both 0-10. `ct` is `source` (or `fuente`), `consenso` or `inferencia`.
 - `_notas`: source and decision notes. Unknown `_` blocks are preserved.
 
