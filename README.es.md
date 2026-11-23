@@ -1,6 +1,7 @@
 # Inventario de juegos
 
 [![CI](https://github.com/IkerAbad/game-inventory/actions/workflows/ci.yml/badge.svg)](https://github.com/IkerAbad/game-inventory/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/IkerAbad/game-inventory/actions/workflows/codeql.yml/badge.svg)](https://github.com/IkerAbad/game-inventory/actions/workflows/codeql.yml)
 [![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-blue.svg)](https://github.com/IkerAbad/game-inventory/blob/main/pyproject.toml)
 [![Licencia MIT](https://img.shields.io/badge/licencia-MIT-blue.svg)](LICENSE)
 

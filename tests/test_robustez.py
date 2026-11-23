@@ -720,6 +720,7 @@ class WorkbookCoverageTests(unittest.TestCase):
         self.assertEqual(ws.page_setup.orientation, "landscape")
         self.assertTrue(ws.sheet_properties.pageSetUpPr.fitToPage)
         self.assertEqual(wb["Plan"].freeze_panes, "A5")
+        self.assertTrue(wb["Plan"].auto_filter.ref.startswith("A4:L"))
 
 
 class ConfigTests(unittest.TestCase):

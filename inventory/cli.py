@@ -141,6 +141,11 @@ def check_data(strict=False):
             warnings += len(unknown_config)
             print(t("check.config_unknown", n=len(unknown_config),
                     names=_names(unknown_config)))
+        bad_config = _bad_config(config)
+        if bad_config:
+            warnings += len(bad_config)
+            print(t("check.config_bad", n=len(bad_config),
+                    names=_names(bad_config)))
         libraries = _path_list(config, "libraries", LIBRARIES)
         loose = _path_list(config, "loose_paths", LOOSE_PATHS)
         paths = libraries + loose
@@ -323,6 +328,23 @@ def _number_in(value, low, high):
 
 def _count_int(value):
     return isinstance(value, int) and not isinstance(value, bool) and value >= 0
+
+
+def _bad_config(config):
+    """Config keys whose value has the wrong type."""
+    if not isinstance(config, dict):
+        return []
+    bad = []
+    for key in ("libraries", "loose_paths", "exclude"):
+        value = config.get(key)
+        if key in config and not (
+                isinstance(value, list)
+                and all(isinstance(item, str) and item.strip() for item in value)):
+            bad.append(key)
+    if "output" in config and not (
+            isinstance(config["output"], str) and config["output"].strip()):
+        bad.append("output")
+    return bad
 
 
 def _bad_text_fields(data):
@@ -673,7 +695,8 @@ def main(argv=None):
         try:
             report_path = os.path.expanduser(args.report)
             write_report(report_path, build_report(
-                games, total_hours, q1, q2, q3, wishlist, history_rows, output))
+                games, total_hours, q1, q2, q3, wishlist, history_rows, output,
+                limit=args.top or 5))
             print(t("cli.report_ok", path=report_path))
         except OSError as e:
             print(t("cli.report_error", error=e))

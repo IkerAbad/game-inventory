@@ -489,6 +489,19 @@ class BranchTests(unittest.TestCase):
             self.assertEqual(rc, 0)
             self.assertFalse(os.path.exists(report))
 
+    def test_report_uses_top_limit(self):
+        with tempfile.TemporaryDirectory() as d:
+            with mock.patch("inventory.cli.build_report",
+                            return_value="x") as builder, \
+                 mock.patch("inventory.cli.write_report"):
+                rc, _, _, _ = self._run(
+                    d, hours={"only": 1.0}, games=[fake_game("Only", 1.0)],
+                    args=["--offline", "--keep", "--top", "3", "--report",
+                          os.path.join(d, "r.md"),
+                          "--output", os.path.join(d, "out.xlsx")])
+        self.assertEqual(rc, 0)
+        self.assertEqual(builder.call_args.kwargs["limit"], 3)
+
     def test_build_report_sections(self):
         games = [
             {"name": "A", "gb": 10.0, "hours": 5.0, "ratio": 2.0,
@@ -727,6 +740,17 @@ class BranchTests(unittest.TestCase):
                 args=["--check-data", "--strict"])
         self.assertEqual(rc, 1)
         self.assertIn("Text fields with the wrong type: 3", console)
+
+    def test_check_data_reports_bad_config_types(self):
+        with tempfile.TemporaryDirectory() as d:
+            rc, console, _, _ = self._run(
+                d, hours={"game": 10.0}, completed=[], playing=[],
+                wishlist={"juegos": {}},
+                config={"libraries": "D:/Games", "output": 3},
+                args=["--check-data", "--strict"])
+        self.assertEqual(rc, 1)
+        self.assertIn("Config keys with a wrong value type (2): libraries, output",
+                      console)
 
     def test_check_data_reports_bad_blocks_and_unsorted_history(self):
         history = ("date,games,gb,hours\n"

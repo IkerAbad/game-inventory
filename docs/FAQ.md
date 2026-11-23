@@ -31,3 +31,7 @@ The Excel file is open in another program, the path is inside `data/`, or anothe
 ## Can I install it without touching the global Python?
 
 Yes, with `pipx install .` from the checkout. See the install section of the README.
+
+## How do I get a text summary?
+
+Run with `--report report.md`. It writes a Markdown summary with the totals, the top picks, completed games, playing games, the history delta and the wishlist counts. The number of picks follows `--top`, or five by default. `--dry-run` writes no report.

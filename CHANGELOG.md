@@ -12,15 +12,17 @@ All notable changes to this project. The format follows [Keep a Changelog](https
 - The data check names the stale keys and reports unknown config keys, unnormalized `hours.json` keys, normalization collisions, completed/playing titles missing from `hours.json` and games marked as completed and playing at the same time.
 - The data check also reports reachable libraries, an output path inside `data/`, and repeated or future history dates.
 - The data check reports metadata blocks that are not objects, non-string titles in `completed.json` or `playing.json`, and unsorted history rows, and prints the total warnings.
+- The data check reports config keys with a wrong value type.
 - The network user agent uses the installed package version.
 - `--open` / `--abrir`: open the workbook with the default application after saving it.
 - Workbook metadata (title, creator, subject, description, keywords) and landscape print setup with fit-to-width.
 - The Plan sheet keeps its header visible when scrolling.
+- The Plan sheet has an auto-filter on its header.
 - The Summary sheet shows the generation date.
 - `--top` rejects negative values.
 - Help output with usage examples.
 - `--top N`: print the best GB/h picks that are not completed or playing.
-- `--report` / `--informe`: write a Markdown summary of the run.
+- `--report` / `--informe`: write a Markdown summary of the run. The number of picks follows `--top`.
 - `GAME_INVENTORY_LANG` sets the default language; `--lang` overrides it.
 - Ctrl+C is caught: the command prints `Cancelled.` and exits with code 130.
 - `data/config.json` can override the libraries, loose paths, exclusions and output path. `~` is expanded in every path.

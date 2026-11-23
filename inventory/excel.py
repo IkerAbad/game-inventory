@@ -340,6 +340,7 @@ def style_workbook(wb, games):
     header_row(ws, 4, 1, 12)
     ws.freeze_panes = "A5"
     last = ws.max_row
+    ws.auto_filter.ref = "A4:L%d" % max(last, 4)
     last_cf = max(last, 5)    # valid range even with no pending games
     for row in range(5, last + 1):
         for c in range(1, 13):
