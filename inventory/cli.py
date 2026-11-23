@@ -2,6 +2,7 @@
 """Entry point: options, orchestration and console summary."""
 
 import argparse
+import datetime
 import math
 import os
 import shutil
@@ -10,8 +11,8 @@ import subprocess
 import sys
 
 from .cell_format import dif_cells
-from .config import (COMPLETED_JSON, CONFIG_JSON, DATA_DIR, HOURS_JSON, OUTPUT,
-                     PLAYING_JSON, WISHLIST_JSON)
+from .config import (COMPLETED_JSON, CONFIG_JSON, DATA_DIR, HOURS_JSON, LIBRARIES,
+                     LOOSE_PATHS, OUTPUT, PLAYING_JSON, WISHLIST_JSON)
 from . import __version__
 from .data import (acquire_lock, clean_hours, clean_temp_files, is_valid_hours,
                    normalize, purge_hours, read_json, read_keys)
@@ -31,6 +32,12 @@ def inside_data(path):
         return False
 
 
+def _default_lang():
+    """Default language: GAME_INVENTORY_LANG when it is en or es, else English."""
+    value = os.environ.get("GAME_INVENTORY_LANG", "")
+    return value if value in ("en", "es") else "en"
+
+
 def _preselect_lang(argv):
     args = argv if argv is not None else sys.argv[1:]
     for i, value in enumerate(args):
@@ -38,7 +45,7 @@ def _preselect_lang(argv):
             return args[i + 1]
         if value.startswith("--lang="):
             return value.split("=", 1)[1]
-    return "en"
+    return _default_lang()
 
 
 def open_file(path):
@@ -88,6 +95,16 @@ def check_data(strict=False):
             warnings += len(unknown_config)
             print(t("check.config_unknown", n=len(unknown_config),
                     names=_names(unknown_config)))
+        libraries = _path_list(config, "libraries", LIBRARIES)
+        loose = _path_list(config, "loose_paths", LOOSE_PATHS)
+        paths = libraries + loose
+        print(t("check.libraries",
+                n=sum(1 for path in paths if os.path.isdir(path)), total=len(paths)))
+        output = config.get("output")
+        if (isinstance(output, str) and output.strip()
+                and inside_data(os.path.expanduser(output))):
+            warnings += 1
+            print(t("check.output_in_data"))
         hours = read_json(HOURS_JSON, {})
         if not isinstance(hours, dict):
             raise ValueError("%s must be a JSON object" % HOURS_JSON)
@@ -154,6 +171,13 @@ def check_data(strict=False):
         rows, problems = read_history()
         warnings += len(problems)
         if rows:
+            dates = [row[0] for row in rows]
+            repeated = len(dates) - len(set(dates))
+            future = sum(1 for date in dates
+                         if date > datetime.date.today().isoformat())
+            if repeated or future:
+                warnings += repeated + future
+                print(t("check.history_dates", repeated=repeated, future=future))
             print(t("check.history", n=len(rows), last=max(r[0] for r in rows),
                     warnings=len(problems)))
         else:
@@ -179,6 +203,15 @@ def _names(items, limit=5):
 
 def _game_keys(data):
     return {str(key) for key in data if not str(key).startswith("_")}
+
+
+def _path_list(config, key, default):
+    """Path list from config.json, expanding ~, or the default when it is invalid."""
+    value = config.get(key)
+    if (isinstance(value, list)
+            and all(isinstance(item, str) and item.strip() for item in value)):
+        return [os.path.expanduser(item) for item in value]
+    return list(default)
 
 
 def _hours_key_problems(hours):
@@ -269,7 +302,7 @@ def main(argv=None):
         description=t("help.description"),
         epilog=t("help.examples"),
         formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--lang", choices=["en", "es"], default="en",
+    parser.add_argument("--lang", choices=["en", "es"], default=_default_lang(),
                         help=t("help.lang"))
     parser.add_argument("--version", action="version",
                         version="game-inventory " + __version__,

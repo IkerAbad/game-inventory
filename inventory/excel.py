@@ -338,6 +338,7 @@ def style_workbook(wb, games):
     title_bar(ws, "A", t("title.plan"), "L")
     ws["A2"].font = Font(italic=True, size=9, color="6B7280")
     header_row(ws, 4, 1, 12)
+    ws.freeze_panes = "A5"
     last = ws.max_row
     last_cf = max(last, 5)    # valid range even with no pending games
     for row in range(5, last + 1):

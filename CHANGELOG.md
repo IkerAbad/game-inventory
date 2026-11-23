@@ -10,10 +10,14 @@ All notable changes to this project. The format follows [Keep a Changelog](https
 - `--check-data` / `--validar`: validate the JSON data files, `config.json`, stale metadata keys, invalid metadata values, repeated wishlist titles and the history, then exit without scanning or writing.
 - `--strict` / `--estricto`: with `--check-data`, exit with code 1 when there are warnings.
 - The data check names the stale keys and reports unknown config keys, unnormalized `hours.json` keys, normalization collisions, completed/playing titles missing from `hours.json` and games marked as completed and playing at the same time.
+- The data check also reports reachable libraries, an output path inside `data/`, and repeated or future history dates.
+- The network user agent uses the installed package version.
 - `--open` / `--abrir`: open the workbook with the default application after saving it.
 - Workbook metadata (title, creator, subject, description, keywords) and landscape print setup with fit-to-width.
+- The Plan sheet keeps its header visible when scrolling.
 - Help output with usage examples.
 - `--top N`: print the best GB/h picks that are not completed or playing.
+- `GAME_INVENTORY_LANG` sets the default language; `--lang` overrides it.
 - Ctrl+C is caught: the command prints `Cancelled.` and exits with code 130.
 - `data/config.json` can override the libraries, loose paths, exclusions and output path. `~` is expanded in every path.
 - Progress lines for the folder scan and the network step.
@@ -26,6 +30,8 @@ All notable changes to this project. The format follows [Keep a Changelog](https
 - Release workflow: a `v*` tag builds the wheel and sdist, checks them and publishes a GitHub release.
 - `tools/check_links.py`: fails when a relative documentation link is broken.
 - `tools/check_all.py`: runs pyflakes, the link check and the translation check in one command.
+- Dependabot groups minor and patch updates into one pull request per ecosystem.
+- CodeQL can also be started manually.
 - pipx install instructions.
 - Dependabot updates for pip and GitHub Actions.
 - Contributing guide in English and Spanish.

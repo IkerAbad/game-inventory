@@ -19,6 +19,8 @@ Escanea las carpetas donde tienes juegos instalados, cruza el tamaño en disco c
 
 - Python 3.12 o superior.
 - `openpyxl` (está en `requirements.txt`).
+- La red es opcional: `--offline` no hace ninguna petición.
+- Las bibliotecas por defecto son rutas de Windows; `data/config.json` las adapta a cualquier sistema.
 
 ## Instalar como paquete
 
@@ -71,6 +73,8 @@ Opciones:
 El Excel sale por defecto a `%USERPROFILE%\Desktop\Juegos\Inventario juegos GB por hora.xlsx` y deja una copia `.bak.xlsx` de la ejecución anterior. Se mantiene el nombre español para actualizar el libro que ya existe. Ciérralo antes de ejecutar, si está abierto el script aborta sin escanear nada.
 
 Códigos de salida: `0` éxito, `1` abortado o datos inválidos, `130` cancelado con Ctrl+C.
+
+`GAME_INVENTORY_LANG=es` cambia el idioma por defecto; `--lang` tiene prioridad.
 
 ## Datos
 

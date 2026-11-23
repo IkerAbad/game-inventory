@@ -223,6 +223,8 @@ TEXT = {
         "check.wishlist": "Wishlist: {n} titles ({warnings} warnings)",
         "check.config": "Config: {n} overrides in config.json",
         "check.config_unknown": "Unknown config keys ({n}): {names}",
+        "check.libraries": "Libraries: {n} of {total} folders reachable",
+        "check.output_in_data": "Output points inside data/: the workbook would be refused.",
         "check.stale": "Metadata keys without a game: hours {hours} | wishlist {wishlist}",
         "check.stale_names": "Stale in hours: {hours} | wishlist: {wishlist}",
         "check.unnormalized": "Unnormalized keys in hours.json ({n}): {names}",
@@ -231,6 +233,7 @@ TEXT = {
         "check.metadata": "Invalid metadata entries: metacritic {metacritic} | steam {steam} | difficulty {difficulty}",
         "check.duplicates": "Wishlist titles repeated after normalization: {n}",
         "check.history": "History: {n} days, last {last} ({warnings} bad rows)",
+        "check.history_dates": "History dates: {repeated} repeated | {future} in the future",
         "check.history_empty": "History: no rows yet ({warnings} bad rows)",
         "check.strict": "STRICT: {n} warnings, exit code 1.",
 
@@ -510,6 +513,8 @@ TEXT = {
         "check.wishlist": "Wishlist: {n} titulos ({warnings} avisos)",
         "check.config": "Config: {n} ajustes en config.json",
         "check.config_unknown": "Claves desconocidas en la configuracion ({n}): {names}",
+        "check.libraries": "Bibliotecas: {n} de {total} carpetas accesibles",
+        "check.output_in_data": "La salida apunta dentro de data/: el libro se rechazaria.",
         "check.stale": "Claves de metadatos sin juego: horas {hours} | wishlist {wishlist}",
         "check.stale_names": "Huerfanas en horas: {hours} | wishlist: {wishlist}",
         "check.unnormalized": "Claves sin normalizar en hours.json ({n}): {names}",
@@ -518,6 +523,7 @@ TEXT = {
         "check.metadata": "Entradas de metadatos invalidas: metacritic {metacritic} | steam {steam} | dificultad {difficulty}",
         "check.duplicates": "Titulos de wishlist repetidos tras normalizar: {n}",
         "check.history": "Historico: {n} dias, ultimo {last} ({warnings} filas malas)",
+        "check.history_dates": "Fechas del historico: {repeated} repetidas | {future} en el futuro",
         "check.history_empty": "Historico: sin filas todavia ({warnings} filas malas)",
         "check.strict": "ESTRICTO: {n} avisos, codigo de salida 1.",
 

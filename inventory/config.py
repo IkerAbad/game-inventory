@@ -5,6 +5,8 @@ import json
 import os
 import re
 
+from . import __version__
+
 # Folders scanned for games (one entry per game library).
 LIBRARIES = [
     r"C:\Matrix Games",
@@ -103,6 +105,6 @@ def _apply_config(config):
 LIBRARIES, LOOSE_PATHS, EXCLUDE, OUTPUT = _apply_config(_read_config(CONFIG_JSON))
 
 # Network autocomplete.
-USER_AGENT = "GameInventory/1.0 (personal use; no bulk automation)"
+USER_AGENT = "GameInventory/%s (personal use; no bulk automation)" % __version__
 MAX_REQUESTS = 600
 RETRY_DAYS = 30

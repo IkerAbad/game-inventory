@@ -217,6 +217,24 @@ class IntegrationTests(unittest.TestCase):
         self.assertEqual(_preselect_lang(["--lang=es"]), "es")
         self.assertEqual(_preselect_lang(["--lang", "en"]), "en")
 
+    def test_lang_from_environment(self):
+        with mock.patch.dict(os.environ, {"GAME_INVENTORY_LANG": "es"}):
+            self.assertEqual(_preselect_lang([]), "es")
+        with mock.patch.dict(os.environ, {"GAME_INVENTORY_LANG": "fr"}):
+            self.assertEqual(_preselect_lang([]), "en")
+        with mock.patch.dict(os.environ, {}, clear=True):
+            self.assertEqual(_preselect_lang([]), "en")
+
+    def test_main_uses_environment_language(self):
+        try:
+            with mock.patch.dict(os.environ, {"GAME_INVENTORY_LANG": "es"}):
+                with redirect_stdout(io.StringIO()) as output:
+                    with self.assertRaises(SystemExit):
+                        main(["--help"])
+        finally:
+            set_lang("en")
+        self.assertIn("Escanea los juegos instalados", output.getvalue())
+
 
 class AbortTests(unittest.TestCase):
     def test_aborts_when_output_is_folder(self):
@@ -563,6 +581,40 @@ class BranchTests(unittest.TestCase):
                 args=["--check-data", "--strict"])
         self.assertEqual(rc, 1)
         self.assertIn("Completed and playing at the same time (1): hades", console)
+
+    def test_check_data_counts_reachable_libraries(self):
+        with tempfile.TemporaryDirectory() as d:
+            missing = os.path.join(d, "missing")
+            rc, console, _, _ = self._run(
+                d, hours={"game": 10.0}, completed=[], playing=[],
+                wishlist={"juegos": {}},
+                config={"libraries": [d, missing], "loose_paths": [d]},
+                args=["--check-data"])
+        self.assertEqual(rc, 0)
+        self.assertIn("Libraries: 2 of 3 folders reachable", console)
+
+    def test_check_data_rejects_output_inside_data(self):
+        with tempfile.TemporaryDirectory() as d:
+            rc, console, _, _ = self._run(
+                d, hours={"game": 10.0}, completed=[], playing=[],
+                wishlist={"juegos": {}},
+                config={"output": os.path.join(d, "data", "out.xlsx")},
+                args=["--check-data", "--strict"])
+        self.assertEqual(rc, 1)
+        self.assertIn("Output points inside data/", console)
+
+    def test_check_data_reports_repeated_and_future_history_dates(self):
+        history = ("date,games,gb,hours\n"
+                   "2026-11-01,1,1.0,10.0\n"
+                   "2026-11-01,2,2.0,20.0\n"
+                   "2999-01-01,3,3.0,30.0\n")
+        with tempfile.TemporaryDirectory() as d:
+            rc, console, _, _ = self._run(
+                d, hours={"game": 10.0}, completed=[], playing=[],
+                wishlist={"juegos": {}}, history=history,
+                args=["--check-data", "--strict"])
+        self.assertEqual(rc, 1)
+        self.assertIn("History dates: 1 repeated | 1 in the future", console)
 
     def test_check_data_strict_with_warnings(self):
         with tempfile.TemporaryDirectory() as d:

@@ -19,6 +19,8 @@ Scan the folders where your games are installed, cross the disk size with the ma
 
 - Python 3.12 or newer.
 - `openpyxl` (see `requirements.txt`).
+- Network access is optional: `--offline` skips every request.
+- The default libraries are Windows paths; `data/config.json` adapts them to any system.
 
 ## Install as a package
 
@@ -71,6 +73,8 @@ Options:
 The workbook is written by default to `%USERPROFILE%\Desktop\Juegos\Inventario juegos GB por hora.xlsx` and keeps a `.bak.xlsx` copy of the previous run. The Spanish file name is kept so the existing workbook is updated in place. Close the workbook before running, otherwise the script stops before scanning anything.
 
 Exit codes: `0` success, `1` aborted or invalid data, `130` cancelled with Ctrl+C.
+
+`GAME_INVENTORY_LANG=es` changes the default language; `--lang` still wins.
 
 ## Data
 

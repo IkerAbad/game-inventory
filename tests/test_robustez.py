@@ -20,7 +20,8 @@ from inventory import excel
 from inventory.cli import (_bad_metadata, _hours_key_problems, _names,
                            _stale_keys, inside_data)
 from inventory.config import (DATA_DIR, EXCLUDE, LIBRARIES, LOOSE_PATHS, OUTPUT,
-                              _apply_config, _data_root, _desktop, _read_config)
+                              USER_AGENT, _apply_config, _data_root, _desktop,
+                              _read_config)
 from inventory.i18n import set_lang
 from inventory.data import (_save_json, _same, clean_hours, write_atomic, write_hours,
                               write_wishlist, is_valid_hours, read_keys, read_json,
@@ -709,6 +710,7 @@ class WorkbookCoverageTests(unittest.TestCase):
         self.assertEqual(wb.properties.title, "Game inventory")
         self.assertEqual(ws.page_setup.orientation, "landscape")
         self.assertTrue(ws.sheet_properties.pageSetUpPr.fitToPage)
+        self.assertEqual(wb["Plan"].freeze_panes, "A5")
 
 
 class ConfigTests(unittest.TestCase):
@@ -730,6 +732,11 @@ class ConfigTests(unittest.TestCase):
         with mock.patch("inventory.config.os.path.isdir", return_value=False):
             desktop = _desktop()
         self.assertEqual(os.path.basename(desktop), "Desktop")
+
+    def test_user_agent_uses_the_package_version(self):
+        from inventory import __version__
+        self.assertIn(__version__, USER_AGENT)
+        self.assertTrue(USER_AGENT.startswith("GameInventory/"))
 
     def test_config_defaults(self):
         libraries, loose, exclude, output = _apply_config({})
