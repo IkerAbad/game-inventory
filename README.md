@@ -45,7 +45,7 @@ py -m pip install -e ".[dev]"
 py -m unittest discover -s tests
 ```
 
-Run from the repository root. Without `openpyxl`, three test modules fail at import with `ModuleNotFoundError: No module named 'openpyxl'`; that is a missing dependency, not a failing test. `pip install -e .` or `pip install -r requirements.txt` installs it. Reproduced on 2026-11-23: a clean venv collected 106 tests with 3 import errors, and after installing `requirements.txt` the same command ran 258 tests with `OK`.
+Run from the repository root. Without `openpyxl`, three test modules fail at import with `ModuleNotFoundError: No module named 'openpyxl'`; that is a missing dependency, not a failing test. `pip install -e .` or `pip install -r requirements.txt` installs it. Reproduced on 2026-11-23: a clean venv reported 3 import errors from the missing dependency, and after installing `requirements.txt` the same command ran 259 tests with `OK`.
 
 ## Install as a package
 

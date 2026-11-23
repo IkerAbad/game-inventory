@@ -45,7 +45,7 @@ py -m pip install -e ".[dev]"
 py -m unittest discover -s tests
 ```
 
-Ejecuta desde la raíz del repositorio. Sin `openpyxl`, tres módulos de pruebas fallan al importar con `ModuleNotFoundError: No module named 'openpyxl'`; es una dependencia que falta, no un fallo de las pruebas. `pip install -e .` o `pip install -r requirements.txt` lo instala. Reproducido el 2026-11-23: un venv limpio recogió 106 pruebas con 3 errores de importación, y tras instalar `requirements.txt` el mismo comando ejecutó 258 pruebas con `OK`.
+Ejecuta desde la raíz del repositorio. Sin `openpyxl`, tres módulos de pruebas fallan al importar con `ModuleNotFoundError: No module named 'openpyxl'`; es una dependencia que falta, no un fallo de las pruebas. `pip install -e .` o `pip install -r requirements.txt` lo instala. Reproducido el 2026-11-23: un venv limpio dio 3 errores de importación por la dependencia que faltaba, y tras instalar `requirements.txt` el mismo comando ejecutó 259 pruebas con `OK`.
 
 ## Instalar como paquete
 
