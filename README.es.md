@@ -65,7 +65,7 @@ Opciones:
 | `--force-purge`, `--forzar-purga` | Permite purgar más de la mitad de las claves de una vez. |
 | `--dry-run`, `--simular` | Escanea y muestra el resumen sin escribir nada. |
 | `--top N` | Muestra los N mejores GB/h que no estén completados ni en curso (0 lo desactiva). |
-| `--report RUTA`, `--informe RUTA` | Escribe un resumen Markdown al terminar. |
+| `--report RUTA`, `--informe RUTA` | Escribe un resumen Markdown al terminar. No puede estar dentro de `data/` ni usar la ruta del libro. |
 | `--open`, `--abrir` | Abre el libro guardado con la aplicación predeterminada. |
 | `--check-data`, `--validar` | Valida los ficheros JSON, las claves de metadatos huérfanas, los valores de metadatos inválidos, los títulos repetidos de la wishlist y el histórico, y sale. |
 | `--strict`, `--estricto` | Con `--check-data`, sale con código 1 si encuentra avisos. |

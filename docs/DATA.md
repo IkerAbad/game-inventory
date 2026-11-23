@@ -83,7 +83,7 @@ Optional. It overrides the defaults written in `inventory/config.py`:
 }
 ```
 
-- `libraries`: folders whose subfolders are games.
+- `libraries`: folders whose subfolders are games. A path repeated is reported by `--check-data`.
 - `loose_paths`: one game per folder.
 - `exclude`: folder names to skip. Case and punctuation are ignored.
 - `output`: workbook path; `~` is expanded.

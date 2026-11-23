@@ -14,6 +14,7 @@ All notable changes to this project. The format follows [Keep a Changelog](https
 - The data check reports metadata blocks that are not objects, non-string titles in `completed.json` or `playing.json`, and unsorted history rows, and prints the total warnings.
 - The data check reports config keys with a wrong value type.
 - The data check reports duplicate JSON keys and keys that normalize to an empty name.
+- The data check reports the same library path configured twice.
 - The data check reports non-text fields inside metadata entries and a malformed `_actualizado` date.
 - The network user agent uses the installed package version.
 - `--open` / `--abrir`: open the workbook with the default application after saving it.
@@ -27,7 +28,8 @@ All notable changes to this project. The format follows [Keep a Changelog](https
 - `--top` rejects negative values.
 - Help output with usage examples.
 - `--top N`: print the best GB/h picks that are not completed or playing.
-- `--report` / `--informe`: write a Markdown summary of the run. The number of picks follows `--top`.
+- `--report` / `--informe`: write a Markdown summary of the run. The number of picks follows `--top`. The report cannot be inside `data/` or overwrite the workbook.
+- The report totals include completed GB, playing and games without data.
 - `GAME_INVENTORY_LANG` sets the default language; `--lang` overrides it.
 - Ctrl+C is caught: the command prints `Cancelled.` and exits with code 130.
 - `data/config.json` can override the libraries, loose paths, exclusions and output path. `~` is expanded in every path.

@@ -34,4 +34,4 @@ Yes, with `pipx install .` from the checkout. See the install section of the REA
 
 ## How do I get a text summary?
 
-Run with `--report report.md`. It writes a Markdown summary with the totals, the top picks, completed games, playing games, the history delta and the wishlist counts. The number of picks follows `--top`, or five by default. `--dry-run` writes no report.
+Run with `--report report.md`. It writes a Markdown summary with the totals, the top picks, completed games, playing games, the history delta and the wishlist counts. The number of picks follows `--top`, or five by default. `--dry-run` writes no report. The report cannot be inside `data/` or use the same path as the workbook.

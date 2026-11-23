@@ -83,7 +83,7 @@ Opcional. Sustituye los valores por defecto de `inventory/config.py`:
 }
 ```
 
-- `libraries`: carpetas cuyas subcarpetas son juegos.
+- `libraries`: carpetas cuyas subcarpetas son juegos. Una ruta repetida se avisa con `--check-data`.
 - `loose_paths`: un juego por carpeta.
 - `exclude`: nombres de carpeta que se saltan. No distingue mayúsculas ni puntuación.
 - `output`: ruta del libro; `~` se expande.

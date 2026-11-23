@@ -85,9 +85,15 @@ def build_report(games, total_hours, q1, q2, q3, wishlist, history_rows,
                  output, limit=5):
     """Markdown summary of one run. Return the text, write nothing."""
     lines = [t("report.title", date=datetime.date.today().isoformat()), ""]
+    completed = [j for j in games if j["completed"]]
+    playing = [j for j in games if j["playing"]]
+    no_data = sum(1 for j in games
+                  if j["hours"] == "?" and not j["completed"])
     lines.append(t("report.totals", games=len(games),
                    gb=sum(j["gb"] for j in games), hours=total_hours,
-                   days=round(total_hours / 4)))
+                   days=round(total_hours / 4), completed=len(completed),
+                   completed_gb=sum(j["gb"] for j in completed),
+                   playing=len(playing), no_data=no_data))
     lines.append(t("report.quartiles", q1=q1, q2=q2, q3=q3))
     picks = top_picks(games, limit)
     lines += ["", t("report.top"), ""]
@@ -97,12 +103,10 @@ def build_report(games, total_hours, q1, q2, q3, wishlist, history_rows,
                            ratio=j["ratio"], hours=j["hours"], gb=j["gb"]))
     else:
         lines.append(t("report.none"))
-    completed = [j for j in games if j["completed"]]
     if completed:
         lines += ["", t("report.completed"), ""]
         for j in completed:
             lines.append(t("report.completed_line", name=j["name"], gb=j["gb"]))
-    playing = [j for j in games if j["playing"]]
     if playing:
         lines += ["", t("report.playing"), ""]
         for j in playing:
@@ -174,6 +178,11 @@ def check_data(strict=False):
         paths = libraries + loose
         print(t("check.libraries",
                 n=sum(1 for path in paths if os.path.isdir(path)), total=len(paths)))
+        duplicate_paths = _duplicate_paths(paths)
+        if duplicate_paths:
+            warnings += len(duplicate_paths)
+            print(t("check.duplicate_paths", n=len(duplicate_paths),
+                    names=_names(duplicate_paths)))
         output = config.get("output")
         if (isinstance(output, str) and output.strip()
                 and inside_data(os.path.expanduser(output))):
@@ -387,6 +396,18 @@ def _bad_config(config):
     return bad
 
 
+def _duplicate_paths(paths):
+    """Paths that appear more than once after normalizing case and separators."""
+    seen, duplicates = set(), []
+    for path in paths:
+        key = os.path.normcase(os.path.abspath(os.path.expanduser(path)))
+        if key in seen:
+            duplicates.append(path)
+        else:
+            seen.add(key)
+    return duplicates
+
+
 def _empty_keys(data):
     """Game keys that normalize to an empty name."""
     if not isinstance(data, dict):
@@ -533,6 +554,17 @@ def main(argv=None):
         print(t("cli.output_in_data"))
         print("   " + output)
         return 1
+    report = os.path.expanduser(args.report) if args.report else None
+    if report:
+        if inside_data(report):
+            print(t("cli.report_in_data"))
+            print("   " + report)
+            return 1
+        if (os.path.normcase(os.path.abspath(report))
+                == os.path.normcase(os.path.abspath(output))):
+            print(t("cli.report_same_as_output"))
+            print("   " + report)
+            return 1
     if excel_locked(output):
         print(t("cli.excel_open"))
         print("   " + output)
@@ -652,6 +684,8 @@ def main(argv=None):
         print(t("cli.quartiles", q1=q1, q2=q2, q3=q3))
         if args.top > 0:
             print_top(games, args.top)
+        if report:
+            print(t("cli.report_dry_run"))
         print(t("cli.dry_run"))
         lock.close()
         return 0
@@ -771,13 +805,12 @@ def main(argv=None):
     if duplicates:
         print("\n" + t("cli.duplicates", names=", ".join(duplicates)))
     print("\n" + t("cli.ok", path=output))
-    if args.report:
+    if report:
         try:
-            report_path = os.path.expanduser(args.report)
-            write_report(report_path, build_report(
+            write_report(report, build_report(
                 games, total_hours, q1, q2, q3, wishlist, history_rows, output,
                 limit=args.top or 5))
-            print(t("cli.report_ok", path=report_path))
+            print(t("cli.report_ok", path=report))
         except OSError as e:
             print(t("cli.report_error", error=e))
     lock.close()

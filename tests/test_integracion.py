@@ -485,12 +485,33 @@ class BranchTests(unittest.TestCase):
 
     def test_report_not_written_in_dry_run(self):
         with tempfile.TemporaryDirectory() as d:
-            report = os.path.join(d, "report.md")
-            rc, _, _, _ = self._run(
+            report = os.path.join(d, "sub", "report.md")
+            rc, console, _, _ = self._run(
                 d, hours={"only": 1.0}, games=[fake_game("Only", 1.0)],
                 args=["--offline", "--keep", "--report", report, "--dry-run"])
             self.assertEqual(rc, 0)
             self.assertFalse(os.path.exists(report))
+            self.assertIn("Report not written: dry run", console)
+
+    def test_report_inside_data_is_rejected(self):
+        with tempfile.TemporaryDirectory() as d:
+            rc, console, _, _ = self._run(
+                d, hours={"only": 1.0}, games=[fake_game("Only", 1.0)],
+                args=["--offline", "--keep", "--report",
+                      os.path.join(d, "data", "report.md"),
+                      "--output", os.path.join(d, "out.xlsx")])
+        self.assertEqual(rc, 1)
+        self.assertIn("report cannot be inside data/", console)
+
+    def test_report_cannot_overwrite_the_workbook(self):
+        with tempfile.TemporaryDirectory() as d:
+            out = os.path.join(d, "out.xlsx")
+            rc, console, _, _ = self._run(
+                d, hours={"only": 1.0}, games=[fake_game("Only", 1.0)],
+                args=["--offline", "--keep", "--report", out,
+                      "--output", out])
+        self.assertEqual(rc, 1)
+        self.assertIn("report and the workbook use the same path", console)
 
     def test_report_uses_top_limit(self):
         with tempfile.TemporaryDirectory() as d:
@@ -523,6 +544,9 @@ class BranchTests(unittest.TestCase):
                             {"X": 10.0, "Y": "?"}, history, "out.xlsx")
         self.assertIn("## Top picks", text)
         self.assertIn("**A**", text)
+        self.assertIn("Completed: 1 games, 20.00 GB recoverable", text)
+        self.assertIn("Playing: 1", text)
+        self.assertIn("Without data: 0", text)
         self.assertIn("## Completed but installed", text)
         self.assertIn("Done", text)
         self.assertIn("## Playing", text)
@@ -754,6 +778,16 @@ class BranchTests(unittest.TestCase):
         self.assertEqual(rc, 1)
         self.assertIn("Config keys with a wrong value type (2): libraries, output",
                       console)
+
+    def test_check_data_reports_duplicate_library_paths(self):
+        with tempfile.TemporaryDirectory() as d:
+            rc, console, _, _ = self._run(
+                d, hours={"game": 10.0}, completed=[], playing=[],
+                wishlist={"juegos": {}},
+                config={"libraries": [d, d], "loose_paths": []},
+                args=["--check-data", "--strict"])
+        self.assertEqual(rc, 1)
+        self.assertIn("Library paths repeated (1)", console)
 
     def test_check_data_reports_duplicate_json_keys(self):
         with tempfile.TemporaryDirectory() as d:

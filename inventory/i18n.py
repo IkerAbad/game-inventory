@@ -204,6 +204,9 @@ TEXT = {
         "cli.open_failed": "Warning: could not open the workbook ({error}).",
         "cli.report_ok": "Report: {path}",
         "cli.report_error": "Warning: could not write the report ({error}).",
+        "cli.report_in_data": "ABORTED: the report cannot be inside data/.",
+        "cli.report_same_as_output": "ABORTED: the report and the workbook use the same path.",
+        "cli.report_dry_run": "Report not written: dry run.",
         "cli.cancelled": "Cancelled.",
         "cli.dry_run": "DRY RUN: no workbook, history or JSON written.",
 
@@ -242,6 +245,7 @@ TEXT = {
         "check.date_fields": "Date fields with the wrong format: {n}",
         "check.duplicate_keys": "Duplicate JSON keys ({n}): {names}",
         "check.empty_keys": "Keys that normalize to an empty name ({n}): {names}",
+        "check.duplicate_paths": "Library paths repeated ({n}): {names}",
         "check.duplicates": "Wishlist titles repeated after normalization: {n}",
         "check.history": "History: {n} days, last {last} ({warnings} bad rows)",
         "check.history_dates": "History dates: {repeated} repeated | {future} in the future",
@@ -255,7 +259,7 @@ TEXT = {
         "cli.top_negative": "--top cannot be negative",
 
         "report.title": "# Game inventory - {date}",
-        "report.totals": "- Games: {games}\n- Installed: {gb:.2f} GB\n- Pending hours: {hours:.1f} ({days} days at 4 h/day)",
+        "report.totals": "- Games: {games}\n- Installed: {gb:.2f} GB\n- Pending hours: {hours:.1f} ({days} days at 4 h/day)\n- Completed: {completed} games, {completed_gb:.2f} GB recoverable\n- Playing: {playing}\n- Without data: {no_data}",
         "report.quartiles": "- GB/h quartiles: Bad < {q1:.2f} | Medium < {q2:.2f} | Good < {q3:.2f} | PLAY NOW >= {q3:.2f}",
         "report.top": "## Top picks",
         "report.top_line": "{i}. **{name}** - {ratio:.2f} GB/h, {hours:g} h, {gb:.1f} GB",
@@ -523,6 +527,9 @@ TEXT = {
         "cli.open_failed": "Aviso: no se pudo abrir el libro ({error}).",
         "cli.report_ok": "Informe: {path}",
         "cli.report_error": "Aviso: no se pudo escribir el informe ({error}).",
+        "cli.report_in_data": "ABORTADO: el informe no puede estar dentro de data/.",
+        "cli.report_same_as_output": "ABORTADO: el informe y el libro usan la misma ruta.",
+        "cli.report_dry_run": "Informe no escrito: simulacion.",
         "cli.cancelled": "Cancelado.",
         "cli.dry_run": "SIMULACION: no se ha escrito el Excel, el historico ni los JSON.",
 
@@ -561,6 +568,7 @@ TEXT = {
         "check.date_fields": "Campos de fecha con formato incorrecto: {n}",
         "check.duplicate_keys": "Claves JSON repetidas ({n}): {names}",
         "check.empty_keys": "Claves que quedan vacias al normalizar ({n}): {names}",
+        "check.duplicate_paths": "Rutas de biblioteca repetidas ({n}): {names}",
         "check.duplicates": "Titulos de wishlist repetidos tras normalizar: {n}",
         "check.history": "Historico: {n} dias, ultimo {last} ({warnings} filas malas)",
         "check.history_dates": "Fechas del historico: {repeated} repetidas | {future} en el futuro",
@@ -574,7 +582,7 @@ TEXT = {
         "cli.top_negative": "--top no puede ser negativo",
 
         "report.title": "# Inventario de juegos - {date}",
-        "report.totals": "- Juegos: {games}\n- Instalado: {gb:.2f} GB\n- Horas pendientes: {hours:.1f} ({days} dias a 4 h/dia)",
+        "report.totals": "- Juegos: {games}\n- Instalado: {gb:.2f} GB\n- Horas pendientes: {hours:.1f} ({days} dias a 4 h/dia)\n- Completados: {completed} juegos, {completed_gb:.2f} GB recuperables\n- Jugando: {playing}\n- Sin datos: {no_data}",
         "report.quartiles": "- Cuartiles GB/h: Malo < {q1:.2f} | Medio < {q2:.2f} | Bueno < {q3:.2f} | JUGAR YA >= {q3:.2f}",
         "report.top": "## Mejores elecciones",
         "report.top_line": "{i}. **{name}** - {ratio:.2f} GB/h, {hours:g} h, {gb:.1f} GB",

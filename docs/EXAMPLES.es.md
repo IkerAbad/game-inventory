@@ -48,6 +48,9 @@ Añade `--strict` para que devuelva código 1 si alguno de esos contadores no es
 - Juegos: 42
 - Instalado: 380.12 GB
 - Horas pendientes: 512.4 (128 dias a 4 h/dia)
+- Completados: 3 juegos, 45.20 GB recuperables
+- Jugando: 1
+- Sin datos: 2
 - Cuartiles GB/h: Malo < 0.25 | Medio < 0.60 | Bueno < 1.40 | JUGAR YA >= 1.40
 
 ## Mejores elecciones

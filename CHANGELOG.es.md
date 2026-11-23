@@ -14,12 +14,14 @@ Cambios destacados del proyecto. El formato sigue [Keep a Changelog](https://kee
 - La comprobación de datos informa de bloques de metadatos que no son objetos, títulos que no son texto en `completed.json` o `playing.json` y filas del histórico sin ordenar, y muestra el total de avisos.
 - La comprobación de datos informa de claves de configuración con tipo incorrecto.
 - La comprobación de datos informa de claves JSON repetidas y de claves que quedan vacías al normalizar.
+- La comprobación de datos informa de una misma ruta de biblioteca configurada dos veces.
 - La comprobación de datos informa de campos que no son texto dentro de los metadatos y de una fecha `_actualizado` mal formada.
 - El user agent de red usa la versión instalada del paquete.
 - `--open` / `--abrir`: abre el libro con la aplicación predeterminada al guardarlo.
 - Ayuda con ejemplos de uso.
 - `--top N`: muestra los mejores GB/h que no estén completados ni en curso.
-- `--report` / `--informe`: escribe un resumen Markdown de la ejecución. El número de elecciones sigue a `--top`.
+- `--report` / `--informe`: escribe un resumen Markdown de la ejecución. El número de elecciones sigue a `--top`. El informe no puede estar dentro de `data/` ni sobrescribir el libro.
+- Los totales del informe incluyen los GB completados, los juegos en curso y los que no tienen datos.
 - `GAME_INVENTORY_LANG` fija el idioma por defecto; `--lang` tiene prioridad.
 - Ctrl+C se captura: el comando muestra `Cancelado.` y sale con código 130.
 - Metadatos del libro (título, autor, asunto, descripción y palabras clave) y configuración de impresión horizontal ajustada al ancho.

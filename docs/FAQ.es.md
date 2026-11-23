@@ -34,4 +34,4 @@ Sí, con `pipx install .` desde el checkout. Ver la sección de instalación del
 
 ## ¿Cómo saco un resumen de texto?
 
-Ejecuta con `--report informe.md`. Escribe un resumen Markdown con los totales, las mejores elecciones, los completados, los juegos en curso, el delta del histórico y los contadores de la wishlist. El número de elecciones sigue a `--top`, o cinco por defecto. `--dry-run` no escribe informe.
+Ejecuta con `--report informe.md`. Escribe un resumen Markdown con los totales, las mejores elecciones, los completados, los juegos en curso, el delta del histórico y los contadores de la wishlist. El número de elecciones sigue a `--top`, o cinco por defecto. `--dry-run` no escribe informe. El informe no puede estar dentro de `data/` ni usar la misma ruta que el libro.

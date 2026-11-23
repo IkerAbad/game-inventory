@@ -65,7 +65,7 @@ Options:
 | `--force-purge`, `--forzar-purga` | Allow purging more than half of the keys at once. |
 | `--dry-run`, `--simular` | Scan and show the summary without writing anything. |
 | `--top N` | Show the N best GB/h picks that are not completed or playing (0 disables it). |
-| `--report PATH`, `--informe PATH` | Write a Markdown summary after the run. |
+| `--report PATH`, `--informe PATH` | Write a Markdown summary after the run. It cannot be inside `data/` or use the workbook path. |
 | `--open`, `--abrir` | Open the saved workbook with the default application. |
 | `--check-data`, `--validar` | Validate the JSON data files, stale metadata keys, invalid metadata values, repeated wishlist titles and the history, then exit. |
 | `--strict`, `--estricto` | With `--check-data`, exit with code 1 when warnings are found. |

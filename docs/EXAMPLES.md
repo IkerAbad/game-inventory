@@ -48,6 +48,9 @@ Add `--strict` to return exit code 1 when any of those warning counters is not z
 - Games: 42
 - Installed: 380.12 GB
 - Pending hours: 512.4 (128 days at 4 h/day)
+- Completed: 3 games, 45.20 GB recoverable
+- Playing: 1
+- Without data: 2
 - GB/h quartiles: Bad < 0.25 | Medium < 0.60 | Good < 1.40 | PLAY NOW >= 1.40
 
 ## Top picks
