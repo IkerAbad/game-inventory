@@ -3,7 +3,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "game-inventory"
+name = "gamesize"
 dynamic = ["version"]
 description = "Game inventory: GB per hour, backlog plan, history and wishlist"
 readme = "README.md"

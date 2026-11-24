@@ -53,17 +53,25 @@ Ejecuta desde la raíz del repositorio. Sin `openpyxl`, tres módulos de pruebas
 
 ## Instalar como paquete
 
+La distribución se llama `gamesize`, porque PyPI rechazó `game-inventory` por
+parecerse a un proyecto existente. El comando sigue siendo `game-inventory` y
+el paquete que se importa sigue siendo `inventory`.
+
 ```
-py -m pip install .
+pip install gamesize
 game-inventory --lang es
 ```
+
+Desde el repositorio funciona igual `py -m pip install .`. Si el paquete ya
+está instalado, ejecutar `py -m pip install -e .` en el repositorio deja la
+versión editable.
 
 Los comandos directos de abajo también funcionan sin instalar. Instalado, `data/` se lee de la carpeta actual salvo que `GAME_INVENTORY_DATA` apunte a otra.
 
 O como comando aislado con [pipx](https://pipx.pypa.io):
 
 ```
-pipx install .
+pipx install gamesize
 game-inventory --version
 ```
 

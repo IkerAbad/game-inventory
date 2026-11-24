@@ -53,17 +53,25 @@ Run from the repository root. Without `openpyxl`, three test modules fail at imp
 
 ## Install as a package
 
+The distribution is `gamesize`, because PyPI rejected `game-inventory` as too
+similar to an existing project. The command is still `game-inventory` and the
+import package is still `inventory`.
+
 ```
-py -m pip install .
+pip install gamesize
 game-inventory --lang es
 ```
+
+From the repository, `py -m pip install .` works the same. If the package is
+already installed, running the script from the repository with `py -m pip
+install -e .` gives the editable version.
 
 The direct script and module commands below also work without installing. When installed, `data/` is read from the current folder unless `GAME_INVENTORY_DATA` points to another one.
 
 Or as an isolated command with [pipx](https://pipx.pypa.io):
 
 ```
-pipx install .
+pipx install gamesize
 game-inventory --version
 ```
 

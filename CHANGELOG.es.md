@@ -2,6 +2,12 @@
 
 Cambios destacados del proyecto. El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto usa versionado semántico.
 
+## [1.0.1] - 2026-11-24
+
+### Cambiado
+
+- La distribución se llama `gamesize`. PyPI rechazó `game-inventory` por parecerse a un proyecto existente. El comando sigue siendo `game-inventory` y el paquete que se importa sigue siendo `inventory`.
+
 ## [1.0.0] - 2026-11-23
 
 ### Añadido
