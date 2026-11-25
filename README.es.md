@@ -14,7 +14,7 @@ Escanea las carpetas donde tienes juegos instalados, cruza el tamaño en disco c
 - Escanea las unidades y carpetas configuradas en `inventory/config.py` y mide cada juego en disco.
 - Completa por red las horas que falten (Deku Deals, twoaveragegamers y una estimación con reseñas de Steam), el Metascore y, si no hay Metascore, el porcentaje de reseñas positivas de Steam.
 - Purga de `hours.json` las claves de juegos que ya no están instalados, solo si están todas las unidades.
-- Genera el Excel con hasta seis hojas: Juegos, Espacio, Resumen, Plan, Historico y Wishlist.
+- Genera el libro de Excel con hasta seis hojas: Games, Space, Summary, Plan, History y Wishlist. El fichero se escribe junto al programa; `--output` o `output` en `data/config.json` lo mueven.
 
 ![Ejemplo de libro con juegos ficticios](https://raw.githubusercontent.com/IkerAbad/game-inventory/main/docs/workbook.png)
 

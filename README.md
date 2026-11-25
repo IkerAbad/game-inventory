@@ -14,7 +14,7 @@ Scan the folders where your games are installed, cross the disk size with the ma
 - Scans the drives and folders configured in `inventory/config.py` and measures every game on disk.
 - Fills missing hours from the network (Deku Deals, twoaveragegamers and an estimate from Steam reviews), the Metascore and, when there is no Metascore, the share of positive Steam reviews.
 - Purges from `hours.json` the keys of games that are no longer installed, only when every drive is present.
-- Builds the Excel workbook with up to six sheets: Games, Space, Summary, Plan, History and Wishlist.
+- Builds the Excel workbook with up to six sheets: Games, Space, Summary, Plan, History and Wishlist. The file is written next to the program; `--output` or `output` in `data/config.json` moves it.
 
 ![Example workbook with fictional games](https://raw.githubusercontent.com/IkerAbad/game-inventory/main/docs/workbook.png)
 

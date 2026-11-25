@@ -2,6 +2,15 @@
 
 Cambios destacados del proyecto. El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto usa versionado semántico.
 
+## [1.0.2] - 2026-11-25
+
+### Cambiado
+
+- El libro se escribe junto al programa en lugar del escritorio, para que cada
+  usuario lo tenga en un sitio predecible. `--output` y la clave `output` de
+  `data/config.json` siguen permitiendo cambiarlo.
+- El nombre por defecto del libro es ahora `Game inventory GB per hour.xlsx`.
+
 ## [1.0.1] - 2026-11-24
 
 ### Cambiado

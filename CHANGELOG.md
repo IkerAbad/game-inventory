@@ -2,6 +2,15 @@
 
 All notable changes to this project. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses semantic versioning.
 
+## [1.0.2] - 2026-11-25
+
+### Changed
+
+- The workbook is written next to the program instead of the desktop, so every
+  user has it in a predictable place. `--output` and the `output` key in
+  `data/config.json` still override it.
+- The default workbook name is now `Game inventory GB per hour.xlsx`.
+
 ## [1.0.1] - 2026-11-24
 
 ### Changed

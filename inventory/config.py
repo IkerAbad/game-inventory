@@ -48,17 +48,10 @@ HISTORY_CSV = os.path.join(DATA_DIR, "history.csv")
 WISHLIST_JSON = os.path.join(DATA_DIR, "wishlist.json")
 
 
-def _desktop():
-    """User desktop, following the OneDrive redirect when it exists."""
-    home = os.path.expanduser("~")
-    for folder in (os.path.join(home, "Desktop"), os.path.join(home, "OneDrive", "Desktop")):
-        if os.path.isdir(folder):
-            return folder
-    return os.path.join(home, "Desktop")
-
-
 # Kept under the original Spanish name so the existing workbook is updated in place.
-OUTPUT = os.path.join(_desktop(), "Juegos", "Inventario games GB por hora.xlsx")
+# The workbook lives next to the program, so every user has it in a predictable
+# place. `--output` or the "output" key in data/config.json can move it.
+OUTPUT = os.path.join(BASE_DIR, "Game inventory GB per hour.xlsx")
 
 # Optional overrides: data/config.json with "libraries", "loose_paths",
 # "exclude" and "output". Missing or invalid values keep the defaults below.

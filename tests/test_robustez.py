@@ -19,8 +19,8 @@ if ROOT not in sys.path:
 from inventory import excel
 from inventory.cli import (_bad_metadata, _hours_key_problems, _names,
                            _stale_keys, inside_data)
-from inventory.config import (DATA_DIR, EXCLUDE, LIBRARIES, LOOSE_PATHS, OUTPUT,
-                              USER_AGENT, _apply_config, _data_root, _desktop,
+from inventory.config import (BASE_DIR, DATA_DIR, EXCLUDE, LIBRARIES, LOOSE_PATHS,
+                              OUTPUT, USER_AGENT, _apply_config, _data_root,
                               _read_config)
 from inventory.i18n import set_lang
 from inventory.data import (_save_json, _same, clean_hours, write_atomic, write_hours,
@@ -740,10 +740,9 @@ class ConfigTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             self.assertEqual(_data_root(d, "elsewhere"), "elsewhere")
 
-    def test_desktop_fallback(self):
-        with mock.patch("inventory.config.os.path.isdir", return_value=False):
-            desktop = _desktop()
-        self.assertEqual(os.path.basename(desktop), "Desktop")
+    def test_workbook_defaults_next_to_the_program(self):
+        self.assertEqual(os.path.dirname(OUTPUT), BASE_DIR)
+        self.assertTrue(OUTPUT.endswith(".xlsx"))
 
     def test_user_agent_uses_the_package_version(self):
         from inventory import __version__
